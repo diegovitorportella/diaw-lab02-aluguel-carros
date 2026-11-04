@@ -2,7 +2,7 @@
 
 Este documento apresenta as interfaces principais do sistema, projetadas para atender aos requisitos de gestão de locação e avaliação de crédito.
 
-**Link do Protótipo:** [Acessar Projeto no Figma](COLE_SEU_LINK_AQUI)
+**Link do Protótipo:** [Acessar Projeto no Figma](https://www.figma.com/make/5kRALrPP00TVaS4spzTls3/Car-Rental-Financing-System?t=f2NcPNTKBJAmMOxK-1)
 
 ### 1. Tela de Login
 Interface de autenticação obrigatória, garantindo o acesso restrito a clientes e agentes cadastrados.
