@@ -4,7 +4,7 @@ import Icon from "../components/Icon";
 import TextInput from "../components/TextInput";
 import { api } from "../services/api";
 
-export default function FinancialReview() {
+export default function FinancialReview({ user }: { user?: any }) {
   const [pedidos, setPedidos] = useState<any[]>([]);
   const [selected, setSelected] = useState<any | null>(null);
   const [decision, setDecision] = useState<"approve" | "reject">("approve");
@@ -12,6 +12,40 @@ export default function FinancialReview() {
 
   const [valorFinanciado, setValorFinanciado] = useState("");
   const [taxaJuros, setTaxaJuros] = useState("");
+
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
+  const [observacao, setObservacao] = useState("");
+  const [erro, setErro] = useState("");
+  const [aviso, setAviso] = useState("");
+  const isBanco = user?.tipo === "BANCO";
+
+  const selecionar = (pedido: any | null) => {
+    setSelected(pedido);
+    setDataInicio(pedido?.dataInicio ?? "");
+    setDataFim(pedido?.dataFim ?? "");
+    setObservacao(pedido?.observacao ?? "");
+    setErro("");
+    setAviso("");
+  };
+
+  const salvarAlteracoes = async () => {
+    if (!selected || !user) return;
+    setErro(""); setAviso("");
+    try {
+      const atualizado = await api.modificarPedido(selected.id, user.id, {
+        automovel: { id: selected.automovel?.id },
+        dataInicio: dataInicio || null,
+        dataFim: dataFim || null,
+        observacao: observacao || null,
+      });
+      setSelected(atualizado);
+      setAviso("Pedido modificado com sucesso.");
+      carregarPedidos();
+    } catch (err: any) {
+      setErro(err.message);
+    }
+  };
 
   useEffect(() => {
     carregarPedidos();
@@ -27,28 +61,29 @@ export default function FinancialReview() {
   };
 
   const submitDecision = async () => {
-    if (!selected) return;
+    if (!selected || !user) return;
+    setErro(""); setAviso("");
     try {
       const parecer = decision === "approve" ? "POSITIVO" : "NEGATIVO";
-      
-      await api.avaliarPedido(selected.id, parecer);
-      
-      if (parecer === "POSITIVO" && valorFinanciado) {
-         const contrato = {
-            valorFinanciado: parseFloat(valorFinanciado),
-            taxaJuros: parseFloat(taxaJuros)
-         };
-         await api.gerarContrato(selected.id, contrato);
+      await api.avaliarPedido(selected.id, parecer, user.id);
+
+      if (parecer === "POSITIVO" && valorFinanciado && isBanco) {
+        await api.gerarContrato(selected.id, {
+          valorFinanciado: parseFloat(valorFinanciado),
+          taxaJuros: parseFloat(taxaJuros),
+          bancoId: user.id,
+        });
       }
 
       setSubmitted(true);
+      setValorFinanciado(""); setTaxaJuros("");
       setTimeout(() => {
         setSubmitted(false);
-        setSelected(null);
+        selecionar(null);
         carregarPedidos();
       }, 2000);
-    } catch (err) {
-      console.error("Erro ao submeter decisão", err);
+    } catch (err: any) {
+      setErro(err.message);
     }
   };
 
@@ -79,7 +114,7 @@ export default function FinancialReview() {
               {pedidos.map((row) => (
                 <tr
                   key={row.id}
-                  onClick={() => setSelected(row)}
+                  onClick={() => selecionar(row)}
                   className={`cursor-pointer text-sm transition hover:bg-blue-50/50 ${
                     selected?.id === row.id ? "bg-blue-50/70" : "bg-white"
                   }`}
@@ -100,14 +135,14 @@ export default function FinancialReview() {
 
       {selected && (
         <>
-          <button className="fixed inset-0 z-40 bg-slate-950/25 backdrop-blur-[2px]" onClick={() => setSelected(null)} />
+          <button className="fixed inset-0 z-40 bg-slate-950/25 backdrop-blur-[2px]" onClick={() => selecionar(null)} />
           <aside className="fixed inset-y-0 right-0 z-50 w-full max-w-127.5 overflow-y-auto bg-white shadow-2xl">
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 px-6 py-5 backdrop-blur">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-blue-600">REQ-{selected.id}</p>
                 <h2 className="mt-1 text-xl font-semibold">Analisar solicitação</h2>
               </div>
-              <button onClick={() => setSelected(null)} className="header-button"><Icon name="close" /></button>
+              <button onClick={() => selecionar(null)} className="header-button"><Icon name="close" /></button>
             </div>
             
             <div className="space-y-7 p-6">
@@ -117,6 +152,19 @@ export default function FinancialReview() {
                 </div>
               )}
               
+              {erro && <div className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-800">{erro}</div>}
+              {aviso && <div className="rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-800">{aviso}</div>}
+
+              <div>
+                <h3 className="panel-title">Modificar pedido</h3>
+                <div className="mt-4 grid grid-cols-2 gap-4">
+                  <TextInput label="Data inicial" type="date" value={dataInicio} onChange={e => setDataInicio(e.target.value)} />
+                  <TextInput label="Data final" type="date" value={dataFim} onChange={e => setDataFim(e.target.value)} />
+                  <TextInput label="Observação" value={observacao} onChange={e => setObservacao(e.target.value)} wide />
+                </div>
+                <button onClick={salvarAlteracoes} className="button-secondary mt-4">Salvar alterações</button>
+              </div>
+
               <div>
                 <h3 className="panel-title">Análise financeira</h3>
                 <div className="mt-4 grid grid-cols-2 gap-3">
@@ -131,7 +179,7 @@ export default function FinancialReview() {
                 </div>
               </div>
 
-              {decision === "approve" && (
+              {decision === "approve" && isBanco && (
                 <div className="rounded-2xl border border-blue-100 bg-blue-50/40 p-5">
                   <div className="mb-5 flex items-center gap-3">
                     <span className="grid h-9 w-9 place-items-center rounded-lg bg-blue-600 text-white"><Icon name="file" className="h-4 w-4" /></span>
