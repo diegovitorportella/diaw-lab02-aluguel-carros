@@ -29,7 +29,7 @@ export default function App() {
       ) : screen === "review" ? (
         <FinancialReview />
       ) : (
-        <Requests />
+        <Requests user={user} />
       )}
     </Shell>
   );

@@ -2,12 +2,15 @@ import { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Icon from "../components/Icon";
 import StatusBadge from "../components/StatusBadge";
+import TextInput from "../components/TextInput";
 import { api } from "../services/api";
 import type { Status } from "../components/StatusBadge";
 
-export default function Requests() {
+export default function Requests({ user }: { user?: any }) {
   const [pedidos, setPedidos] = useState<any[]>([]);
-  const [filter, setFilter] = useState<"All" | Status | string>("All");
+  const [filter, setFilter] = useState<"Todos" | Status | string>("Todos");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [carroId, setCarroId] = useState("");
 
   useEffect(() => {
     carregarPedidos();
@@ -16,30 +19,48 @@ export default function Requests() {
   const carregarPedidos = async () => {
     try {
       const dados = await api.listarPedidos();
-      setPedidos(dados);
+      // Mostra apenas os pedidos do cliente logado
+      const meusPedidos = user ? dados.filter((p: any) => p.cliente?.id === user.id) : dados;
+      setPedidos(meusPedidos);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const filtered = filter === "All" ? pedidos : pedidos.filter((p) => p.status === filter);
+  const criarPedido = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return alert("Você precisa estar logado como cliente!");
+    try {
+      await api.criarPedido({
+        cliente: { id: user.id },
+        automovel: { id: parseInt(carroId) }
+      });
+      setIsModalOpen(false);
+      setCarroId("");
+      carregarPedidos();
+    } catch (err) {
+      alert("Erro ao criar pedido. Verifique se o ID do veículo existe.");
+    }
+  };
+
+  const filtered = filter === "Todos" ? pedidos : pedidos.filter((p) => p.status === filter);
 
   return (
     <div className="page-wrap">
       <Header
-        eyebrow="Client portal"
-        title="My rental requests"
-        description="Track your applications and manage your vehicle requests."
+        eyebrow="Portal do Cliente"
+        title="Meus pedidos de aluguel"
+        description="Acompanhe suas solicitações e gerencie seus pedidos de veículos."
         action={
-          <button className="button-primary">
+          <button onClick={() => setIsModalOpen(true)} className="button-primary">
             <Icon name="plus" className="h-4 w-4" />
-            Create new request
+            Criar novo pedido
           </button>
         }
       />
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div className="flex gap-1 rounded-xl bg-slate-200/70 p-1">
-          {(["All", "PENDENTE", "APROVADO", "REJEITADO"]).map((item) => (
+          {(["Todos", "PENDENTE", "APROVADO", "REJEITADO"]).map((item) => (
             <button
               onClick={() => setFilter(item)}
               key={item}
@@ -52,7 +73,7 @@ export default function Requests() {
           ))}
         </div>
         <p className="text-sm text-slate-500">
-          Showing <b className="text-slate-800">{filtered.length}</b> requests
+          Exibindo <b className="text-slate-800">{filtered.length}</b> solicitações
         </p>
       </div>
       
@@ -63,7 +84,8 @@ export default function Requests() {
       <section className="grid gap-6 xl:grid-cols-3">
         {filtered.map((pedido) => (
           <article key={pedido.id} className="card group overflow-hidden">
-            <div className="relative h-52 overflow-hidden bg-slate-900">
+            <div className="relative h-52 overflow-hidden bg-slate-900 flex items-center justify-center">
+              <Icon name="car" className="h-20 w-20 text-slate-700" />
               <div className="absolute left-4 top-4">
                 <StatusBadge status={pedido.status} />
               </div>
@@ -81,13 +103,11 @@ export default function Requests() {
               </div>
               <div className="my-5 grid grid-cols-2 divide-x divide-slate-200 border-y border-slate-100 py-4">
                 <div>
-                  <p className="text-xs text-slate-400">Client ID</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-700">
-                    {pedido.cliente?.id}
-                  </p>
+                  <p className="text-xs text-slate-400">ID do Pedido</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-700">REQ-{pedido.id}</p>
                 </div>
                 <div className="pl-4">
-                  <p className="text-xs text-slate-400">Financial Review</p>
+                  <p className="text-xs text-slate-400">Análise Financeira</p>
                   <p className="mt-1 text-sm font-semibold text-slate-700">
                     {pedido.parecerFinanceiro || "Aguardando"}
                   </p>
@@ -97,6 +117,28 @@ export default function Requests() {
           </article>
         ))}
       </section>
+
+      {/* Modal de Criação de Pedido */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 backdrop-blur-sm px-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+              <h3 className="font-semibold text-lg text-slate-900">Solicitar Veículo</h3>
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <Icon name="close" />
+              </button>
+            </div>
+            <form onSubmit={criarPedido} className="p-6">
+              <p className="text-sm text-slate-500 mb-4">Insira o ID do veículo que deseja alugar (Ex: 1). Você poderá gerenciar os veículos na aba Veículos em breve.</p>
+              <TextInput label="ID do Automóvel" value={carroId} onChange={(e) => setCarroId(e.target.value)} required placeholder="Ex: 1" />
+              <div className="mt-6 flex justify-end gap-3">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="button-secondary">Cancelar</button>
+                <button type="submit" className="button-primary">Confirmar Pedido</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

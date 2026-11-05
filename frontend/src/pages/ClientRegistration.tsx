@@ -10,7 +10,6 @@ export default function ClientRegistration() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
 
-  // States dos campos do Cliente
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
   const [login, setLogin] = useState("");
@@ -46,7 +45,7 @@ export default function ClientRegistration() {
       setSaved(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
-      setError("Erro ao salvar perfil do cliente. Verifique se o login já existe e se há no máximo 3 rendimentos.");
+      setError("Erro ao salvar perfil. Verifique se o login já existe e se há no máximo 3 rendimentos.");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
@@ -54,16 +53,16 @@ export default function ClientRegistration() {
   return (
     <div className="page-wrap">
       <Header
-        eyebrow="Customer management"
-        title="Register a new client"
-        description="Create a complete profile for rental and credit analysis."
+        eyebrow="Gestão de Clientes"
+        title="Cadastrar novo cliente"
+        description="Crie um perfil completo para locação e análise de crédito."
       />
       {saved && (
         <div className="mb-6 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-800">
           <span className="grid h-7 w-7 place-items-center rounded-full bg-emerald-500 text-white">
             <Icon name="check" className="h-4 w-4" />
           </span>
-          Client profile saved successfully.
+          Perfil do cliente salvo com sucesso.
         </div>
       )}
       {error && (
@@ -76,15 +75,15 @@ export default function ClientRegistration() {
           <div className="mb-7 flex items-start gap-4">
             <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-blue-50 text-xs font-bold text-blue-600">01</span>
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">Personal details & Access</h2>
+              <h2 className="text-lg font-semibold text-slate-950">Dados Pessoais e Acesso</h2>
             </div>
           </div>
           <div className="form-grid">
-            <TextInput label="Full name" value={nome} onChange={e => setNome(e.target.value)} required wide />
+            <TextInput label="Nome completo" value={nome} onChange={e => setNome(e.target.value)} required wide />
             <TextInput label="CPF" value={cpf} onChange={e => setCpf(e.target.value)} required />
-            <TextInput label="Profession" value={profissao} onChange={e => setProfissao(e.target.value)} required />
-            <TextInput label="Login (Username)" value={login} onChange={e => setLogin(e.target.value)} required />
-            <TextInput label="Password" type="password" value={senha} onChange={e => setSenha(e.target.value)} required />
+            <TextInput label="Profissão" value={profissao} onChange={e => setProfissao(e.target.value)} required />
+            <TextInput label="Login (Usuário)" value={login} onChange={e => setLogin(e.target.value)} required />
+            <TextInput label="Senha" type="password" value={senha} onChange={e => setSenha(e.target.value)} required />
           </div>
         </section>
 
@@ -93,19 +92,19 @@ export default function ClientRegistration() {
             <div className="mb-7 flex items-start gap-4">
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-blue-50 text-xs font-bold text-blue-600">02</span>
               <div>
-                <h2 className="text-lg font-semibold text-slate-950">Income sources</h2>
-                <p className="mt-1 text-sm text-slate-500">Add up to 3 employers or income sources</p>
+                <h2 className="text-lg font-semibold text-slate-950">Fontes de Renda</h2>
+                <p className="mt-1 text-sm text-slate-500">Adicione até 3 empregadores ou fontes de renda.</p>
               </div>
             </div>
             <button type="button" onClick={addIncome} disabled={incomes.length === 3} className="button-secondary shrink-0 disabled:cursor-not-allowed disabled:opacity-40">
-              <Icon name="plus" className="h-4 w-4" /> Add income source
+              <Icon name="plus" className="h-4 w-4" /> Adicionar fonte de renda
             </button>
           </div>
           <div className="mt-2 space-y-4">
             {incomes.map((income, i) => (
               <div key={i} className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
                 <div className="mb-4 flex items-center justify-between">
-                  <p className="text-sm font-bold text-slate-800">Income source {i + 1}</p>
+                  <p className="text-sm font-bold text-slate-800">Fonte de renda {i + 1}</p>
                   {incomes.length > 1 && (
                     <button type="button" onClick={() => removeIncome(i)} className="text-slate-400 hover:text-red-500">
                       <Icon name="trash" className="h-4 w-4" />
@@ -113,8 +112,8 @@ export default function ClientRegistration() {
                   )}
                 </div>
                 <div className="grid gap-5 md:grid-cols-2">
-                  <TextInput label="Employer / Company" value={income.employer} onChange={e => updateIncome(i, "employer", e.target.value)} />
-                  <TextInput label="Monthly salary" value={income.salary} onChange={e => updateIncome(i, "salary", e.target.value)} placeholder="8200.00" />
+                  <TextInput label="Empregador / Empresa" value={income.employer} onChange={e => updateIncome(i, "employer", e.target.value)} />
+                  <TextInput label="Rendimento mensal (R$)" value={income.salary} onChange={e => updateIncome(i, "salary", e.target.value)} placeholder="8200.00" />
                 </div>
               </div>
             ))}
@@ -123,7 +122,7 @@ export default function ClientRegistration() {
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button type="submit" className="button-primary justify-center">
             <Icon name="check" className="h-4 w-4" />
-            Save client profile
+            Salvar perfil do cliente
           </button>
         </div>
       </form>

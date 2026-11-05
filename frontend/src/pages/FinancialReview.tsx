@@ -10,7 +10,6 @@ export default function FinancialReview() {
   const [decision, setDecision] = useState<"approve" | "reject">("approve");
   const [submitted, setSubmitted] = useState(false);
 
-  // Campos para Contrato de Crédito (Bancos)
   const [valorFinanciado, setValorFinanciado] = useState("");
   const [taxaJuros, setTaxaJuros] = useState("");
 
@@ -32,10 +31,8 @@ export default function FinancialReview() {
     try {
       const parecer = decision === "approve" ? "POSITIVO" : "NEGATIVO";
       
-      // 1. Avalia o Pedido
       await api.avaliarPedido(selected.id, parecer);
       
-      // 2. Se for Aprovado e tiver valor financiado, gera o Contrato
       if (parecer === "POSITIVO" && valorFinanciado) {
          const contrato = {
             valorFinanciado: parseFloat(valorFinanciado),
@@ -58,9 +55,9 @@ export default function FinancialReview() {
   return (
     <div className="page-wrap max-w-none">
       <Header
-        eyebrow="Credit operations"
-        title="Financial review"
-        description="Analyze pending applications and issue credit decisions."
+        eyebrow="Operações de Crédito"
+        title="Análise financeira"
+        description="Analise solicitações pendentes e emita decisões de crédito."
       />
       
       <section className="card overflow-hidden mt-6">
@@ -68,10 +65,10 @@ export default function FinancialReview() {
           <table className="w-full min-w-215 text-left">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                <th className="px-6 py-4">Client ID / Name</th>
-                <th>Vehicle Model</th>
+                <th className="px-6 py-4">ID / Nome do Cliente</th>
+                <th>Modelo do Veículo</th>
                 <th>Status</th>
-                <th>Review</th>
+                <th>Parecer</th>
                 <th />
               </tr>
             </thead>
@@ -108,7 +105,7 @@ export default function FinancialReview() {
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 px-6 py-5 backdrop-blur">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-blue-600">REQ-{selected.id}</p>
-                <h2 className="mt-1 text-xl font-semibold">Review application</h2>
+                <h2 className="mt-1 text-xl font-semibold">Analisar solicitação</h2>
               </div>
               <button onClick={() => setSelected(null)} className="header-button"><Icon name="close" /></button>
             </div>
@@ -116,20 +113,20 @@ export default function FinancialReview() {
             <div className="space-y-7 p-6">
               {submitted && (
                 <div className="flex items-center gap-3 rounded-xl bg-emerald-50 p-4 text-sm font-semibold text-emerald-800">
-                  <Icon name="check" className="h-5 w-5" /> Decision submitted successfully
+                  <Icon name="check" className="h-5 w-5" /> Decisão enviada com sucesso
                 </div>
               )}
               
               <div>
-                <h3 className="panel-title">Financial review</h3>
+                <h3 className="panel-title">Análise financeira</h3>
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   <button onClick={() => setDecision("approve")} className={`decision ${decision === "approve" ? "approve" : ""}`}>
                     <span className="decision-icon"><Icon name="check" /></span>
-                    <span><b>Approve</b><small>Eligible for credit</small></span>
+                    <span><b>Aprovar</b><small>Elegível para crédito</small></span>
                   </button>
                   <button onClick={() => setDecision("reject")} className={`decision ${decision === "reject" ? "reject" : ""}`}>
                     <span className="decision-icon"><Icon name="close" /></span>
-                    <span><b>Reject</b><small>Decline request</small></span>
+                    <span><b>Rejeitar</b><small>Recusar pedido</small></span>
                   </button>
                 </div>
               </div>
@@ -139,20 +136,20 @@ export default function FinancialReview() {
                   <div className="mb-5 flex items-center gap-3">
                     <span className="grid h-9 w-9 place-items-center rounded-lg bg-blue-600 text-white"><Icon name="file" className="h-4 w-4" /></span>
                     <div>
-                      <h3 className="font-semibold text-slate-950">Credit contract</h3>
-                      <p className="text-xs text-slate-500">Bank agent configuration</p>
+                      <h3 className="font-semibold text-slate-950">Contrato de crédito</h3>
+                      <p className="text-xs text-slate-500">Configuração do agente bancário</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <TextInput label="Financed amount" value={valorFinanciado} onChange={e => setValorFinanciado(e.target.value)} placeholder="38900.00" />
-                    <TextInput label="Interest rate (p.a.)" value={taxaJuros} onChange={e => setTaxaJuros(e.target.value)} placeholder="8.75" />
+                    <TextInput label="Valor financiado" value={valorFinanciado} onChange={e => setValorFinanciado(e.target.value)} placeholder="Ex: 38900.00" />
+                    <TextInput label="Taxa de juros (a.a.)" value={taxaJuros} onChange={e => setTaxaJuros(e.target.value)} placeholder="Ex: 8.75" />
                   </div>
                 </div>
               )}
             </div>
             <div className="sticky bottom-0 flex gap-3 border-t border-slate-200 bg-white p-6">
               <button onClick={submitDecision} className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white ${decision === "approve" ? "bg-blue-600 hover:bg-blue-700" : "bg-red-600 hover:bg-red-700"}`}>
-                Submit decision <Icon name="chevron" className="h-4 w-4" />
+                Enviar decisão <Icon name="chevron" className="h-4 w-4" />
               </button>
             </div>
           </aside>
