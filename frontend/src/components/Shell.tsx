@@ -17,15 +17,18 @@ export default function Shell({
   onLogout?: () => void;
   children: ReactNode;
 }) {
-  const nav = [
+  const todos = [
     ["requests", "grid", "Meus pedidos"],
     ["clients", "users", "Clientes"],
     ["review", "file", "Análise financeira"],
   ] as const;
+  // Clientes não acessam a análise financeira; agentes não têm "Meus pedidos".
+  const nav = todos.filter(([id]) => (user?.tipo === "CLIENTE" ? id !== "review" : id !== "requests"));
 
   const nomeUsuario = user?.nome || user?.login || "Usuário";
   const iniciais = nomeUsuario.substring(0, 2).toUpperCase();
-  const tipoConta = user?.profissao ? "Conta Cliente" : "Conta Agente";
+  const isCliente = user?.tipo === "CLIENTE";
+  const tipoConta = isCliente ? "Conta Cliente" : user?.tipo === "BANCO" ? "Conta Banco" : "Conta Empresa";
 
   return (
     <div className="min-h-screen bg-[#f6f8fb] text-slate-900">

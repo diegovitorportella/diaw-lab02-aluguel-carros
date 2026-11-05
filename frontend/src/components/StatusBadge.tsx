@@ -1,4 +1,4 @@
-export type Status = "Pending" | "Approved" | "Rejected" | "PENDENTE" | "APROVADO" | "REJEITADO";
+export type Status = "Pending" | "Approved" | "Rejected" | "PENDENTE" | "APROVADO" | "REJEITADO" | "CANCELADO";
 
 export default function StatusBadge({ status }: { status: Status | string }) {
   const isApproved = status === "Approved" || status === "APROVADO";
@@ -6,6 +6,8 @@ export default function StatusBadge({ status }: { status: Status | string }) {
 
   const classes = isApproved
     ? "bg-emerald-50 text-emerald-700 ring-emerald-600/15"
+    : status === "CANCELADO"
+    ? "bg-slate-100 text-slate-600 ring-slate-500/15"
     : isRejected
     ? "bg-red-50 text-red-700 ring-red-600/15"
     : "bg-amber-50 text-amber-700 ring-amber-600/15";

@@ -1,5 +1,17 @@
 const API_URL = 'http://localhost:8080/api';
 
+// Lança um Error com a mensagem { erro } devolvida pelo back-end (ou uma mensagem padrão).
+const falhar = async (response: Response, padrao: string): Promise<never> => {
+  let mensagem = padrao;
+  try {
+    const corpo = await response.json();
+    if (corpo?.erro) mensagem = corpo.erro;
+  } catch {
+    /* corpo vazio ou não-JSON */
+  }
+  throw new Error(mensagem);
+};
+
 export const api = {
   // --- AUTENTICAÇÃO ---
   login: async (credenciais: any) => {
@@ -19,7 +31,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cliente),
     });
-    if (!response.ok) throw new Error('Erro ao criar cliente');
+    if (!response.ok) return falhar(response, 'Erro ao criar cliente');
     return response.json();
   },
 
@@ -36,7 +48,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(pedido),
     });
-    if (!response.ok) throw new Error('Erro ao criar pedido');
+    if (!response.ok) return falhar(response, 'Erro ao criar pedido');
     return response.json();
   },
 
@@ -46,11 +58,29 @@ export const api = {
     return response.json();
   },
 
-  avaliarPedido: async (id: number, parecer: string) => {
-    const response = await fetch(`${API_URL}/pedidos/${id}/avaliar?parecer=${parecer}`, {
+  modificarPedido: async (id: number, usuarioId: number, dados: any) => {
+    const response = await fetch(`${API_URL}/pedidos/${id}?usuarioId=${usuarioId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados),
+    });
+    if (!response.ok) return falhar(response, 'Erro ao modificar pedido');
+    return response.json();
+  },
+
+  cancelarPedido: async (id: number, usuarioId: number) => {
+    const response = await fetch(`${API_URL}/pedidos/${id}/cancelar?usuarioId=${usuarioId}`, {
       method: 'PUT',
     });
-    if (!response.ok) throw new Error('Erro ao avaliar pedido');
+    if (!response.ok) return falhar(response, 'Erro ao cancelar pedido');
+    return response.json();
+  },
+
+  avaliarPedido: async (id: number, parecer: string, agenteId: number) => {
+    const response = await fetch(`${API_URL}/pedidos/${id}/avaliar?parecer=${parecer}&agenteId=${agenteId}`, {
+      method: 'PUT',
+    });
+    if (!response.ok) return falhar(response, 'Erro ao avaliar pedido');
     return response.json();
   },
 
@@ -61,7 +91,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(contratoCredito || {}),
     });
-    if (!response.ok) throw new Error('Erro ao gerar contrato');
+    if (!response.ok) return falhar(response, 'Erro ao gerar contrato');
     return response.json();
   },
 
@@ -72,7 +102,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(automovel),
     });
-    if (!response.ok) throw new Error('Erro ao criar automóvel');
+    if (!response.ok) return falhar(response, 'Erro ao criar automóvel');
     return response.json();
   },
 

@@ -13,7 +13,7 @@ export default function App() {
 
   const handleLogin = (userData: any) => {
     setUser(userData);
-    setScreen("requests");
+    setScreen(userData.tipo === "CLIENTE" ? "requests" : "review");
   };
 
   const handleLogout = () => {
@@ -28,7 +28,7 @@ export default function App() {
       {screen === "clients" ? (
         <ClientRegistration />
       ) : screen === "review" ? (
-        <FinancialReview />
+        <FinancialReview user={user} />
       ) : screen === "vehicles" ? (
         <Vehicles user={user} />
       ) : (
