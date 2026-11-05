@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import ClientRegistration from "./pages/ClientRegistration";
 import Requests from "./pages/Requests";
 import FinancialReview from "./pages/FinancialReview";
+import Vehicles from "./pages/Vehicles";
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>("login");
@@ -28,6 +29,8 @@ export default function App() {
         <ClientRegistration />
       ) : screen === "review" ? (
         <FinancialReview />
+      ) : screen === "vehicles" ? (
+        <Vehicles user={user} />
       ) : (
         <Requests user={user} />
       )}

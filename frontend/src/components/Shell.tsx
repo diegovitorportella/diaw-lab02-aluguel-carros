@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import Logo from "./Logo";
 import Icon from "./Icon";
 
-export type Screen = "login" | "clients" | "requests" | "review";
+export type Screen = "login" | "clients" | "requests" | "review" | "vehicles";
 
 export default function Shell({
   screen,
@@ -23,7 +23,6 @@ export default function Shell({
     ["review", "file", "Análise financeira"],
   ] as const;
 
-  // Pegamos o nome real ou usamos fallback
   const nomeUsuario = user?.nome || user?.login || "Usuário";
   const iniciais = nomeUsuario.substring(0, 2).toUpperCase();
   const tipoConta = user?.profissao ? "Conta Cliente" : "Conta Agente";
@@ -51,7 +50,10 @@ export default function Shell({
           <p className="px-3 pb-2 pt-7 text-[11px] font-bold uppercase tracking-[.16em] text-slate-400">
             Gerenciar
           </p>
-          <button className="nav-item">
+          <button 
+            className={`nav-item ${screen === "vehicles" ? "active" : ""}`} 
+            onClick={() => setScreen("vehicles")}
+          >
             <Icon name="car" />
             Veículos
           </button>
@@ -61,7 +63,6 @@ export default function Shell({
           </button>
         </nav>
         
-        {/* Perfil na Lateral */}
         <div className="mt-auto rounded-2xl bg-slate-950 p-4 text-white">
           <div className="flex items-center gap-3">
             <span className="avatar bg-blue-500">{iniciais}</span>
@@ -87,7 +88,6 @@ export default function Shell({
           </button>
           <span className="mx-2 hidden h-8 w-px bg-slate-200 sm:block" />
           
-          {/* Perfil no Header */}
           <button onClick={onLogout} title="Sair do sistema" className="flex items-center gap-3 rounded-xl p-1.5 hover:bg-slate-50 transition">
             <span className="avatar bg-blue-100 text-blue-700">{iniciais}</span>
             <span className="hidden text-left md:block">

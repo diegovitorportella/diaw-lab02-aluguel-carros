@@ -63,5 +63,22 @@ export const api = {
     });
     if (!response.ok) throw new Error('Erro ao gerar contrato');
     return response.json();
+  },
+
+  // --- AUTOMÓVEIS ---
+  criarAutomovel: async (automovel: any) => {
+    const response = await fetch(`${API_URL}/automoveis`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(automovel),
+    });
+    if (!response.ok) throw new Error('Erro ao criar automóvel');
+    return response.json();
+  },
+
+  listarAutomoveis: async () => {
+    const response = await fetch(`${API_URL}/automoveis`);
+    if (!response.ok) throw new Error('Erro ao buscar automóveis');
+    return response.json();
   }
 };
