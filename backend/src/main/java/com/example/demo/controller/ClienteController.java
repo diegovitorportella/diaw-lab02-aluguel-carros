@@ -18,11 +18,7 @@ public class ClienteController {
 
     @PostMapping
     public ResponseEntity<Cliente> criar(@RequestBody Cliente cliente) {
-        try {
-            return ResponseEntity.ok(service.salvar(cliente));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        return ResponseEntity.ok(service.salvar(cliente));
     }
 
     @GetMapping
