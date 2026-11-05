@@ -24,6 +24,9 @@ public class Cliente extends Usuario {
 
     public Cliente() {}
 
+    @Override
+    public String getTipo() { return "CLIENTE"; }
+
     public String getRg() { return rg; }
     public void setRg(String rg) { this.rg = rg; }
 

@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity
@@ -13,6 +14,7 @@ public abstract class Usuario {
     @Column(nullable = false, unique = true)
     private String login;
     
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(nullable = false)
     private String senha;
 
@@ -23,6 +25,10 @@ public abstract class Usuario {
 
     public String getLogin() { return login; }
     public void setLogin(String login) { this.login = login; }
+
+    /** Papel do usuário no sistema (CLIENTE, BANCO ou EMPRESA); exposto no JSON para o front-end. */
+    @JsonProperty(value = "tipo", access = JsonProperty.Access.READ_ONLY)
+    public abstract String getTipo();
 
     public String getSenha() { return senha; }
     public void setSenha(String senha) { this.senha = senha; }

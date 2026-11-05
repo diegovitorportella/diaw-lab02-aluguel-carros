@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
@@ -14,7 +15,8 @@ public class Contrato {
     private LocalDate dataAssinatura;
 
     @OneToOne
-    @JoinColumn(name = "pedido_id", nullable = false)
+    @JsonIgnoreProperties("contrato")
+    @JoinColumn(name = "pedido_id", nullable = false, unique = true)
     private PedidoAluguel pedidoAluguel;
 
     public Contrato() {}

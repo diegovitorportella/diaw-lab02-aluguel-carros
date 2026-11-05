@@ -1,6 +1,8 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 public class PedidoAluguel {
@@ -11,6 +13,9 @@ public class PedidoAluguel {
 
     private String status;
     private String parecerFinanceiro;
+    private LocalDate dataInicio;
+    private LocalDate dataFim;
+    private String observacao;
 
     @ManyToOne
     @JoinColumn(name = "cliente_id", nullable = false)
@@ -24,7 +29,8 @@ public class PedidoAluguel {
     @JoinColumn(name = "agente_avaliador_id")
     private Agente agenteAvaliador;
 
-    @OneToOne(mappedBy = "pedidoAluguel", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "pedidoAluguel")
+    @JsonIgnoreProperties("pedidoAluguel")
     private Contrato contrato;
 
     public PedidoAluguel() {}
@@ -37,6 +43,15 @@ public class PedidoAluguel {
 
     public String getParecerFinanceiro() { return parecerFinanceiro; }
     public void setParecerFinanceiro(String parecerFinanceiro) { this.parecerFinanceiro = parecerFinanceiro; }
+
+    public LocalDate getDataInicio() { return dataInicio; }
+    public void setDataInicio(LocalDate dataInicio) { this.dataInicio = dataInicio; }
+
+    public LocalDate getDataFim() { return dataFim; }
+    public void setDataFim(LocalDate dataFim) { this.dataFim = dataFim; }
+
+    public String getObservacao() { return observacao; }
+    public void setObservacao(String observacao) { this.observacao = observacao; }
 
     public Cliente getCliente() { return cliente; }
     public void setCliente(Cliente cliente) { this.cliente = cliente; }
