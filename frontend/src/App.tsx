@@ -8,11 +8,22 @@ import FinancialReview from "./pages/FinancialReview";
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>("login");
+  const [user, setUser] = useState<any>(null);
 
-  if (screen === "login") return <Login onLogin={() => setScreen("requests")} />;
+  const handleLogin = (userData: any) => {
+    setUser(userData);
+    setScreen("requests");
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setScreen("login");
+  };
+
+  if (screen === "login") return <Login onLogin={handleLogin} />;
 
   return (
-    <Shell screen={screen} setScreen={setScreen}>
+    <Shell screen={screen} setScreen={setScreen} user={user} onLogout={handleLogout}>
       {screen === "clients" ? (
         <ClientRegistration />
       ) : screen === "review" ? (
