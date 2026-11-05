@@ -30,7 +30,7 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
           alt="Red premium vehicle in a dark showroom"
           className="absolute inset-0 h-full w-full object-cover opacity-55"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-950/95 via-blue-950/55 to-slate-950/80" />
+        <div className="absolute inset-0 bg-linear-to-br from-slate-950/95 via-blue-950/55 to-slate-950/80" />
         <div className="relative z-10">
           <Logo light />
         </div>

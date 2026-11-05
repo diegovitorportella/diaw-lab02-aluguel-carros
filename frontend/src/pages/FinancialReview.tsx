@@ -65,7 +65,7 @@ export default function FinancialReview() {
       
       <section className="card overflow-hidden mt-6">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[860px] text-left">
+          <table className="w-full min-w-215 text-left">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                 <th className="px-6 py-4">Client ID / Name</th>
@@ -104,7 +104,7 @@ export default function FinancialReview() {
       {selected && (
         <>
           <button className="fixed inset-0 z-40 bg-slate-950/25 backdrop-blur-[2px]" onClick={() => setSelected(null)} />
-          <aside className="fixed inset-y-0 right-0 z-50 w-full max-w-[510px] overflow-y-auto bg-white shadow-2xl">
+          <aside className="fixed inset-y-0 right-0 z-50 w-full max-w-127.5 overflow-y-auto bg-white shadow-2xl">
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 px-6 py-5 backdrop-blur">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-blue-600">REQ-{selected.id}</p>
