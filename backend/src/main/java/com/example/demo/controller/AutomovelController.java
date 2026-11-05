@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.AutomovelDTO;
 import com.example.demo.model.Automovel;
 import com.example.demo.service.AutomovelService;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class AutomovelController {
     }
 
     @PostMapping
-    public ResponseEntity<Automovel> criar(@RequestBody Automovel automovel) {
+    public ResponseEntity<Automovel> criar(@RequestBody AutomovelDTO automovel) {
         return ResponseEntity.ok(service.salvar(automovel));
     }
 
