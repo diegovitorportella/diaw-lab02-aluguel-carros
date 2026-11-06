@@ -1,23 +1,22 @@
-<!-- Este template foi criado para servir como referência e pode ser facilmente adaptado para diferentes projetos de desenvolvimento -->
+<!-- Este README segue o template de referência do Prof. Dr. João Paulo Aramuni -->
 
 ---
 
-# 🏷️ Nome do Projeto 👨‍💻
+# 🚗 Sistema de Aluguel de Carros 👨‍💻
 
 > [!NOTE]
-> Breve descrição do projeto. **Foque no principal valor/benefício.**  
-> Crie uma **logo** para o projeto que represente a aplicação em questão.
+> Plataforma web para **gestão de aluguéis de automóveis**: clientes criam, modificam, consultam e cancelam pedidos; agentes (bancos e empresas) analisam financeiramente os pedidos e, no caso dos bancos, concedem o contrato de crédito.
 
 <table>
   <tr>
     <td width="800px">
       <div align="justify">
-        Este <b>README.md</b> apresenta um template organizado, ideal para servir como referência acadêmica e profissional em projetos de desenvolvimento, desde trabalhos da faculdade até projetos desenvolvidos para etapas técnicas de processos seletivos. Ele reúne as <i>seções essenciais</i> recomendadas pelo <a href="https://github.com/joaopauloaramuni">Prof. Dr. João Paulo Aramuni</a>, permitindo <i>organização clara</i>, <i>documentação eficiente</i> e <i>padronização</i> entre diferentes trabalhos. O objetivo deste esqueleto é <b>facilitar a construção de projetos bem documentados</b>, oferecendo um <i>guia completo</i> que inclui <b>boas práticas</b>, instruções de execução, tecnologias utilizadas, arquitetura, estruturas de pastas, testes, links úteis e orientações para colaboração. Esse template ajuda estudantes a desenvolverem <b>documentação de qualidade profissional</b> desde os primeiros períodos, promovendo <i>clareza</i>, <i>reprodutibilidade</i> e <i>padronização</i> nos projetos.
+        O <b>Sistema de Aluguel de Carros</b> foi desenvolvido para o <b>Laboratório 02</b> da disciplina de <i>Desenvolvimento e Integração de Aplicações Web (DIAW)</i>, do curso de <b>Engenharia de Software da PUC Minas</b>. Ele permite que <i>clientes</i> solicitem o aluguel de automóveis pela Internet e que <i>agentes</i> (empresas e bancos) avaliem esses pedidos do ponto de vista financeiro, modifiquem-nos durante a análise e, em caso de parecer positivo, executem o contrato, podendo associá-lo a um <b>contrato de crédito</b> concedido por um banco. O acesso é restrito a usuários cadastrados, mediante <b>login com usuário e senha</b>. O back-end é construído com <b>Spring Boot (arquitetura MVC)</b>, o front-end com <b>React + Vite</b> e a persistência usa <b>PostgreSQL hospedado no Supabase</b>.
       </div>
     </td>
     <td>
       <div>
-        <img src="https://joaopauloaramuni.github.io/image/logo_ES_vertical.png" alt="Logo do Projeto" width="120px"/>
+        <img src="https://joaopauloaramuni.github.io/image/logo_ES_vertical.png" alt="Logo Engenharia de Software PUC Minas" width="120px"/>
       </div>
     </td>
   </tr> 
@@ -27,16 +26,17 @@
 
 ## 🚧 Status do Projeto
 
-### Exemplos de badges básicos:
+🟡 **Protótipo funcional (Laboratório 02)** — autenticação, CRUD de clientes e de automóveis, gestão de pedidos (criar, modificar, cancelar, avaliar) e geração de contrato de crédito estão implementados.
 
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/joaopauloaramuni/joaopauloaramuni/main.yml?branch=main)](https://github.com/joaopauloaramuni/joaopauloaramuni/actions/workflows/main.yml)
-[![Test Coverage](https://codecov.io/gh/joaopauloaramuni/laboratorio-de-desenvolvimento-de-software/branch/main/graph/badge.svg)](https://codecov.io/gh/joaopauloaramuni/laboratorio-de-desenvolvimento-de-software)
-[![Versão](https://img.shields.io/badge/Versão-v1.0.0-blue)](https://github.com/joaopauloaramuni/laboratorio-de-desenvolvimento-de-software/releases)
-[![Licença](https://img.shields.io/github/license/joaopauloaramuni/laboratorio-de-desenvolvimento-de-software)](#licença)
+### Badges básicos:
 
-### Outros exemplos de badges:
+[![Repositório](https://img.shields.io/badge/GitHub-diaw--lab02--aluguel--carros-181717?logo=github)](https://github.com/diegovitorportella/diaw-lab02-aluguel-carros)
+[![Versão](https://img.shields.io/badge/Versão-v1.0.0-blue)](https://github.com/diegovitorportella/diaw-lab02-aluguel-carros)
+![Último commit](https://img.shields.io/github/last-commit/diegovitorportella/diaw-lab02-aluguel-carros)
 
-[![Versão](https://img.shields.io/badge/Versão-v1.0.0-blue?style=for-the-badge)](https://github.com/joaopauloaramuni/laboratorio-de-desenvolvimento-de-software/releases) ![React](https://img.shields.io/badge/React-19.1.1-007ec6?style=for-the-badge&logo=react&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-7.1.2-007ec6?style=for-the-badge&logo=vite&logoColor=white) ![Java](https://img.shields.io/badge/Java-17-007ec6?style=for-the-badge&logo=openjdk&logoColor=white) ![Maven](https://img.shields.io/badge/Maven-3.9.9-007ec6?style=for-the-badge&logo=apachemaven&logoColor=white) ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.3.5-007ec6?style=for-the-badge&logo=springboot&logoColor=white) ![Thymeleaf](https://img.shields.io/badge/Thymeleaf-3.1.1-007ec6?style=for-the-badge&logo=thymeleaf&logoColor=white) ![GitHub repo size](https://img.shields.io/github/repo-size/joaopauloaramuni/laboratorio-de-desenvolvimento-de-software?style=for-the-badge&logo=files) ![GitHub directory file count](https://img.shields.io/github/directory-file-count/joaopauloaramuni/laboratorio-de-desenvolvimento-de-software?style=for-the-badge&logo=files) ![GitHub stars](https://img.shields.io/github/stars/joaopauloaramuni/laboratorio-de-desenvolvimento-de-software?style=for-the-badge&logo=github) ![GitHub forks](https://img.shields.io/github/forks/joaopauloaramuni/laboratorio-de-desenvolvimento-de-software?style=for-the-badge&logo=git) ![GitHub language count](https://img.shields.io/github/languages/count/joaopauloaramuni/laboratorio-de-desenvolvimento-de-software?style=for-the-badge&logo=python) ![GitHub license](https://img.shields.io/github/license/joaopauloaramuni/laboratorio-de-desenvolvimento-de-software?style=for-the-badge&color=007ec6&logo=opensourceinitiative) ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/joaopauloaramuni/laboratorio-de-desenvolvimento-de-software?style=for-the-badge&color=007ec6&logo=gitkraken) ![GitHub last commit](https://img.shields.io/github/last-commit/joaopauloaramuni/laboratorio-de-desenvolvimento-de-software?style=for-the-badge&logo=clockify) ![Vercel](https://vercelbadge.vercel.app/api/joaopauloaramuni/joaopauloaramuni-portfolio?style=for-the-badge) ![Views Counter](https://views-counter.vercel.app/badge?pageId=https%3A%2F%2Fgithub%2Ecom%2Fjoaopauloaramuni%2Flaboratorio-de-desenvolvimento-de-software&leftColor=555555&rightColor=007ec6&type=total&label=RepoViews)
+### Stack:
+
+![React](https://img.shields.io/badge/React-19-007ec6?style=for-the-badge&logo=react&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-8-007ec6?style=for-the-badge&logo=vite&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-7-007ec6?style=for-the-badge&logo=typescript&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-007ec6?style=for-the-badge&logo=tailwindcss&logoColor=white) ![Java](https://img.shields.io/badge/Java-21-007ec6?style=for-the-badge&logo=openjdk&logoColor=white) ![Maven](https://img.shields.io/badge/Maven-Wrapper-007ec6?style=for-the-badge&logo=apachemaven&logoColor=white) ![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.9-007ec6?style=for-the-badge&logo=springboot&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-007ec6?style=for-the-badge&logo=supabase&logoColor=white)
 
 ---
 
@@ -46,28 +46,25 @@
 - [Funcionalidades Principais](#-funcionalidades-principais)
 - [Tecnologias Utilizadas](#-tecnologias-utilizadas)
 - [Arquitetura](#-arquitetura)
-  - [Exemplos de diagramas](#exemplos-de-diagramas)
+  - [Diagramas](#diagramas)
 - [Instalação e Execução](#-instalação-e-execução)
   - [Pré-requisitos](#pré-requisitos)
   - [Variáveis de Ambiente](#-variáveis-de-ambiente)
      - [1 Back-end (Spring Boot)](#1-back-end-spring-boot)
      - [2 Front-end (React, Vite)](#2-front-end-react-vite)
-     - [3 Exemplos de Variáveis de Ambiente na Vercel](#3-exemplos-de-variáveis-de-ambiente-na-vercel)
   - [Instalação de Dependências](#-instalação-de-dependências)
     - [Front-end (React)](#front-end-react)
     - [Back-end (Spring Boot)](#back-end-spring-boot)
-  - [Inicialização do Banco de Dados (PostgreSQL)](#-inicialização-do-banco-de-dados-postgresql)
+  - [Inicialização do Banco de Dados (PostgreSQL / Supabase)](#-inicialização-do-banco-de-dados-postgresql--supabase)
   - [Como Executar a Aplicação](#-como-executar-a-aplicação)
     - [Terminal 1: Back-end (Spring Boot)](#terminal-1-back-end-spring-boot)
     - [Terminal 2: Front-end (React, Vite)](#terminal-2-front-end-react-vite)
-    - [Execução Local Completa com Docker Compose (Incluindo Banco de Dados)](#-execução-local-completa-com-docker-compose-incluindo-banco-de-dados)
-    - [Passos para build, inicialização e execução](#-passos-para-build-inicialização-e-execução)
+    - [Contas de demonstração](#contas-de-demonstração)
 - [Deploy](#-deploy)
 - [Estrutura de Pastas](#-estrutura-de-pastas)
 - [Demonstração](#-demonstração)
-  - [Aplicativo Mobile](#-aplicativo-mobile)
   - [Aplicação Web](#-aplicação-web)
-  - [Exemplo de saída no Terminal (para Back-end, API, CLI)](#-exemplo-de-saída-no-terminal-para-back-end-api-cli)
+  - [Exemplo de saída no Terminal (API)](#-exemplo-de-saída-no-terminal-api)
 - [Testes](#-testes)
 - [Documentações utilizadas](#-documentações-utilizadas)
 - [Autores](#-autores)
@@ -78,595 +75,435 @@
 ---
 
 ## 🔗 Links Úteis
-* 🌐 **Demo Online:** [Acesse a Aplicação Web](<link-da-demo-web>)
-  > 💻 **Descrição:** Link para a aplicação em ambiente de produção (Ex: hospedado na Vercel, Netlify ou AWS S3).
-* 📱 **Download Mobile:** [App Store](<link-app-store>) | [Google Play](<link-google-play>) | [APK Direto](<link-para-apk-direto>)
-  > 📱 **Descrição:** Links diretos para download nas lojas de aplicativos (se aplicável) e para o arquivo de instalação direta no Android (APK).
-* 📖 **Documentação:** [Leia a Wiki/Docs](<link-para-docs>)
-  > 📚 **Descrição:** Acesso à documentação técnica completa do projeto (Ex: Swagger/OpenAPI para API, ou Wiki interna).
+* 🌐 **Repositório:** [diegovitorportella/diaw-lab02-aluguel-carros](https://github.com/diegovitorportella/diaw-lab02-aluguel-carros)
+  > 💻 **Descrição:** Código-fonte do back-end, do front-end e todas as versões dos modelos UML.
+* 🎨 **Protótipo de telas (Figma):** [Car Rental Financing System](https://www.figma.com/make/5kRALrPP00TVaS4spzTls3/Car-Rental-Financing-System?t=f2NcPNTKBJAmMOxK-1)
+  > 🖼️ **Descrição:** Protótipo visual que originou as telas do sistema. Detalhes em [`docs/prototipo.md`](./docs/prototipo.md).
+* 📖 **Documentação de modelagem:** pasta [`docs/`](./docs)
+  > 📚 **Descrição:** [Diagrama de Casos de Uso](./docs/Diagrama%20de%20Casos%20de%20Uso.pdf), [Diagrama de Classes](./docs/Diagrama%20de%20Classes.pdf), [Diagrama de Pacotes](./docs/Diagrama%20de%20Pacotes%20UML.pdf) e [Histórias de Usuário](./docs/historias_de_usuario.md).
+
+> A aplicação ainda não está publicada em ambiente de produção; ela é executada localmente (veja [Instalação e Execução](#-instalação-e-execução)).
 
 ---
 
 ## 📝 Sobre o Projeto
-Nesta seção, descreva de forma clara e objetiva **o propósito do seu projeto**, explicando:
 
-- **Por que ele existe** — qual motivação levou à sua criação.  
-- **Qual problema ele resolve** — que dor, necessidade ou oportunidade ele atende.  
-- **Qual o contexto** — acadêmico, profissional, pessoal, experimental, etc.  
-- **Onde ele pode ser utilizado** — cenários reais ou simulados.  
+**Por que existe:** o laboratório propõe o desenvolvimento de um sistema de apoio à gestão de aluguéis de automóveis que permita **efetuar, cancelar e modificar pedidos através da Internet**, integrando clientes, empresas e bancos.
 
-Procure responder perguntas como:
-- *Qual foi a ideia inicial do projeto?*
-- *O que ele entrega de valor ao usuário?*
-- *Por que alguém utilizaria ou contribuiria com esse projeto?*
-- *O que o torna relevante ou interessante?*
+**Qual problema resolve:** centraliza em um único sistema o ciclo de vida de um pedido de aluguel — da solicitação do cliente à análise financeira feita pelos agentes e à execução do contrato, com ou sem financiamento.
 
-Escreva de forma objetiva, mas completa, para que qualquer pessoa entenda rapidamente **o que é** e **por que importa**.
+**Contexto:** projeto **acadêmico** (PUC Minas — Engenharia de Software, disciplina DIAW, Prof. João Paulo Carneiro Aramuni), avaliado por: adequação aos requisitos, alinhamento entre modelos (classes e arquitetura) e código, e atualização dos modelos ao longo do projeto.
+
+**Como funciona:**
+- Só usuários **cadastrados e autenticados** utilizam o sistema.
+- **Clientes** introduzem, modificam, consultam e cancelam pedidos de aluguel. Seus dados incluem RG, CPF, nome, endereço, profissão e até **3 entidades empregadoras com os respectivos rendimentos**.
+- **Agentes** (empresas e bancos) avaliam financeiramente os pedidos, podem modificá-los durante a análise e, havendo parecer positivo, executam o contrato.
+- O aluguel pode estar associado a um **contrato de crédito**, concedido por um **banco** agente.
+- Os automóveis (matrícula, ano, marca, modelo, placa) pertencem a um proprietário que pode ser um **cliente, uma empresa ou um banco**.
 
 > [!NOTE]
-> Esta seção segue boas práticas de documentação profissional e deve ser ajustada conforme o tipo e o objetivo do seu projeto.
+> O sistema pode ser visto como dois subsistemas: **gestão de pedidos e contratos** (back-end/API) e **construção dinâmica das páginas web** (front-end React).
 
 ---
 
 ## ✨ Funcionalidades Principais
-Liste as funcionalidades de forma clara e objetiva.
 
-- 🔐 **Autenticação Segura:** Login, Cadastro e Recuperação de Senha.
-- 📈 **Painel de Controle:** Visualização de dados em tempo real com gráficos.
-- ⚙️ **Gerenciamento de CRUD:** Criação, Leitura, Atualização e Deleção de recursos (e.g., Usuários, Itens, Posts).
-- 📊 **Relatórios Exportáveis:** Exportação de dados em PDF, CSV ou Excel.
-- 🌐 **Internacionalização (i18n):** Suporte a múltiplos idiomas.
-- 🧵 **Logs e Monitoramento:** Registro detalhado de atividades e análise de desempenho.
-- 🔄 **Integração com APIs Externas:** Conexão com serviços de terceiros (pagamentos, mapas, autenticação, etc.).
-- 📨 **Sistema de Notificações:** Envio de alertas por e-mail, push ou notificações internas.
+- 🔐 **Autenticação:** login com usuário e senha; acesso restrito a usuários cadastrados. O perfil (`CLIENTE`, `BANCO` ou `EMPRESA`) define o que cada usuário vê no menu.
+- 👤 **CRUD de Clientes:** cadastro com dados de identificação, profissão, empregadores e rendimentos — **máximo de 3 rendimentos**, validado no back-end, e login único.
+- 🚘 **CRUD de Automóveis:** cadastro e listagem de veículos com matrícula, ano, marca, modelo, placa e proprietário (cliente, empresa ou banco).
+- 📋 **Gestão de Pedidos (Cliente):** criar, consultar o status, **modificar** (datas, observação, veículo) e **cancelar** pedidos ativos.
+- 🧾 **Gestão de Pedidos (Agente):** listar pedidos pendentes, **modificar** durante a análise e **avaliar** (parecer positivo → `APROVADO`, negativo → `REJEITADO`).
+- 🏦 **Contrato de Crédito:** o banco que aprova um pedido pode gerar o `ContratoCredito` (valor financiado e taxa de juros) vinculado a ele.
+- 🔔 **Notificações internas:** o sino do cabeçalho lista decisões sobre os pedidos do cliente ou pedidos aguardando análise para o agente.
+- ⚙️ **Configurações:** dados da conta e encerramento de sessão.
+- 🛡️ **Regras de negócio e tratamento de erros:** respostas JSON padronizadas (`400`, `403`, `404`, `409`) com a mensagem do erro.
+
+### Ciclo de vida de um pedido
+
+```
+PENDENTE ──(parecer POSITIVO)──▶ APROVADO ──(banco/empresa executa)──▶ Contrato
+    │                               │
+    ├──(parecer NEGATIVO)──▶ REJEITADO
+    └──(cliente cancela)───▶ CANCELADO  ◀──(cliente cancela, se ainda sem contrato)
+```
+
+- **Modificar:** somente enquanto `PENDENTE` (cliente dono ou qualquer agente).
+- **Cancelar:** somente o cliente dono, se `PENDENTE` ou `APROVADO` sem contrato.
+- **Avaliar:** somente agentes, somente pedidos `PENDENTE`.
 
 ---
 
 ## 🛠 Tecnologias Utilizadas
 
-As seguintes ferramentas, frameworks e bibliotecas foram utilizados na construção deste projeto. Recomenda-se o uso das versões listadas (ou superiores) para garantir a compatibilidade.
-
 ### 💻 Front-end
 
-* **Framework/Biblioteca:** [Ex: React v18, Vue.js v3, Angular v17]
-* **Linguagem/Superset:** [Ex: TypeScript, JavaScript ES6+]
-* **Estilização:** [Ex: Tailwind CSS, Sass, Styled Components, Material UI]
-* **Gerenciamento de Estado:** [Ex: Redux Toolkit, Zustand, Context API]
-* **Build Tool:** [Ex: Vite, Webpack]
+* **Framework/Biblioteca:** React 19
+* **Linguagem/Superset:** TypeScript
+* **Estilização:** Tailwind CSS v4
+* **Gerenciamento de Estado:** estado local com hooks (`useState`/`useEffect`)
+* **Comunicação com a API:** Fetch API (camada em `src/services/api.ts`)
+* **Build Tool:** Vite 8
 
 ### 🖥️ Back-end
 
-* **Linguagem/Runtime:** [Ex: Java 17 (JDK), Node.js v20, Python 3.11]
-* **Framework:** [Ex: Spring Boot 3.x, NestJS, Express, Django]
-* **Banco de Dados:** [Ex: PostgreSQL, MySQL, MongoDB]
-* **ORM / Query Builder:** [Ex: Hibernate/JPA, Prisma, TypeORM]
-* **Autenticação:** [Ex: JWT, OAuth2, Spring Security]
-
-### 📱 Mobile (Opcional)
-
-* **Framework:** [Ex: React Native, Flutter, Kotlin Multiplatform]
-* **Ferramentas:** [Ex: Expo, Android Studio, Xcode]
+* **Linguagem/Runtime:** Java 21 (JDK)
+* **Framework:** Spring Boot 4.0.9 (Spring Web MVC)
+* **Build e dependências:** Apache Maven (Maven Wrapper)
+* **Banco de Dados:** PostgreSQL hospedado no **Supabase**
+* **ORM:** Spring Data JPA / Hibernate (herança `JOINED`, `ddl-auto=update`)
+* **Autenticação:** login por usuário e senha (veja [limitações](#-arquitetura))
 
 ### ⚙️ Infraestrutura & DevOps
 
-* **Containerização:** [Ex: Docker, Docker Compose]
-* **Orquestração:** [Ex: Kubernetes (K8s)]
-* **Cloud:** [Ex: AWS (EC2, RDS, S3), Vercel, Heroku, Google Cloud]
-* **CI/CD:** [Ex: GitHub Actions, Jenkins, SonarQube]
+* **Banco gerenciado:** Supabase (PostgreSQL)
+* **Controle de versão:** Git + GitHub, commits no padrão Conventional Commits
 
 ---
 
 ## 🏗 Arquitetura
 
-Descreva aqui a **arquitetura completa do sistema**, explicando como as camadas, módulos e componentes foram organizados. Informe também **por que** essa arquitetura foi escolhida e **quais problemas ela ajuda a resolver**.
+O back-end segue a **arquitetura MVC em camadas** do Spring Boot; o front-end React consome a API REST por HTTP/JSON.
 
-Você pode incluir:
+```
+┌────────────────────┐   HTTP / JSON    ┌──────────────────────────────────────────┐   JDBC   ┌──────────────────┐
+│  Front-end (React) │ ───────────────▶ │            Back-end (Spring Boot)        │ ───────▶ │ PostgreSQL       │
+│  pages/components  │ ◀─────────────── │ Controller → Service → Repository → Model │ ◀─────── │ (Supabase)       │
+└────────────────────┘                  └──────────────────────────────────────────┘          └──────────────────┘
+```
 
-- **Visão geral da arquitetura** (ex.: camadas, módulos, microsserviços, monólito modular, hexagonal, MVC etc.)
-- **Principais componentes** e o papel de cada um
-- **Padrões de design adotados** (ex.: Repository, Service Layer, DTOs, Factory, Observer)
-- **Fluxo de dados** entre as partes do sistema
-- **Tecnologias utilizadas em cada camada**
-- **Decisões arquiteturais importantes**
-- **Trade-offs** ou limitações relevantes
+**Principais componentes (Visão Lógica / pacotes `com.example.demo`):**
 
-### Exemplos de diagramas
+| Pacote | Papel |
+| :--- | :--- |
+| `controller` | Endpoints REST (`/api/auth`, `/api/clientes`, `/api/automoveis`, `/api/pedidos`, `/api/contratos`). |
+| `service` | Regras de negócio (limite de 3 rendimentos, ciclo de vida do pedido, geração de contrato). |
+| `repository` | Acesso a dados com Spring Data JPA. |
+| `model` | Entidades JPA: `Usuario` (abstrata) → `Cliente`, `Agente` (abstrata) → `Banco`, `Empresa`; `Automovel`, `PedidoAluguel`, `Contrato` → `ContratoCredito`. |
+| `dto` | Objetos de transferência (`LoginDTO`, `AutomovelDTO`, `PedidoDTO`, `ContratoCreditoDTO`, `IdRefDTO`). |
+| `exception` | Exceções de negócio e `GlobalExceptionHandler` (respostas JSON de erro). |
+| `config` | CORS (`WebConfig`) e carga de agentes de demonstração (`DataInitializer`). |
 
-Para melhor visualização e entendimento da estrutura do sistema, os diagramas principais estão organizados lado a lado.
+**Padrões e decisões:**
+- **Herança `JOINED`** para `Usuario`/`Agente`/`Contrato`: um proprietário de automóvel ou um avaliador pode ser de tipos diferentes sem duplicar tabelas.
+- **DTOs na entrada:** referências a entidades chegam como `{ "id": n }` e o *service* busca a entidade real antes de associá-la (evita erro ao desserializar tipos abstratos como `Usuario`).
+- **Sem recursão no JSON:** a associação bidirecional `PedidoAluguel ↔ Contrato` usa `@JsonIgnoreProperties`; a senha é `WRITE_ONLY` e nunca sai na API.
+- **Campo `tipo`** exposto no usuário (`CLIENTE`/`BANCO`/`EMPRESA`) para o front-end decidir telas e permissões.
 
-| Diagrama de Arquitetura | Detalhe da Arquitetura |
-| :---: | :---: |
-| **Visão Geral (Macro)** | **Camada de Serviço (Micro)** |
-| <img src="https://joaopauloaramuni.github.io/image/aramunilogo.png" alt="Diagrama de Visão Geral do Sistema" width="120px" height="120px"> | <img src="https://joaopauloaramuni.github.io/image/aramunilogo.png" alt="Diagrama de Componentes ou Serviço X" width="120px" height="120px"> |
-| **Modelo de Dados (Entidades)** | **Fluxo de Autenticação** |
-| <img src="https://joaopauloaramuni.github.io/image/aramunilogo.png" alt="Diagrama de Entidade-Relacionamento (DER)" width="120px" height="120px"> | <img src="https://joaopauloaramuni.github.io/image/aramunilogo.png" alt="Diagrama de Sequência de Login" width="120px" height="120px"> |
-| **Infraestrutura (Cloud)** | **API Gateway (Rotas)** |
-| <img src="https://joaopauloaramuni.github.io/image/aramunilogo.png" alt="Diagrama de Deploy na AWS/Vercel" width="120px" height="120px"> | <img src="https://joaopauloaramuni.github.io/image/aramunilogo.png" alt="Mapa de Endpoints da API" width="120px" height="120px"> |
+> [!WARNING]
+> **Limitações conhecidas (escopo de laboratório):** não há token de sessão (JWT) — o front-end envia `usuarioId`/`agenteId` como parâmetro nas operações de pedido, e as **senhas são armazenadas em texto puro**. Para produção, o próximo passo é Spring Security + hash BCrypt + JWT.
+
+### Diagramas
+
+Os modelos UML produzidos ao longo do projeto ficam em [`docs/`](./docs):
+
+| Diagrama | Arquivo |
+| :--- | :--- |
+| Casos de Uso | [`Diagrama de Casos de Uso.pdf`](./docs/Diagrama%20de%20Casos%20de%20Uso.pdf) |
+| Classes | [`Diagrama de Classes.pdf`](./docs/Diagrama%20de%20Classes.pdf) |
+| Pacotes (Visão Lógica) | [`Diagrama de Pacotes UML.pdf`](./docs/Diagrama%20de%20Pacotes%20UML.pdf) |
+| Histórias de Usuário | [`historias_de_usuario.md`](./docs/historias_de_usuario.md) |
+
+Modelo de classes resumido, conforme implementado no código:
+
+```mermaid
+classDiagram
+    class Usuario { <<abstract>> Long id; String login; String senha }
+    class Cliente { rg; cpf; nome; endereco; profissao; entidadesEmpregadoras; rendimentosAuferidos }
+    class Agente { <<abstract>> cnpj; razaoSocial }
+    class Banco
+    class Empresa
+    class Automovel { matricula; ano; marca; modelo; placa }
+    class PedidoAluguel { status; parecerFinanceiro; dataInicio; dataFim; observacao }
+    class Contrato { dataAssinatura }
+    class ContratoCredito { valorFinanciado; taxaJuros }
+
+    Usuario <|-- Cliente
+    Usuario <|-- Agente
+    Agente <|-- Banco
+    Agente <|-- Empresa
+    Contrato <|-- ContratoCredito
+    Automovel "*" --> "1" Usuario : proprietario
+    PedidoAluguel "*" --> "1" Cliente
+    PedidoAluguel "*" --> "1" Automovel
+    PedidoAluguel "*" --> "0..1" Agente : avaliador
+    Contrato "1" --> "1" PedidoAluguel
+    ContratoCredito "*" --> "1" Banco
+```
+
+### API REST
+
+| Método | Rota | Descrição |
+| :--- | :--- | :--- |
+| `POST` | `/api/auth/login` | Autentica com `{ login, senha }` e devolve o usuário (com `tipo`). |
+| `POST` | `/api/clientes` | Cadastra cliente (valida máx. 3 rendimentos e login único). |
+| `GET` | `/api/clientes` | Lista clientes. |
+| `POST` | `/api/automoveis` | Cadastra automóvel com `proprietario: { id }`. |
+| `GET` | `/api/automoveis` | Lista automóveis. |
+| `POST` | `/api/pedidos` | Cria pedido (`PENDENTE`). |
+| `GET` | `/api/pedidos` | Lista pedidos. |
+| `PUT` | `/api/pedidos/{id}?usuarioId=` | Modifica pedido pendente (cliente dono ou agente). |
+| `PUT` | `/api/pedidos/{id}/cancelar?usuarioId=` | Cancela pedido (cliente dono). |
+| `PUT` | `/api/pedidos/{id}/avaliar?parecer=&agenteId=` | Avalia pedido (`POSITIVO`/`NEGATIVO`) — agentes. |
+| `POST` | `/api/contratos/gerar/{pedidoId}` | Executa contrato de pedido aprovado; com `{ valorFinanciado, taxaJuros, bancoId }` gera `ContratoCredito`. |
+| `GET` | `/api/contratos` | Lista contratos. |
 
 ---
 
 ## 🔧 Instalação e Execução
 
 ### Pré-requisitos
-Certifique-se de que o usuário tenha o ambiente configurado.
 
-* **Java JDK:** Versão **17** ou superior (Necessário para o **Back-end Spring Boot**)
-* **Node.js:** Versão LTS (v18.x ou superior) (Necessário para o **Front-end React**)
-* **Gerenciador de Pacotes:** npm ou yarn
-* **Docker** (Opcional, mas **altamente recomendado** para rodar o Banco de Dados)
+* **Java JDK:** versão **21** (definida no `pom.xml`) — back-end Spring Boot
+* **Node.js:** versão LTS (v20.x ou superior) — front-end React
+* **Gerenciador de Pacotes:** npm
+* **Conta no Supabase** (ou qualquer PostgreSQL acessível) para o banco de dados
+* Maven **não** precisa estar instalado: o projeto usa o **Maven Wrapper** (`mvnw`)
 
 ---
 
 ### 🔑 Variáveis de Ambiente
 
-Crie arquivos `.env` específicos e/ou configure as variáveis de ambiente no seu sistema para cada parte da aplicação.
-
 #### 1 Back-end (Spring Boot)
 
-Configure estas variáveis como **variáveis de ambiente do sistema** ou em um arquivo de configuração do Spring (ex: `application.properties`/`application.yml`).
+O back-end ativa o perfil `dev` (`spring.profiles.active=dev`) e lê as credenciais do banco de `backend/src/main/resources/application-dev.properties`. **Esse arquivo não é versionado** (está no `.gitignore`): crie-o localmente com os dados da sua conexão do Supabase (*Project Settings → Database → Connection string*).
 
-| Variável | Descrição | Exemplo |
+```properties
+# backend/src/main/resources/application-dev.properties  (NÃO VERSIONAR)
+spring.datasource.url=jdbc:postgresql://<host-do-supabase>:5432/postgres
+spring.datasource.username=<usuario>
+spring.datasource.password=<senha>
+spring.datasource.driver-class-name=org.postgresql.Driver
+```
+
+| Propriedade | Descrição | Exemplo |
 | :--- | :--- | :--- |
-| `SERVER_PORT` | Porta onde o Back-end será executado. | `8080` |
-| `SPRING_DATASOURCE_URL` | URL de conexão JDBC (PostgreSQL). | `jdbc:postgresql://localhost:5432/meubanco` |
-| `SPRING_DATASOURCE_USERNAME` | Usuário do banco de dados. | `postgres` |
-| `SPRING_DATASOURCE_PASSWORD` | Senha do banco de dados. | `senha-segura-123` |
-| `JWT_SECRET` | Chave secreta para assinatura de tokens (Opcional). | `chave_super_segura_base64` |
+| `spring.datasource.url` | URL JDBC do PostgreSQL (Supabase). | `jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:5432/postgres` |
+| `spring.datasource.username` | Usuário do banco. | `postgres.<id-do-projeto>` |
+| `spring.datasource.password` | Senha do banco. | `********` |
+
+> [!IMPORTANT]
+> Nunca faça commit de senhas ou de strings de conexão reais. Equivalentes em variáveis de ambiente do sistema também funcionam: `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` e `SPRING_DATASOURCE_PASSWORD`.
 
 #### 2 Front-end (React, Vite)
 
-Crie um arquivo **`.env`** na raiz da pasta `/frontend` e use o prefixo `VITE_` (ou `REACT_APP_` se estiver usando CRA) para expor as variáveis ao *bundle* da aplicação.
+O front-end **não exige** arquivo `.env`. A URL da API está definida em `frontend/src/services/api.ts`:
 
-| Variável | Descrição | Exemplo |
-| :--- | :--- | :--- |
-| `VITE_API_URL` | URL base do endpoint do Backend Spring Boot. | `http://localhost:8080/api` |
-| `VITE_EMAILJS_PUBLIC_KEY` | Chave pública para serviços de e-mail (Exemplo). | `sua_public_key_aqui` |
-| `VITE_GOOGLE_MAPS_KEY` | Chave de API para serviços de mapas (Opcional). | `AIzaSy...` |
+```ts
+const API_URL = 'http://localhost:8080/api';
+```
+
+Para apontar para outro servidor, altere essa constante. A API libera CORS para `http://localhost:5173` (Vite) e `http://localhost:8443` em `WebConfig.java`.
 
 ---
-
-#### 3. Exemplos de Variáveis de Ambiente na Vercel
-
-A Vercel permite configurar variáveis no painel (Project Settings > Environment Variables).
-Aqui estão exemplos comuns utilizadas em aplicações front-end e full-stack:
-
----
-
-##### **Exemplo 1 – Front-end com Next.js usando API externa**
-
-```
-NEXT_PUBLIC_API_URL=https://meu-backend.vercel.app/api
-NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=G-seu_google_analytics_id_aqui
-```
-
----
-
-##### **Exemplo 2 – Aplicação Full-stack (Next.js + Prisma + PostgreSQL)**
-
-```
-DATABASE_URL=postgresql://admin:senha-super-segura@ep-meu-banco.aws.neon.tech:5432/verceldb
-NEXTAUTH_SECRET=uma_chave_muito_longa_e_segura
-NEXTAUTH_URL=https://meu-sistema.vercel.app
-```
-
----
-
-##### **Exemplo 3 – Integração com APIs externas**
-
-```
-STRIPE_SECRET_KEY=sk_live_seu_stripe_key_aqui
-OPENAI_API_KEY=sk-sua_openai_key_aqui
-SENDGRID_API_KEY=SG.sua_sendgrid_key_aqui
-```
-
----
-
-##### **Exemplo 4 – Frontend com Vite (EmailJS)**
-
-```
-VITE_EMAILJS_SERVICE_ID=seu_service_id_aqui
-VITE_EMAILJS_TEMPLATE_ID_FOR_ME=seu_template_id_for_me_aqui
-VITE_EMAILJS_TEMPLATE_ID_FOR_SENDER=seu_template_id_for_sender_aqui
-VITE_EMAILJS_PUBLIC_KEY=sua_public_key_aqui
-```
-
-> **Obs:** As variáveis de ambiente em projetos **Vite** precisam começar com `VITE_` para que o Vite as reconheça e as inclua no *bundle* do frontend; variáveis sem esse prefixo não ficam disponíveis no código do cliente.
-
----
-
-Para adicionar essas variáveis:
-
-1.  Acesse a página de Environment Variables do seu projeto no Vercel (ex.: `https://vercel.com/<seu-usuario>/<seu-projeto>/settings/environment-variables`)
-2.  Clique em **"Add"** para adicionar cada variável com o nome e valor correspondente.
-
-Alternativamente, se estiver desenvolvendo localmente, crie um arquivo **`.env.local`** dentro da pasta **`frontend`** do seu projeto com o seguinte conteúdo:
-
-```
-# Variável essencial para conectar ao Back-end Spring Boot rodando localmente (normalmente na porta 8080)
-VITE_API_URL=http://localhost:8080/api
-
-# Variáveis para integrações externas de serviço de e-mail
-VITE_EMAILJS_SERVICE_ID=seu_service_id_aqui
-VITE_EMAILJS_TEMPLATE_ID_FOR_ME=seu_template_id_for_me_aqui
-VITE_EMAILJS_TEMPLATE_ID_FOR_SENDER=seu_template_id_for_sender_aqui
-VITE_EMAILJS_PUBLIC_KEY=sua_public_key_aqui
-
-# Outras chaves de serviço
-VITE_GOOGLE_MAPS_KEY=AIzaSy...
-```
-
-> 💡 **Localização:** Garanta que este arquivo esteja em **`/frontend/.env.local`** para que o **Vite** consiga carregá-lo e disponibilizar as variáveis para o Front-end durante o desenvolvimento.
 
 ### 📦 Instalação de Dependências
 
-Clone o repositório e instale as dependências.
-
-1.  **Clone o Repositório:**
+1.  **Clone o Repositório:**
 
 ```bash
-git clone <URL_DO_SEU_REPOSITÓRIO>
-cd <pasta-do-projeto>
+git clone https://github.com/diegovitorportella/diaw-lab02-aluguel-carros.git
+cd diaw-lab02-aluguel-carros
 ```
 
-2.  **Instale as Dependências (Monorepo):**
-
-Como o projeto está dividido, você precisa instalar as dependências separadamente para o Front-end (React, usando NPM/Yarn) e garantir que o Back-end (Spring Boot, usando Maven/Gradle Wrapper) tenha suas dependências resolvidas.
-
 #### Front-end (React)
-
-Acesse a pasta do Front-end e instale as dependências do Node.js:
 
 ```bash
 cd frontend
 npm install
-# ou
-yarn install
-cd .. # Retorna para a raiz
+cd ..
 ```
 
 #### Back-end (Spring Boot)
 
-O Spring Boot utiliza o **Maven Wrapper** (`./mvnw`) ou **Gradle Wrapper** (`./gradlew`) para gerenciar dependências. Execute o comando de instalação/build limpo antes de rodar.
+```bash
+cd backend
+./mvnw clean install -DskipTests
+cd ..
+```
 
-* **Usando Maven (`pom.xml`):**
-    ```bash
-    cd backend
-    ./mvnw clean install
-    cd ..
-    ```
-
-* **Usando Gradle (`build.gradle`):**
-    ```bash
-    cd backend
-    ./gradlew clean build
-    cd ..
-    ```
+> No Windows (PowerShell/CMD) use `mvnw.cmd` no lugar de `./mvnw`.
+> O `-DskipTests` evita que o teste de contexto tente conectar ao banco durante o build.
 
 ---
 
-### 💾 Inicialização do Banco de Dados (PostgreSQL)
+### 💾 Inicialização do Banco de Dados (PostgreSQL / Supabase)
 
-O projeto utiliza **PostgreSQL**. A forma mais fácil de inicializar o banco é via Docker (para execução sem `docker-compose`):
+1. Crie um projeto no [Supabase](https://supabase.com/) e copie os dados de conexão para o `application-dev.properties` (seção anterior).
+2. **Não é necessário rodar scripts SQL:** o Hibernate está com `spring.jpa.hibernate.ddl-auto=update` e cria/atualiza as tabelas automaticamente na primeira execução do back-end (`usuario`, `cliente`, `agente`, `banco`, `empresa`, `automovel`, `pedido_aluguel`, `contrato`, `contrato_credito`, `cliente_empregadores`, `cliente_rendimentos`).
+3. Na inicialização, o `DataInitializer` cria dois **agentes de demonstração** se ainda não existirem (veja [Contas de demonstração](#contas-de-demonstração)).
 
-1. **Rode o Container do PostgreSQL:**  
-   (Certifique-se que o Docker está em execução)
-
-```bash
-docker run --name minha_db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=senha-segura-123 -e POSTGRES_DB=nome_do_banco -p 5432:5432 -d postgres:16
-```
-
-2. **Execute as Migrações:**  
-   O Back-end **Spring Boot** geralmente gerencia o schema do banco de dados automaticamente no startup (via Hibernate `ddl-auto`) ou utilizando ferramentas como **Flyway** ou **Liquibase**.
-
-* **Se o Spring Boot gerencia o schema (padrão):** Nenhuma ação manual é necessária, basta rodar o Back-end (veja a próxima seção).
-* **Se usar Flyway/Liquibase via Maven:**
-    ```bash
-    cd backend
-    ./mvnw flyway:migrate
-    # ou
-    ./mvnw liquibase:update
-    ```
 ---
 
 ### ⚡ Como Executar a Aplicação
-Execute a aplicação em modo de desenvolvimento em **dois terminais separados**.
+Execute em **dois terminais separados**.
 
 #### Terminal 1: Back-end (Spring Boot)
-
-Inicie a API do Spring Boot. Ela tentará se conectar ao banco de dados rodando no Docker.
 
 ```bash
 cd backend
 ./mvnw spring-boot:run
 ```
-🚀 *O Back-end estará disponível em **http://localhost:8080**.*
+🚀 *O Back-end estará disponível em **http://localhost:8080**.* Aguarde a mensagem `Started DemoApplication`.
 
 ---
 
 #### Terminal 2: Front-end (React, Vite)
 
-Inicie o servidor de desenvolvimento do Front-end.
-
 ```bash
 cd frontend
 npm run dev
-# ou
-yarn dev
 ```
-🎨 *O Front-end estará disponível em **http://localhost:5173** (ou a porta configurada no Vite/CRA).*
+🎨 *O Front-end estará disponível em **http://localhost:5173**.*
 
 ---
 
-#### 🐳 Execução Local Completa com Docker Compose (Incluindo Banco de Dados)
+#### Contas de demonstração
 
-Para uma execução local que inclui o serviço de Back-end (**Spring Boot**), Front-end (**React**) e o banco de dados **PostgreSQL**, usaremos o **`docker-compose`** para orquestração.
+| Perfil | Usuário | Senha | Como é criada |
+| :--- | :--- | :--- | :--- |
+| Banco (agente) | `banco.agente` | `password123` | Automaticamente pelo `DataInitializer` |
+| Empresa (agente) | `empresa.agente` | `password123` | Automaticamente pelo `DataInitializer` |
+| Cliente | *(à sua escolha)* | *(à sua escolha)* | Pela tela **Clientes** → *Cadastrar novo cliente* |
 
-Antes de tudo, certifique-se de que o **Docker Desktop** (no Mac/Windows) ou o **serviço Docker** (em Linux) está em execução.
+> [!WARNING]
+> As contas de demonstração existem apenas para desenvolvimento. Remova o `DataInitializer` (ou troque as senhas) antes de qualquer uso fora do laboratório.
 
-- **No Mac/Windows**: basta abrir o aplicativo **Docker Desktop**.
-- **No Linux**: rode o comando abaixo para iniciar o serviço:
-
-```bash
-sudo systemctl start docker
-```
-
----
-
-#### 📦 Passos para build, inicialização e execução
-
-1. Acesse a pasta raiz do projeto (onde o arquivo `docker-compose.yml` está localizado):
-
-```bash
-cd /caminho/do/projeto/nome-do-projeto
-```
-
-2. Suba todos os serviços (Back-end, Front-end e Banco de Dados) definidos no `docker-compose.yml`:
-
-```bash
-docker-compose up --build -d
-```
-
-> [!NOTE]
-> 💡 O parâmetro `--build` garante que as imagens mais recentes do projeto sejam geradas, e `-d` executa em segundo plano.
-
-3. Verifique se os containers estão rodando:
-
-```bash
-docker ps
-```
-
-4. **Execute as Migrações do Banco de Dados:**
-   O Back-end **Spring Boot** geralmente gerencia o schema do banco de dados (via Flyway/Liquibase ou Hibernate) na **inicialização do serviço**.
-
-* **Verificação:** Se o serviço de Back-end (`backend` ou `api`) for o responsável pelas migrações, verifique os logs para confirmar se o processo foi concluído.
-    ```bash
-    docker logs <nome_do_container_backend>
-    ```
-* *Atenção:* O comando `npm run db:migrate` é exclusivo para Node.js e **não** deve ser usado.
-
-5. Abra no navegador:
-   O Front-end deve estar acessível na porta configurada no `docker-compose` (Exemplo: <http://localhost:3000> ou <http://localhost:5173>)
-
-6. Para parar e remover todos os containers, redes e volumes (exceto volumes nomeados):
-
-```bash
-docker-compose down
-```
-
-✅ **Em resumo:** Usar **`docker-compose`** simplifica a execução do ambiente completo, isolando as dependências de **Java (Spring Boot)** e **Node.js (React)** e garantindo que o PostgreSQL esteja disponível.
+> 🐳 O projeto **não** utiliza Docker/Docker Compose: o banco é o PostgreSQL gerenciado do Supabase.
 
 ---
 
 ## 🚀 Deploy
-Instruções claras para deploy em produção.
 
-1.  **Build do Projeto:**
-    Execute o build separadamente para os dois artefatos (JAR para o Back-end e arquivos estáticos para o Front-end).
+O deploy em produção ainda **não foi configurado**. Os artefatos podem ser gerados assim:
 
 ```bash
-# 1. Build do Front-end (React/Vite) - Gera a pasta /dist com arquivos estáticos
+# 1. Build do Front-end (React/Vite) - gera a pasta /dist com arquivos estáticos
 cd frontend
 npm run build
 
-# 2. Build do Back-end (Spring Boot/Maven) - Gera o arquivo .jar executável em /target
+# 2. Build do Back-end (Spring Boot/Maven) - gera o .jar executável em /target
 cd ../backend
-./mvnw clean package
+./mvnw clean package -DskipTests
 ```
 
-2.  **Configuração do Ambiente de Produção:** Defina as variáveis de ambiente no seu provedor (e.g., Vercel, Railway, Heroku, DigitalOcean).
-
-> 🔑 **Variáveis Cruciais:** Certifique-se de configurar as variáveis de **conexão com o banco de dados** (`SPRING_DATASOURCE_URL`, etc.) para o Back-end e a **URL da API de produção** (`VITE_API_URL`) para o Front-end.
-
-3.  **Execução em Produção:**
-    A forma de execução depende do seu provedor, mas geralmente envolve o seguinte:
+Execução do artefato do back-end:
 
 ```bash
-# ☕ Execução do Back-end Spring Boot (Java JAR)
-# Este comando inicia a API usando o artefato JAR gerado.
-java -jar backend/target/nome-do-do-projeto-0.0.1-SNAPSHOT.jar
-
-# 🟢 Execução do Front-end (React/Vite)
-# O Front-end (arquivos estáticos) não é executado via Node, mas servido por um servidor web.
-# Exemplo de servidor de arquivos estáticos (usando Nginx, Vercel, Netlify, etc.)
-# Para simular a produção localmente ou rodar em uma VPS simples, use o pacote 'serve':
-npm install -g serve
-serve -s frontend/dist
+java -jar backend/target/<nome-do-artefato>.jar
 ```
+
+Antes de publicar, ajuste: (1) as credenciais do banco por variáveis de ambiente, (2) a constante `API_URL` do front-end, (3) as origens liberadas em `WebConfig` (CORS) e (4) as limitações de segurança descritas em [Arquitetura](#-arquitetura).
 
 ---
 
 ## 📂 Estrutura de Pastas
 
-Descreva o propósito das pastas principais.
-
 ```
 .
-├── .editorconfig                # ✍️ Padronização de estilo de código.
-├── .env.local                   # 🔒 Variáveis SENSÍVEIS do ambiente LOCAL (não versionado).
-├── .env.test                    # 🧪 Variáveis de ambiente para TESTES AUTOMATIZADOS.
-├── .env.staging                 # ☁️ Variáveis de ambiente para STAGING/HOMOLOGAÇÃO.
-├── .env.example                 # 🧩 Exemplo de TODAS as variáveis necessárias (sem valores sensíveis).
-├── .gitignore                   # 🧹 Ignora arquivos/pastas não versionadas (.env, node_modules, target, etc.).
-├── .vscode/                     # ⚙️ Configurações de ambiente da IDE (opcional).
-├── .github/                     # 🤖 CI/CD (Actions), templates de Issues e Pull Requests.
-├── README.md                    # 📘 Documentação principal do projeto.
-├── CONTRIBUTING.md              # 🤝 Guia de contribuição.
-├── LICENSE                      # ⚖️ Licença do projeto.
-├── docker-compose.yml           # 🐳 Orquestração dos containers (front/back/db/etc).
-├── docker-compose.override.yml  # 🐳 Configurações extras apenas para desenvolvimento.
+├── .gitignore                    # 🧹 Ignora node_modules, target e application-dev.properties.
+├── README.md                     # 📘 Documentação principal do projeto.
 │
-├── /frontend                    # 📁 Aplicação React
-│   ├── .env.example             # 🧩 Variáveis de ambiente do Front-end.
-│   ├── Dockerfile               # 🐳 Docker build do Front-end.
-│   ├── .eslintrc.js             # ✨ Regras do ESLint.
-│   ├── .prettierrc              # 🎨 Configuração do Prettier.
-│   ├── /public                  # 📂 Arquivos estáticos e index.html.
-│   ├── /src                     # 📂 Código-fonte React
-│   │   ├── /components          # 🧱 Componentes reutilizáveis (UI).
-│   │   ├── /pages               # 📄 Páginas/rotas da aplicação.
-│   │   ├── /services            # 🔌 Serviços e chamadas HTTP.
-│   │   ├── /hooks               # 🎣 Hooks personalizados.
-│   │   ├── /styles              # 🎨 Estilos globais, temas, Design System.
-│   │   ├── /assets              # 🖼️ Recursos estáticos importados
-│   │   │   ├── /images          # 🖼️ Imagens.
-│   │   │   ├── /icons           # 💡 Ícones.
-│   │   │   └── /fonts           # ✒️ Fontes personalizadas.
-│   │   └── /utils               # 🛠️ Funções utilitárias.
-│   ├── package.json             # 📦 Dependências e scripts.
-│   └── yarn.lock / package-lock.json # 🔒 Lockfile das dependências.
+├── /backend                      # 📁 Aplicação Spring Boot (Maven)
+│   ├── mvnw / mvnw.cmd           # 🛠️ Maven Wrapper.
+│   ├── pom.xml                   # 📦 Build e dependências.
+│   └── /src
+│       ├── /main/java/com/example/demo
+│       │   ├── DemoApplication.java
+│       │   ├── /controller       # 🎮 Endpoints REST.
+│       │   ├── /service          # ⚙️ Regras e lógica de negócio.
+│       │   ├── /repository       # 🗄️ Repositórios (Spring Data JPA).
+│       │   ├── /model            # 🧬 Entidades JPA.
+│       │   ├── /dto              # ✉️ Data Transfer Objects.
+│       │   ├── /exception        # 💥 Exceções e handler global.
+│       │   └── /config           # 🔧 CORS e dados de demonstração.
+│       ├── /main/resources
+│       │   ├── application.properties       # ⚙️ Configuração principal (JPA/Hibernate).
+│       │   └── application-dev.properties   # 🔒 Credenciais do banco (NÃO versionado).
+│       └── /test/java            # 🧪 Teste de contexto do Spring.
 │
-├── /backend                     # 📁 Aplicação Spring Boot
-│   ├── .env.example             # 🧩 Variáveis de ambiente do Back-end.
-│   ├── Dockerfile               # 🐳 Docker build do Back-end.
-│   │
-│   ├── /src/main/java           # 📂 Código-fonte Java
-│   │   └── /com/exemplo/app
-│   │       ├── /controller      # 🎮 Endpoints REST.
-│   │       ├── /service         # ⚙️ Regras e lógica de negócio.
-│   │       ├── /repository      # 🗄️ Repositórios (JPA/Hibernate).
-│   │       ├── /model           # 🧬 Entidades persistentes (JPA).
-│   │       ├── /domain          # 🌐 Objetos de Domínio puro (sem anotações).
-│   │       ├── /dto             # ✉️ Data Transfer Objects.
-│   │       ├── /config          # 🔧 Configurações gerais (DB, Swagger, CORS, etc.).
-│   │       ├── /exception       # 💥 Exceptions e handlers globais.
-│   │       └── /security        # 🛡️ Autenticação e Autorização (Spring Security).
-│   │
-│   ├── /src/main/resources      # 📂 Recursos do Spring Boot
-│   │   ├── application.yml         # ⚙️ Configuração principal da aplicação
-│   │   ├── application-dev.yml     # 🧪 Configurações específicas do ambiente de DESENVOLVIMENTO
-│   │   ├── application-prod.yml    # 🚀 Configurações específicas para PRODUÇÃO
-│   │   ├── application-test.yml    # 🧪 Configurações usadas nos testes automatizados
-│   │   ├── /static                # 🌐 Arquivos estáticos (HTML/CSS/JS).
-│   │   ├── /templates             # 🖼️ Templates Thymeleaf/Freemarker.
-│   │   ├── /messages              # 🌎 Arquivos de internacionalização (i18n).
-│   │   └── /db                    # 💾 Scripts de banco usados pela aplicação
-│   │       └── /migration         # 📜 Migrações do banco (Flyway/Liquibase).
-│   │
-│   ├── /src/test/java            # 🧪 Testes unitários e de integração.
-│   └── pom.xml / build.gradle    # 🛠️ Build e dependências.
+├── /frontend                     # 📁 Aplicação React + Vite
+│   ├── index.html
+│   ├── package.json              # 📦 Dependências e scripts.
+│   ├── vite.config.ts
+│   ├── /public                   # 📂 Arquivos estáticos.
+│   └── /src
+│       ├── main.tsx / App.tsx    # 🚪 Entrada e controle de telas/usuário logado.
+│       ├── /pages                # 📄 Login, ClientRegistration, Requests, FinancialReview, Vehicles, Settings.
+│       ├── /components           # 🧱 Shell, Header, StatusBadge, TextInput, Field, Icon, Logo.
+│       ├── /services             # 🔌 api.ts — chamadas HTTP ao back-end.
+│       └── /assets               # 🖼️ Recursos estáticos.
 │
-├── /scripts                      # 📜 Scripts de automação
-│   ├── dev.sh                    # 🚀 Ambiente de desenvolvimento completo.
-│   ├── build_all.sh              # 🛠️ Build geral (front + back).
-│   └── deploy.sh                 # ☁️ Deploy em produção/homologação.
-│
-├── /docs                         # 📚 Documentação, arquitetura, modelos C4, Swagger/OpenAPI.
-└── /tests                        # 🧪 Testes End-to-End (Cypress/Playwright).
+└── /docs                         # 📚 Modelagem e protótipo
+    ├── Diagrama de Casos de Uso.pdf
+    ├── Diagrama de Classes.pdf
+    ├── Diagrama de Pacotes UML.pdf
+    ├── historias_de_usuario.md
+    ├── prototipo.md
+    └── /images                   # 🖼️ Telas do protótipo.
 ```
 
 ---
 
 ## 🎥 Demonstração
 
-Use GIFs e prints para mostrar o projeto em ação.  
-
-> [!WARNING]
-> Dê preferência a hospedar suas imagens em um **CDN** (Content Delivery Network) ou no **GitHub Pages** para garantir que elas carreguem rapidamente e não quebrem. Saiba mais sobre o GitHub Pages clicando [aqui](https://github.com/joaopauloaramuni/joaopauloaramuni.github.io).
-
-### 📱 Aplicativo Mobile
-
-- GIF de demonstração (exemplo de fluxo de usuário):  
-
-| Demonstração 1 | Demonstração 2 | Demonstração 3 | Demonstração 4 |
-|----------------|----------------|----------------|----------------|
-| <img src="https://joaopauloaramuni.github.io/image/fundo_mobile_engsoft.jpeg" alt="Demonstração 1" height="400"> | <img src="https://joaopauloaramuni.github.io/image/fundo_mobile_engsoft.jpeg" alt="Demonstração 2" height="400"> | <img src="https://joaopauloaramuni.github.io/image/fundo_mobile_engsoft.jpeg" alt="Demonstração 3" height="400"> | <img src="https://joaopauloaramuni.github.io/image/fundo_mobile_engsoft.jpeg" alt="Demonstração 4" height="400"> |
-| _Sua gif aqui_ | _Sua gif aqui_ | _Sua gif aqui_ | _Sua gif aqui_ |
-
-Para melhor visualização, as telas principais estão organizadas lado a lado.
-
-| Tela | Captura de Tela |
-| :---: | :---: |
-| **Tela Inicial (Home)** | **Tela de Perfil / Settings** |
-| <img src="https://joaopauloaramuni.github.io/image/aramunilogo.png" alt="Tela 1 do Mobile" width="120px" height="120px"> | <img src="https://joaopauloaramuni.github.io/image/aramunilogo.png" alt="Tela 2 do Mobile" width="120px" height="120px"> |
-| **Tela de Cadastro** | **Tela de Lista / Detalhes** |
-| <img src="https://joaopauloaramuni.github.io/image/aramunilogo.png" alt="Tela 3 do Mobile" width="120px" height="120px"> | <img src="https://joaopauloaramuni.github.io/image/aramunilogo.png" alt="Tela 4 do Mobile" width="120px" height="120px"> |
-
 ### 🌐 Aplicação Web
 
-Para melhor visualização, as telas principais estão organizadas lado a lado.
+Telas do protótipo que guiou a implementação (detalhes em [`docs/prototipo.md`](./docs/prototipo.md)):
 
 | Tela | Captura de Tela |
 | :---: | :---: |
-| **Página Inicial (Home)** | **Página de Login** |
-| <img src="https://joaopauloaramuni.github.io/image/aramunilogo.png" alt="Tela Inicial da Aplicação Web" width="120px" height="120px"> | <img src="https://joaopauloaramuni.github.io/image/aramunilogo.png" alt="Tela de Login" width="120px" height="120px"> |
-| **Cadastro de Clientes** | **Cadastro de Produtos** |
-| <img src="https://joaopauloaramuni.github.io/image/aramunilogo.png" alt="Tela de Cadastro de Clientes" width="120px" height="120px"> | <img src="https://joaopauloaramuni.github.io/image/aramunilogo.png" alt="Tela de Cadastro de Produtos" width="120px" height="120px"> |
-| **Dashboard (Visão Geral)** | **Página Admin / Configurações** |
-| <img src="https://joaopauloaramuni.github.io/image/aramunilogo.png" alt="Tela de Dashboard" width="120px" height="120px"> | <img src="https://joaopauloaramuni.github.io/image/aramunilogo.png" alt="Tela Administrativa" width="120px" height="120px"> |
+| **Login** | **Cadastro de Clientes** |
+| <img src="./docs/images/login.png" alt="Tela de Login" width="360px"> | <img src="./docs/images/clients.png" alt="Tela de Cadastro de Clientes" width="360px"> |
+| **Meus Pedidos (Cliente)** | **Análise Financeira (Agente)** |
+| <img src="./docs/images/my_requests.png" alt="Tela Meus Pedidos" width="360px"> | <img src="./docs/images/financial_review.png" alt="Tela de Análise Financeira" width="360px"> |
 
-### 💻 Exemplo de Saída no Terminal (para Back-end, API, CLI)
+> Conforme a especificação do laboratório, o protótipo final deve ser comparado com os modelos iniciais e as modificações necessárias devem estar documentadas.
 
-Caso o projeto seja focado em serviços de Back-end (API, microserviço, CLI), utilize esta seção para demonstrar a interação com o sistema e a resposta esperada.
+### 💻 Exemplo de Saída no Terminal (API)
 
-#### 1. Demonstração da API (Exemplo com cURL)
-
-Mostra uma chamada simples para um endpoint da API (ex: GET de listagem).
+#### 1. Login (agente)
 
 ```bash
-# Chama o endpoint de listagem de usuários com o token de autenticação
-curl -X GET 'http://localhost:3000/api/v1/users' \
-     -H 'Authorization: Bearer <seu-jwt-token>'
+curl -X POST http://localhost:8080/api/auth/login \
+     -H 'Content-Type: application/json' \
+     -d '{"login":"banco.agente","senha":"password123"}'
 ```
 
-**Saída Esperada:**
+**Saída Esperada** (a senha nunca é retornada):
 ```json
 {
-  "total": 2,
-  "users": [
-    {
-      "id": "1a2b3c",
-      "name": "Prof. Aramuni",
-      "email": "contato@exemplo.com",
-      "status": "active"
-    },
-    {
-      "id": "4d5e6f",
-      "name": "Colaborador Teste",
-      "email": "teste@exemplo.com",
-      "status": "inactive"
-    }
-  ]
+  "id": 2,
+  "login": "banco.agente",
+  "cnpj": "00.000.000/0001-00",
+  "razaoSocial": "Banco Agente S.A.",
+  "tipo": "BANCO"
 }
 ```
 
----
-
-#### 2. Demonstração de Execução de CLI/Script
-
-Mostra como executar uma ferramenta de linha de comando ou um script de manutenção do projeto (ex: rodar migrações ou um job agendado).
+#### 2. Regra de negócio: máximo de 3 rendimentos
 
 ```bash
-# Executa a ferramenta de validação de Schema
-npm run cli validate:schema --target=production
+curl -i -X POST http://localhost:8080/api/clientes \
+     -H 'Content-Type: application/json' \
+     -d '{"login":"x","senha":"y","rendimentosAuferidos":[1,2,3,4]}'
 ```
 
 **Saída Esperada:**
 ```text
-[INFO] Iniciando validação do banco de dados...
-[SUCCESS] 15/15 tabelas verificadas.
-[WARNING] Coluna 'descricao' na tabela 'produtos' é nullable.
-[SUCCESS] Validação concluída. Nenhum erro crítico encontrado.
-Tempo de execução: 1.25s
+HTTP/1.1 400
+{"erro":"O cliente pode ter no máximo 3 rendimentos auferidos."}
+```
+
+#### 3. Fluxo de contrato de crédito
+
+```bash
+# Avaliar o pedido 1 como o agente de id 2
+curl -X PUT 'http://localhost:8080/api/pedidos/1/avaliar?parecer=POSITIVO&agenteId=2'
+
+# Gerar o contrato de crédito concedido pelo banco de id 2
+curl -X POST http://localhost:8080/api/contratos/gerar/1 \
+     -H 'Content-Type: application/json' \
+     -d '{"valorFinanciado":38900,"taxaJuros":8.75,"bancoId":2}'
 ```
 
 ---
@@ -674,78 +511,79 @@ Tempo de execução: 1.25s
 ## 🧪 Testes
 
 ### Testes Unitários e de Integração
-Para rodar os testes da unidade e integração:
+O back-end possui apenas o teste de contexto do Spring (`DemoApplicationTests`), que **requer conexão com o banco configurada**:
 
+```bash
+cd backend
+./mvnw test
 ```
-npm run test
-```
-*Ferramenta utilizada: Jest, Vitest, Mocha, etc.*
 
-### Testes End-to-End (E2E)
-Para rodar os testes de ponta a ponta (E2E):
+*Ferramenta utilizada: JUnit 5 / Spring Boot Test.*
 
+### Verificação do Front-end
+
+```bash
+cd frontend
+npx tsc -b        # checagem de tipos
+npm run build     # build de produção
 ```
-npm run test:e2e
-```
-*Ferramenta utilizada: Cypress, Playwright, Selenium, etc.*
+
+### Testes End-to-End (E2E) manuais
+Com back-end e front-end em execução, valide o fluxo completo:
+
+1. **Login** com credenciais inválidas (erro) e válidas (cliente cai em *Meus pedidos*; agente cai em *Análise financeira*).
+2. **Cliente:** cadastrar cliente (login duplicado deve falhar; máx. 3 rendimentos) → cadastrar automóvel → criar pedido (`PENDENTE`) → **modificar** → criar outro e **cancelar** (`CANCELADO`).
+3. **Banco:** abrir o pedido pendente → modificar → **aprovar** informando valor financiado e juros → conferir `GET /api/contratos`.
+4. **Empresa:** aprovar/rejeitar pedido (sem opção de crédito, exclusiva de banco).
+5. **Cliente:** conferir status `APROVADO`/`REJEITADO` e notificações no sino; usar **Configurações → Sair da conta**.
+6. **Permissões (API):** agente cancelando pedido de cliente → `403`; modificar pedido já aprovado → `409`; segundo contrato para o mesmo pedido → `409`.
 
 ---
 
 ## 🔗 Documentações utilizadas
 
-Liste aqui links para documentação técnica, referências de bibliotecas complexas ou guias de estilo que foram cruciais para o projeto.
-
 * 📖 **Framework/Biblioteca (Front-end):** [Documentação Oficial do **React**](https://react.dev/reference/react)
 * 📖 **Build Tool (Front-end):** [Guia de Configuração do **Vite**](https://vitejs.dev/config/)
-* 📖 **Framework (Back-end):** [Documentação Oficial do **Spring Boot**](https://docs.spring.io/spring-boot/docs/current/reference/html/)
-* 📖 **Containerização:** [Documentação de Referência do **Docker**](https://docs.docker.com/)
+* 📖 **Estilização:** [Documentação do **Tailwind CSS**](https://tailwindcss.com/docs)
+* 📖 **Framework (Back-end):** [Documentação Oficial do **Spring Boot**](https://docs.spring.io/spring-boot/index.html)
+* 📖 **Persistência:** [Spring Data JPA](https://docs.spring.io/spring-data/jpa/reference/)
+* 📖 **Banco de Dados:** [Documentação do **Supabase**](https://supabase.com/docs)
+* 📖 **Modelagem:** [Diagrama de Pacotes (UML)](https://www.uml-diagrams.org/package-diagrams.html)
 * 📖 **Guia de Estilo:** [**Conventional Commits** (Padrão de Mensagens)](https://www.conventionalcommits.org/en/v1.0.0/)
-* 📖 **Documentação Interna:** [Design System do Projeto](./docs/design-system.md)
+* 📖 **Documentação Interna:** [Protótipo](./docs/prototipo.md) e [Histórias de Usuário](./docs/historias_de_usuario.md)
 
 ---
 
 ## 👥 Autores
-Liste os principais contribuidores. Você pode usar links para seus perfis.
 
-| 👤 Nome | 🖼️ Foto | :octocat: GitHub | 💼 LinkedIn | 📤 Gmail |
-|---------|----------|-----------------|-------------|-----------|
-| Nome 1  | <div align="center"><img src="https://joaopauloaramuni.github.io/image/aramunilogo.png" width="70px" height="70px"></div> | <div align="center"><a href="https://github.com/user1"><img src="https://joaopauloaramuni.github.io/image/github6.png" width="50px" height="50px"></a></div> | <div align="center"><a href="https://www.linkedin.com/in/user1"><img src="https://joaopauloaramuni.github.io/image/linkedin2.png" width="50px" height="50px"></a></div> | <div align="center"><a href="mailto:user1@gmail.com"><img src="https://joaopauloaramuni.github.io/image/gmail3.png" width="50px" height="50px"></a></div> |
-| Nome 2  | <div align="center"><img src="https://joaopauloaramuni.github.io/image/aramunilogo.png" width="70px" height="70px"></div> | <div align="center"><a href="https://github.com/user2"><img src="https://joaopauloaramuni.github.io/image/github6.png" width="50px" height="50px"></a></div> | <div align="center"><a href="https://www.linkedin.com/in/user2"><img src="https://joaopauloaramuni.github.io/image/linkedin2.png" width="50px" height="50px"></a></div> | <div align="center"><a href="mailto:user2@gmail.com"><img src="https://joaopauloaramuni.github.io/image/gmail3.png" width="50px" height="50px"></a></div> |
-
-> [!TIP]
-> 💡 **Dica:** Escolha uma foto profissional, preferencialmente de rosto, evitando imagens com baixa qualidade, filtros excessivos ou elementos distrativos.
+| 👤 Nome | 🖼️ Foto | :octocat: GitHub |
+|---------|----------|-----------------|
+| Diego Vitor Portella | <div align="center"><img src="https://github.com/diegovitorportella.png" width="70px" height="70px"></div> | <div align="center"><a href="https://github.com/diegovitorportella"><img src="https://joaopauloaramuni.github.io/image/github6.png" width="50px" height="50px"></a></div> |
 
 ---
 
 ## 🤝 Contribuição
-Guia para contribuições ao projeto.
 
 1.  Faça um `fork` do projeto.
 2.  Crie uma branch para sua feature (`git checkout -b feature/minha-feature`).
-3. Commit suas mudanças (`git commit -m 'feat: Adiciona nova funcionalidade X'`). **(Utilize [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/))**
+3.  Commit suas mudanças (`git commit -m 'feat: adiciona nova funcionalidade X'`). **(Utilize [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/))**
 4.  Faça o `push` para a branch (`git push origin feature/minha-feature`).
 5.  Abra um **Pull Request (PR)**.
 
 > [!IMPORTANT]
-> 📝 **Regras:** Por favor, verifique o arquivo [`CONTRIBUTING.md`](./CONTRIBUTING.md) para detalhes sobre nosso guia de estilo de código e o processo de submissão de PRs.
+> Ao alterar entidades ou pacotes, atualize também os diagramas em [`docs/`](./docs) para manter o alinhamento entre modelo e código.
 
 ---
 
 ## 🙏 Agradecimentos
-Em ambiente acadêmico, citar fontes e inspirações é crucial (integridade acadêmica). Em ambiente profissional, mostra humildade e conexão com a comunidade.
-
-Gostaria de agradecer aos seguintes canais e pessoas que foram fundamentais para o desenvolvimento deste projeto:
 
 * [**Engenharia de Software PUC Minas**](https://www.instagram.com/engsoftwarepucminas/) - Pelo apoio institucional, estrutura acadêmica e fomento à inovação e boas práticas de engenharia.
-* [**Prof. Dr. João Paulo Aramuni**](https://github.com/joaopauloaramuni) - Pelos valiosos ensinamentos sobre **Arquitetura de Software** e **Padrões de Projeto**.
-* [**Fernanda Kipper**](https://www.instagram.com/kipper.dev/) - Pelos valiosos ensinamentos em **Desenvolvimento Web**, **DevOps** e melhores práticas em **Front-end**.
-* [**Rodrigo Branas**](https://branas.io/) - Pela didática excepcional em **Clean Architecture** e **Clean Code**.
-* [**Código Fonte TV**](https://codigofonte.tv/) - Pelo vasto conteúdo e cobertura de notícias, tutoriais e apoio à comunidade de **Desenvolvimento Web**.
+* [**Prof. Dr. João Paulo Aramuni**](https://github.com/joaopauloaramuni) - Pelos ensinamentos sobre **Arquitetura de Software**, **Spring Boot** e **Padrões de Projeto**, e pelo template de documentação utilizado neste README.
 
 ---
 
 ## 📄 Licença
 
-Este projeto é distribuído sob a **[Licença MIT](https://github.com/joaopauloaramuni/laboratorio-de-desenvolvimento-de-software/blob/main/LICENSE)**.
+Projeto desenvolvido para fins **acadêmicos** (PUC Minas — DIAW, Laboratório 02). O repositório ainda não possui um arquivo `LICENSE`; defina a licença desejada (por exemplo, MIT) antes de qualquer reutilização ou distribuição.
 
 ---
