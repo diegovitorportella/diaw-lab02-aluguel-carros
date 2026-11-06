@@ -1,20 +1,20 @@
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import Logo from "./Logo";
 import Icon from "./Icon";
+import { api } from "../services/api";
 
-export type Screen = "login" | "clients" | "requests" | "review" | "vehicles";
+export type Screen = "login" | "clients" | "requests" | "review" | "vehicles" | "settings";
 
 export default function Shell({
   screen,
   setScreen,
   user,
-  onLogout,
   children,
 }: {
   screen: Screen;
   setScreen: (screen: Screen) => void;
   user?: any;
-  onLogout?: () => void;
   children: ReactNode;
 }) {
   const todos = [
@@ -24,6 +24,26 @@ export default function Shell({
   ] as const;
   // Clientes não acessam a análise financeira; agentes não têm "Meus pedidos".
   const nav = todos.filter(([id]) => (user?.tipo === "CLIENTE" ? id !== "review" : id !== "requests"));
+
+  const [notificacoes, setNotificacoes] = useState<{ id: number; texto: string }[]>([]);
+  const [bellOpen, setBellOpen] = useState(false);
+
+  // Notificações derivadas dos pedidos: clientes veem decisões; agentes veem pedidos aguardando análise.
+  useEffect(() => {
+    if (!user) return;
+    api.listarPedidos()
+      .then((pedidos: any[]) => {
+        const lista = user.tipo === "CLIENTE"
+          ? pedidos
+              .filter((p) => p.cliente?.id === user.id && p.status !== "PENDENTE")
+              .map((p) => ({ id: p.id, texto: `Seu pedido REQ-${p.id} está ${p.status}.` }))
+          : pedidos
+              .filter((p) => p.status === "PENDENTE")
+              .map((p) => ({ id: p.id, texto: `Pedido REQ-${p.id} aguardando análise.` }));
+        setNotificacoes(lista.reverse().slice(0, 8));
+      })
+      .catch(console.error);
+  }, [user, screen]);
 
   const nomeUsuario = user?.nome || user?.login || "Usuário";
   const iniciais = nomeUsuario.substring(0, 2).toUpperCase();
@@ -60,7 +80,10 @@ export default function Shell({
             <Icon name="car" />
             Veículos
           </button>
-          <button className="nav-item">
+          <button
+            className={`nav-item ${screen === "settings" ? "active" : ""}`}
+            onClick={() => setScreen("settings")}
+          >
             <Icon name="settings" />
             Configurações
           </button>
@@ -73,9 +96,6 @@ export default function Shell({
               <p className="truncate text-sm font-semibold">{nomeUsuario}</p>
               <p className="text-xs text-slate-400">{tipoConta}</p>
             </div>
-            <button onClick={onLogout} title="Sair" className="ml-auto text-slate-400 hover:text-white transition">
-              <Icon name="close" className="h-4 w-4" />
-            </button>
           </div>
         </div>
       </aside>
@@ -85,25 +105,44 @@ export default function Shell({
           <Logo />
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <button className="header-button relative">
-            <Icon name="bell" />
-            <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full border-2 border-white bg-blue-600" />
-          </button>
+          <div className="relative">
+            <button className="header-button relative" onClick={() => setBellOpen(!bellOpen)} aria-label="Notificações">
+              <Icon name="bell" />
+              {notificacoes.length > 0 && (
+                <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full border-2 border-white bg-blue-600" />
+              )}
+            </button>
+            {bellOpen && (
+              <>
+                <button className="fixed inset-0 z-40 cursor-default" onClick={() => setBellOpen(false)} aria-label="Fechar notificações" />
+                <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+                  <p className="border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-900">Notificações</p>
+                  {notificacoes.length === 0 ? (
+                    <p className="px-4 py-6 text-center text-sm text-slate-500">Nenhuma notificação.</p>
+                  ) : (
+                    <ul className="max-h-80 divide-y divide-slate-100 overflow-y-auto">
+                      {notificacoes.map((n) => (
+                        <li key={n.id} className="px-4 py-3 text-sm text-slate-700">{n.texto}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
           <span className="mx-2 hidden h-8 w-px bg-slate-200 sm:block" />
-          
-          <button onClick={onLogout} title="Sair do sistema" className="flex items-center gap-3 rounded-xl p-1.5 hover:bg-slate-50 transition">
+
+          <div className="flex items-center gap-3 p-1.5">
             <span className="avatar bg-blue-100 text-blue-700">{iniciais}</span>
             <span className="hidden text-left md:block">
               <span className="block text-sm font-semibold">{nomeUsuario}</span>
-              <span className="block text-xs text-slate-500">{tipoConta}</span>
             </span>
-            <Icon name="down" className="hidden h-4 w-4 text-slate-400 md:block" />
-          </button>
+          </div>
         </div>
       </header>
 
       <div className="fixed inset-x-0 bottom-0 z-30 flex h-16 items-center justify-around border-t border-slate-200 bg-white lg:hidden">
-        {nav.map(([id, icon, label]) => (
+        {[...nav, ["settings", "settings", "Configurações"] as const].map(([id, icon, label]) => (
           <button
             key={id}
             onClick={() => setScreen(id as Screen)}

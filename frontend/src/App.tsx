@@ -6,6 +6,7 @@ import ClientRegistration from "./pages/ClientRegistration";
 import Requests from "./pages/Requests";
 import FinancialReview from "./pages/FinancialReview";
 import Vehicles from "./pages/Vehicles";
+import Settings from "./pages/Settings";
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>("login");
@@ -24,11 +25,13 @@ export default function App() {
   if (screen === "login") return <Login onLogin={handleLogin} />;
 
   return (
-    <Shell screen={screen} setScreen={setScreen} user={user} onLogout={handleLogout}>
+    <Shell screen={screen} setScreen={setScreen} user={user}>
       {screen === "clients" ? (
         <ClientRegistration />
       ) : screen === "review" ? (
         <FinancialReview user={user} />
+      ) : screen === "settings" ? (
+        <Settings user={user} onLogout={handleLogout} />
       ) : screen === "vehicles" ? (
         <Vehicles user={user} />
       ) : (
