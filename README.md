@@ -2,7 +2,11 @@
 
 ---
 
-# 🚗 Sistema de Aluguel de Carros 👨‍💻
+# 🚗 DriveJá — Sistema de Aluguel de Carros 👨‍💻
+
+<p align="center">
+  <img src="./docs/images/logo.png" alt="Logo DriveJá" width="360px"/>
+</p>
 
 > [!NOTE]
 > Plataforma web para **gestão de aluguéis de automóveis**: clientes criam, modificam, consultam e cancelam pedidos; agentes (bancos e empresas) analisam financeiramente os pedidos e, no caso dos bancos, concedem o contrato de crédito.
@@ -11,12 +15,12 @@
   <tr>
     <td width="800px">
       <div align="justify">
-        O <b>Sistema de Aluguel de Carros</b> foi desenvolvido para o <b>Laboratório 02</b> da disciplina de <i>Desenvolvimento e Integração de Aplicações Web (DIAW)</i>, do curso de <b>Engenharia de Software da PUC Minas</b>. Ele permite que <i>clientes</i> solicitem o aluguel de automóveis pela Internet e que <i>agentes</i> (empresas e bancos) avaliem esses pedidos do ponto de vista financeiro, modifiquem-nos durante a análise e, em caso de parecer positivo, executem o contrato, podendo associá-lo a um <b>contrato de crédito</b> concedido por um banco. O acesso é restrito a usuários cadastrados, mediante <b>login com usuário e senha</b>. O back-end é construído com <b>Spring Boot (arquitetura MVC)</b>, o front-end com <b>React + Vite</b> e a persistência usa <b>PostgreSQL hospedado no Supabase</b>.
+        O <b>DriveJá</b> (Sistema de Aluguel de Carros) foi desenvolvido para o <b>Laboratório 02</b> da disciplina de <i>Desenvolvimento e Integração de Aplicações Web (DIAW)</i>, do curso de <b>Engenharia de Software da PUC Minas</b>. Ele permite que <i>clientes</i> solicitem o aluguel de automóveis pela Internet e que <i>agentes</i> (empresas e bancos) avaliem esses pedidos do ponto de vista financeiro, modifiquem-nos durante a análise e, em caso de parecer positivo, executem o contrato, podendo associá-lo a um <b>contrato de crédito</b> concedido por um banco. O acesso é restrito a usuários cadastrados, mediante <b>login com usuário e senha</b>. O back-end é construído com <b>Spring Boot (arquitetura MVC)</b>, o front-end com <b>React + Vite</b> e a persistência usa <b>PostgreSQL hospedado no Supabase</b>.
       </div>
     </td>
     <td>
       <div>
-        <img src="https://joaopauloaramuni.github.io/image/logo_ES_vertical.png" alt="Logo Engenharia de Software PUC Minas" width="120px"/>
+        <img src="./docs/images/logo.png" alt="Logo DriveJá" width="160px"/>
       </div>
     </td>
   </tr> 
@@ -425,13 +429,13 @@ Antes de publicar, ajuste: (1) as credenciais do banco por variáveis de ambient
 │   ├── index.html
 │   ├── package.json              # 📦 Dependências e scripts.
 │   ├── vite.config.ts
-│   ├── /public                   # 📂 Arquivos estáticos.
+│   ├── /public                   # 📂 Arquivos estáticos (favicon.png).
 │   └── /src
 │       ├── main.tsx / App.tsx    # 🚪 Entrada e controle de telas/usuário logado.
 │       ├── /pages                # 📄 Login, ClientRegistration, Requests, FinancialReview, Vehicles, Settings.
 │       ├── /components           # 🧱 Shell, Header, StatusBadge, TextInput, Field, Icon, Logo.
 │       ├── /services             # 🔌 api.ts — chamadas HTTP ao back-end.
-│       └── /assets               # 🖼️ Recursos estáticos.
+│       └── /assets               # 🖼️ Logos (logo.png, logo-light.png, icon.png).
 │
 └── /docs                         # 📚 Modelagem e protótipo
     ├── Diagrama de Casos de Uso.pdf
@@ -439,7 +443,7 @@ Antes de publicar, ajuste: (1) as credenciais do banco por variáveis de ambient
     ├── Diagrama de Pacotes UML.pdf
     ├── historias_de_usuario.md
     ├── prototipo.md
-    └── /images                   # 🖼️ Telas do protótipo.
+    └── /images                   # 🖼️ Logo e telas do protótipo.
 ```
 
 ---

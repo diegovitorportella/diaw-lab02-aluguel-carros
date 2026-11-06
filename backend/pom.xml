@@ -12,8 +12,8 @@
     <groupId>com.example</groupId>
     <artifactId>demo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>demo</name>
-    <description>Projeto Spring Boot API</description>
+    <name>driveja</name>
+    <description>DriveJá - API do sistema de aluguel de carros</description>
 
     <properties>
         <java.version>21</java.version>
