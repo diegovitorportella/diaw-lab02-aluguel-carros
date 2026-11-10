@@ -40,7 +40,7 @@
 
 ### Stack:
 
-![React](https://img.shields.io/badge/React-19-007ec6?style=for-the-badge&logo=react&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-8-007ec6?style=for-the-badge&logo=vite&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-7-007ec6?style=for-the-badge&logo=typescript&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-007ec6?style=for-the-badge&logo=tailwindcss&logoColor=white) ![Java](https://img.shields.io/badge/Java-21-007ec6?style=for-the-badge&logo=openjdk&logoColor=white) ![Maven](https://img.shields.io/badge/Maven-Wrapper-007ec6?style=for-the-badge&logo=apachemaven&logoColor=white) ![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.9-007ec6?style=for-the-badge&logo=springboot&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-007ec6?style=for-the-badge&logo=supabase&logoColor=white)
+![React](https://img.shields.io/badge/React-19-007ec6?style=for-the-badge&logo=react&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-8-007ec6?style=for-the-badge&logo=vite&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-7-007ec6?style=for-the-badge&logo=typescript&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-007ec6?style=for-the-badge&logo=tailwindcss&logoColor=white) ![Java](https://img.shields.io/badge/Java-25-007ec6?style=for-the-badge&logo=openjdk&logoColor=white) ![Maven](https://img.shields.io/badge/Maven-Wrapper-007ec6?style=for-the-badge&logo=apachemaven&logoColor=white) ![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.9-007ec6?style=for-the-badge&logo=springboot&logoColor=white) ![Spring Security](https://img.shields.io/badge/Spring_Security-JWT_+_BCrypt-007ec6?style=for-the-badge&logo=springsecurity&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-007ec6?style=for-the-badge&logo=supabase&logoColor=white)
 
 ---
 
@@ -112,7 +112,8 @@
 
 ## ✨ Funcionalidades Principais
 
-- 🔐 **Autenticação:** login com usuário e senha; acesso restrito a usuários cadastrados. O perfil (`CLIENTE`, `BANCO` ou `EMPRESA`) define o que cada usuário vê no menu.
+- 🔐 **Autenticação e autorização:** login com usuário e senha (BCrypt) que devolve um **token JWT**; toda a API (exceto login e autocadastro) exige o token e é restrita por perfil (`CLIENTE`, `BANCO`, `EMPRESA`). A identidade vem do token, nunca de parâmetros da requisição.
+- 📝 **Autocadastro:** a tela de login tem o link *Cadastre-se* para o cliente criar a própria conta.
 - 👤 **CRUD de Clientes:** cadastro com dados de identificação, profissão, empregadores e rendimentos — **máximo de 3 rendimentos**, validado no back-end, e login único.
 - 🚘 **CRUD de Automóveis:** cadastro e listagem de veículos com matrícula, ano, marca, modelo, placa e proprietário (cliente, empresa ou banco).
 - 📋 **Gestão de Pedidos (Cliente):** criar, consultar o status, **modificar** (datas, observação, veículo) e **cancelar** pedidos ativos.
@@ -150,12 +151,12 @@ PENDENTE ──(parecer POSITIVO)──▶ APROVADO ──(banco/empresa executa
 
 ### 🖥️ Back-end
 
-* **Linguagem/Runtime:** Java 21 (JDK)
+* **Linguagem/Runtime:** Java 25 (JDK)
 * **Framework:** Spring Boot 4.0.9 (Spring Web MVC)
 * **Build e dependências:** Apache Maven (Maven Wrapper)
 * **Banco de Dados:** PostgreSQL hospedado no **Supabase**
 * **ORM:** Spring Data JPA / Hibernate (herança `JOINED`, `ddl-auto=update`)
-* **Autenticação:** login por usuário e senha (veja [limitações](#-arquitetura))
+* **Autenticação e autorização:** Spring Security, tokens **JWT** (Bearer, stateless) e senhas com hash **BCrypt**
 
 ### ⚙️ Infraestrutura & DevOps
 
@@ -180,21 +181,29 @@ O back-end segue a **arquitetura MVC em camadas** do Spring Boot; o front-end Re
 | Pacote | Papel |
 | :--- | :--- |
 | `controller` | Endpoints REST (`/api/auth`, `/api/clientes`, `/api/automoveis`, `/api/pedidos`, `/api/contratos`). |
-| `service` | Regras de negócio (limite de 3 rendimentos, ciclo de vida do pedido, geração de contrato). |
+| `service` | Regras de negócio (limite de 3 rendimentos, ciclo de vida do pedido, geração de contrato, autenticação). |
 | `repository` | Acesso a dados com Spring Data JPA. |
 | `model` | Entidades JPA: `Usuario` (abstrata) → `Cliente`, `Agente` (abstrata) → `Banco`, `Empresa`; `Automovel`, `PedidoAluguel`, `Contrato` → `ContratoCredito`. |
-| `dto` | Objetos de transferência (`LoginDTO`, `AutomovelDTO`, `PedidoDTO`, `ContratoCreditoDTO`, `IdRefDTO`). |
+| `dto` | Objetos de transferência (`LoginDTO`, `LoginResponseDTO`, `AutomovelDTO`, `PedidoDTO`, `ContratoCreditoDTO`, `IdRefDTO`). |
 | `exception` | Exceções de negócio e `GlobalExceptionHandler` (respostas JSON de erro). |
-| `config` | CORS (`WebConfig`) e carga de agentes de demonstração (`DataInitializer`). |
+| `security` | `SecurityConfig` (regras de acesso, CORS, BCrypt, chave JWT) e `JwtService` (emissão do token). |
+| `config` | Carga de agentes de demonstração (`DataInitializer`, somente perfil `dev`). |
 
 **Padrões e decisões:**
 - **Herança `JOINED`** para `Usuario`/`Agente`/`Contrato`: um proprietário de automóvel ou um avaliador pode ser de tipos diferentes sem duplicar tabelas.
-- **DTOs na entrada:** referências a entidades chegam como `{ "id": n }` e o *service* busca a entidade real antes de associá-la (evita erro ao desserializar tipos abstratos como `Usuario`).
+- **DTOs na entrada:** referências a entidades chegam como `{ "id": n }` e o *service* busca a entidade real antes de associá-la (evita erro ao desserializar tipos abstratos como `Usuario`). O cliente de um pedido, o proprietário de um automóvel e o banco de um crédito são sempre o **usuário autenticado**.
 - **Sem recursão no JSON:** a associação bidirecional `PedidoAluguel ↔ Contrato` usa `@JsonIgnoreProperties`; a senha é `WRITE_ONLY` e nunca sai na API.
 - **Campo `tipo`** exposto no usuário (`CLIENTE`/`BANCO`/`EMPRESA`) para o front-end decidir telas e permissões.
 
-> [!WARNING]
-> **Limitações conhecidas (escopo de laboratório):** não há token de sessão (JWT) — o front-end envia `usuarioId`/`agenteId` como parâmetro nas operações de pedido, e as **senhas são armazenadas em texto puro**. Para produção, o próximo passo é Spring Security + hash BCrypt + JWT.
+### Segurança
+
+- **Senhas:** armazenadas com **BCrypt**. Contas antigas em texto puro são aceitas uma única vez no login e migradas automaticamente para hash.
+- **Sessão:** JWT assinado (HS256) com expiração de 8 h, enviado no header `Authorization: Bearer <token>`; sem sessão no servidor (stateless).
+- **Autorização por perfil:** `CLIENTE` cria e cancela pedidos e vê apenas os próprios pedidos e contratos; `BANCO` e `EMPRESA` (papel `AGENTE`) listam clientes, avaliam pedidos e executam contratos; somente `BANCO` concede crédito; automóveis só são alterados/excluídos pelo proprietário.
+- **Erros padronizados:** `401` (sem token/credenciais inválidas), `403` (sem permissão), `404`, `400` e `409` (regra de negócio), sempre com `{ "erro": "..." }`.
+
+> [!NOTE]
+> **Limitações (escopo de laboratório):** não há recuperação de senha, bloqueio por tentativas nem *refresh token*, e o front-end guarda o token apenas em memória (recarregar a página encerra a sessão).
 
 ### Diagramas
 
@@ -236,20 +245,32 @@ classDiagram
 
 ### API REST
 
-| Método | Rota | Descrição |
-| :--- | :--- | :--- |
-| `POST` | `/api/auth/login` | Autentica com `{ login, senha }` e devolve o usuário (com `tipo`). |
-| `POST` | `/api/clientes` | Cadastra cliente (valida máx. 3 rendimentos e login único). |
-| `GET` | `/api/clientes` | Lista clientes. |
-| `POST` | `/api/automoveis` | Cadastra automóvel com `proprietario: { id }`. |
-| `GET` | `/api/automoveis` | Lista automóveis. |
-| `POST` | `/api/pedidos` | Cria pedido (`PENDENTE`). |
-| `GET` | `/api/pedidos` | Lista pedidos. |
-| `PUT` | `/api/pedidos/{id}?usuarioId=` | Modifica pedido pendente (cliente dono ou agente). |
-| `PUT` | `/api/pedidos/{id}/cancelar?usuarioId=` | Cancela pedido (cliente dono). |
-| `PUT` | `/api/pedidos/{id}/avaliar?parecer=&agenteId=` | Avalia pedido (`POSITIVO`/`NEGATIVO`) — agentes. |
-| `POST` | `/api/contratos/gerar/{pedidoId}` | Executa contrato de pedido aprovado; com `{ valorFinanciado, taxaJuros, bancoId }` gera `ContratoCredito`. |
-| `GET` | `/api/contratos` | Lista contratos. |
+Legenda de acesso: 🌐 público · 🔑 qualquer usuário autenticado · 👤 cliente · 🏦 agente (banco/empresa).
+
+| Acesso | Método | Rota | Descrição |
+| :---: | :--- | :--- | :--- |
+| 🌐 | `POST` | `/api/auth/login` | Autentica com `{ login, senha }` e devolve `{ token, usuario }`. |
+| 🔑 | `GET` | `/api/auth/me` | Dados do usuário dono do token. |
+| 🌐 | `POST` | `/api/clientes` | Autocadastro de cliente (máx. 3 rendimentos, login único, senha ≥ 6). |
+| 🏦 | `GET` | `/api/clientes` | Lista clientes. |
+| 🔑 | `GET` | `/api/clientes/{id}` | Dados de um cliente (o próprio ou, se agente, qualquer um). |
+| 🔑 | `PUT` | `/api/clientes/{id}` | Atualiza cliente (o próprio ou agente); revalida os rendimentos. |
+| 🔑 | `DELETE` | `/api/clientes/{id}` | Exclui cliente sem pedidos nem automóveis. |
+| 🔑 | `POST` | `/api/automoveis` | Cadastra automóvel; o proprietário é o usuário autenticado. |
+| 🔑 | `GET` | `/api/automoveis` | Lista todos os automóveis. |
+| 🔑 | `GET` | `/api/automoveis/meus` | Lista os automóveis do usuário autenticado. |
+| 🔑 | `GET` | `/api/automoveis/{id}` | Busca um automóvel. |
+| 🔑 | `PUT` | `/api/automoveis/{id}` | Atualiza automóvel (somente o proprietário). |
+| 🔑 | `DELETE` | `/api/automoveis/{id}` | Exclui automóvel sem pedidos (somente o proprietário). |
+| 👤 | `POST` | `/api/pedidos` | Cria pedido (`PENDENTE`) para o cliente autenticado. |
+| 🔑 | `GET` | `/api/pedidos?status=` | Cliente: os próprios pedidos. Agente: todos. Filtro opcional por status. |
+| 🔑 | `GET` | `/api/pedidos/{id}` | Busca pedido (dono ou agente). |
+| 🔑 | `PUT` | `/api/pedidos/{id}` | Modifica pedido pendente (cliente dono ou agente). |
+| 👤 | `PUT` | `/api/pedidos/{id}/cancelar` | Cancela pedido (cliente dono, se pendente ou aprovado sem contrato). |
+| 🏦 | `PUT` | `/api/pedidos/{id}/avaliar?parecer=` | Avalia pedido pendente (`POSITIVO`/`NEGATIVO`). |
+| 🏦 | `POST` | `/api/contratos/gerar/{pedidoId}` | Executa contrato de pedido aprovado; com `{ valorFinanciado, taxaJuros }` (somente banco) gera `ContratoCredito`. |
+| 🔑 | `GET` | `/api/contratos` | Cliente: contratos dos próprios pedidos. Agente: todos. |
+| 🔑 | `GET` | `/api/contratos/{id}` | Busca contrato (dono do pedido ou agente). |
 
 ---
 
@@ -257,7 +278,7 @@ classDiagram
 
 ### Pré-requisitos
 
-* **Java JDK:** versão **21** (definida no `pom.xml`) — back-end Spring Boot
+* **Java JDK:** versão **25** (definida no `pom.xml`) — back-end Spring Boot
 * **Node.js:** versão LTS (v20.x ou superior) — front-end React
 * **Gerenciador de Pacotes:** npm
 * **Conta no Supabase** (ou qualquer PostgreSQL acessível) para o banco de dados
@@ -285,8 +306,14 @@ spring.datasource.driver-class-name=org.postgresql.Driver
 | `spring.datasource.username` | Usuário do banco. | `postgres.<id-do-projeto>` |
 | `spring.datasource.password` | Senha do banco. | `********` |
 
+Chave de assinatura dos tokens JWT (variável de ambiente ou propriedade):
+
+| Variável | Descrição | Exemplo |
+| :--- | :--- | :--- |
+| `JWT_SECRET` | Chave HMAC do JWT, **mínimo de 32 caracteres**. Se não for definida, uma chave aleatória é gerada a cada execução (os tokens deixam de valer ao reiniciar o servidor). | `uma-chave-longa-e-aleatoria-com-32+-caracteres` |
+
 > [!IMPORTANT]
-> Nunca faça commit de senhas ou de strings de conexão reais. Equivalentes em variáveis de ambiente do sistema também funcionam: `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` e `SPRING_DATASOURCE_PASSWORD`.
+> Nunca faça commit de senhas, chaves ou strings de conexão reais. Equivalentes em variáveis de ambiente do sistema também funcionam: `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` e `SPRING_DATASOURCE_PASSWORD`.
 
 #### 2 Front-end (React, Vite)
 
@@ -296,7 +323,7 @@ O front-end **não exige** arquivo `.env`. A URL da API está definida em `front
 const API_URL = 'http://localhost:8080/api';
 ```
 
-Para apontar para outro servidor, altere essa constante. A API libera CORS para `http://localhost:5173` (Vite) e `http://localhost:8443` em `WebConfig.java`.
+Para apontar para outro servidor, altere essa constante. A API libera CORS para `http://localhost:5173` (Vite) e `http://localhost:8443` em `SecurityConfig.java`.
 
 ---
 
@@ -365,7 +392,7 @@ npm run dev
 
 | Perfil | Usuário | Senha | Como é criada |
 | :--- | :--- | :--- | :--- |
-| Banco (agente) | `banco.agente` | `password123` | Automaticamente pelo `DataInitializer` |
+| Banco (agente) | `banco.agente` | `password123` | Automaticamente pelo `DataInitializer` (perfil `dev`), com senha em hash |
 | Empresa (agente) | `empresa.agente` | `password123` | Automaticamente pelo `DataInitializer` |
 | Cliente | *(à sua escolha)* | *(à sua escolha)* | Pela tela **Clientes** → *Cadastrar novo cliente* |
 
@@ -396,7 +423,7 @@ Execução do artefato do back-end:
 java -jar backend/target/<nome-do-artefato>.jar
 ```
 
-Antes de publicar, ajuste: (1) as credenciais do banco por variáveis de ambiente, (2) a constante `API_URL` do front-end, (3) as origens liberadas em `WebConfig` (CORS) e (4) as limitações de segurança descritas em [Arquitetura](#-arquitetura).
+Antes de publicar, ajuste: (1) as credenciais do banco por variáveis de ambiente, (2) a constante `API_URL` do front-end, (3) as origens liberadas em `SecurityConfig` (CORS), (4) a variável `JWT_SECRET` (obrigatória em produção) e (5) a remoção do `DataInitializer`/contas de demonstração.
 
 ---
 
@@ -419,11 +446,14 @@ Antes de publicar, ajuste: (1) as credenciais do banco por variáveis de ambient
 │       │   ├── /model            # 🧬 Entidades JPA.
 │       │   ├── /dto              # ✉️ Data Transfer Objects.
 │       │   ├── /exception        # 💥 Exceções e handler global.
-│       │   └── /config           # 🔧 CORS e dados de demonstração.
+│       │   ├── /security         # 🛡️ Spring Security, JWT e CORS.
+│       │   └── /config           # 🔧 Dados de demonstração (perfil dev).
 │       ├── /main/resources
 │       │   ├── application.properties       # ⚙️ Configuração principal (JPA/Hibernate).
 │       │   └── application-dev.properties   # 🔒 Credenciais do banco (NÃO versionado).
-│       └── /test/java            # 🧪 Teste de contexto do Spring.
+│       └── /test                 # 🧪 Testes unitários e de integração (H2 em memória).
+│           ├── /java/com/example/demo
+│           └── /resources/application.properties
 │
 ├── /frontend                     # 📁 Aplicação React + Vite
 │   ├── index.html
@@ -465,7 +495,7 @@ Telas do protótipo que guiou a implementação (detalhes em [`docs/prototipo.md
 
 ### 💻 Exemplo de Saída no Terminal (API)
 
-#### 1. Login (agente)
+#### 1. Login (agente) — devolve o token JWT
 
 ```bash
 curl -X POST http://localhost:8080/api/auth/login \
@@ -476,20 +506,31 @@ curl -X POST http://localhost:8080/api/auth/login \
 **Saída Esperada** (a senha nunca é retornada):
 ```json
 {
-  "id": 2,
-  "login": "banco.agente",
-  "cnpj": "00.000.000/0001-00",
-  "razaoSocial": "Banco Agente S.A.",
-  "tipo": "BANCO"
+  "token": "eyJhbGciOiJIUzI1NiJ9...",
+  "usuario": {
+    "id": 2,
+    "login": "banco.agente",
+    "cnpj": "00.000.000/0001-00",
+    "razaoSocial": "Banco Agente S.A.",
+    "tipo": "BANCO"
+  }
 }
 ```
 
-#### 2. Regra de negócio: máximo de 3 rendimentos
+#### 2. Rota protegida sem token
+
+```bash
+curl -i http://localhost:8080/api/pedidos
+```
+
+**Saída Esperada:** `HTTP/1.1 401` (com o token: `Authorization: Bearer <token>` → `200`).
+
+#### 3. Regra de negócio: máximo de 3 rendimentos
 
 ```bash
 curl -i -X POST http://localhost:8080/api/clientes \
      -H 'Content-Type: application/json' \
-     -d '{"login":"x","senha":"y","rendimentosAuferidos":[1,2,3,4]}'
+     -d '{"login":"x","senha":"senha123","rendimentosAuferidos":[1,2,3,4]}'
 ```
 
 **Saída Esperada:**
@@ -498,16 +539,19 @@ HTTP/1.1 400
 {"erro":"O cliente pode ter no máximo 3 rendimentos auferidos."}
 ```
 
-#### 3. Fluxo de contrato de crédito
+#### 4. Fluxo de contrato de crédito (como banco)
 
 ```bash
-# Avaliar o pedido 1 como o agente de id 2
-curl -X PUT 'http://localhost:8080/api/pedidos/1/avaliar?parecer=POSITIVO&agenteId=2'
+TOKEN=<token-do-banco>
 
-# Gerar o contrato de crédito concedido pelo banco de id 2
+# Avaliar o pedido 1 (o agente avaliador é o dono do token)
+curl -X PUT 'http://localhost:8080/api/pedidos/1/avaliar?parecer=POSITIVO' \
+     -H "Authorization: Bearer $TOKEN"
+
+# Gerar o contrato de crédito (o banco concedente é o dono do token)
 curl -X POST http://localhost:8080/api/contratos/gerar/1 \
-     -H 'Content-Type: application/json' \
-     -d '{"valorFinanciado":38900,"taxaJuros":8.75,"bancoId":2}'
+     -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+     -d '{"valorFinanciado":38900,"taxaJuros":8.75}'
 ```
 
 ---
@@ -515,14 +559,22 @@ curl -X POST http://localhost:8080/api/contratos/gerar/1 \
 ## 🧪 Testes
 
 ### Testes Unitários e de Integração
-O back-end possui apenas o teste de contexto do Spring (`DemoApplicationTests`), que **requer conexão com o banco configurada**:
+O back-end possui **67 testes automatizados** que rodam em **H2 em memória** (não usam o Supabase nem exigem configuração):
+
+| Classe | Tipo | O que cobre |
+| :--- | :--- | :--- |
+| `ClienteServiceTest` | Unitário (Mockito) | Limite de 3 rendimentos/empregadores, login único, senha mínima e hash, permissão e exclusão. |
+| `PedidoAluguelServiceTest` | Unitário (Mockito) | Criação, listagem por perfil, modificar, cancelar e avaliar (permissões e estados). |
+| `ContratoServiceTest` | Unitário (Mockito) | Contrato simples x `ContratoCredito`, só banco concede crédito, contrato duplicado, validações. |
+| `UsuarioServiceTest` | Unitário (Mockito) | Autenticação BCrypt, senha errada, migração de senha em texto puro. |
+| `ApiIntegrationTest` | Integração (MockMvc) | API completa com Spring Security + JWT: `401`/`403`/`409`, CRUDs, fluxo pedido → aprovação → contrato de crédito, serialização sem recursão. |
 
 ```bash
 cd backend
 ./mvnw test
 ```
 
-*Ferramenta utilizada: JUnit 5 / Spring Boot Test.*
+*Ferramentas utilizadas: JUnit 5, Mockito, Spring Boot Test, MockMvc e H2.*
 
 ### Verificação do Front-end
 
@@ -540,7 +592,8 @@ Com back-end e front-end em execução, valide o fluxo completo:
 3. **Banco:** abrir o pedido pendente → modificar → **aprovar** informando valor financiado e juros → conferir `GET /api/contratos`.
 4. **Empresa:** aprovar/rejeitar pedido (sem opção de crédito, exclusiva de banco).
 5. **Cliente:** conferir status `APROVADO`/`REJEITADO` e notificações no sino; usar **Configurações → Sair da conta**.
-6. **Permissões (API):** agente cancelando pedido de cliente → `403`; modificar pedido já aprovado → `409`; segundo contrato para o mesmo pedido → `409`.
+6. **Permissões (API):** chamada sem token → `401`; agente cancelando pedido de cliente → `403`; cliente listando clientes → `403`; modificar pedido já aprovado → `409`; segundo contrato para o mesmo pedido → `409`.
+7. **Autocadastro:** na tela de login, *Cadastre-se* → criar conta → entrar com ela.
 
 ---
 
