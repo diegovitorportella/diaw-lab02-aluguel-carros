@@ -4,7 +4,7 @@ import Logo from "./Logo";
 import Icon from "./Icon";
 import { api } from "../services/api";
 
-export type Screen = "login" | "clients" | "requests" | "review" | "vehicles" | "settings";
+export type Screen = "login" | "register" | "clients" | "requests" | "review" | "vehicles" | "settings";
 
 export default function Shell({
   screen,

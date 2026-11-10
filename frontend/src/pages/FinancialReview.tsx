@@ -33,7 +33,7 @@ export default function FinancialReview({ user }: { user?: any }) {
     if (!selected || !user) return;
     setErro(""); setAviso("");
     try {
-      const atualizado = await api.modificarPedido(selected.id, user.id, {
+      const atualizado = await api.modificarPedido(selected.id, {
         automovel: { id: selected.automovel?.id },
         dataInicio: dataInicio || null,
         dataFim: dataFim || null,
@@ -65,13 +65,12 @@ export default function FinancialReview({ user }: { user?: any }) {
     setErro(""); setAviso("");
     try {
       const parecer = decision === "approve" ? "POSITIVO" : "NEGATIVO";
-      await api.avaliarPedido(selected.id, parecer, user.id);
+      await api.avaliarPedido(selected.id, parecer);
 
       if (parecer === "POSITIVO" && valorFinanciado && isBanco) {
         await api.gerarContrato(selected.id, {
           valorFinanciado: parseFloat(valorFinanciado),
           taxaJuros: parseFloat(taxaJuros),
-          bancoId: user.id,
         });
       }
 

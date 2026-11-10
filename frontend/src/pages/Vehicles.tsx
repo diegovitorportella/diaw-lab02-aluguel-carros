@@ -38,8 +38,7 @@ export default function Vehicles({ user }: { user?: any }) {
         modelo,
         ano: parseInt(ano),
         placa,
-        matricula,
-        proprietario: { id: user.id } // O proprietário será o usuário logado
+        matricula, // o proprietário é o usuário logado (definido pelo back-end)
       });
       setIsModalOpen(false);
       setMarca(""); setModelo(""); setAno(""); setPlaca(""); setMatricula("");

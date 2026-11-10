@@ -41,7 +41,7 @@ export default function Requests({ user }: { user?: any }) {
   const cancelarPedido = async (pedido: any) => {
     if (!user || !confirm(`Cancelar o pedido REQ-${pedido.id}?`)) return;
     try {
-      await api.cancelarPedido(pedido.id, user.id);
+      await api.cancelarPedido(pedido.id);
       carregarPedidos();
     } catch (err: any) {
       alert(err.message);
@@ -51,9 +51,7 @@ export default function Requests({ user }: { user?: any }) {
   const carregarPedidos = async () => {
     try {
       const dados = await api.listarPedidos();
-      // Mostra apenas os pedidos do cliente logado
-      const meusPedidos = user ? dados.filter((p: any) => p.cliente?.id === user.id) : dados;
-      setPedidos(meusPedidos);
+      setPedidos(dados); // o back-end já devolve apenas os pedidos do cliente logado
     } catch (error) {
       console.error(error);
     }
@@ -71,9 +69,9 @@ export default function Requests({ user }: { user?: any }) {
     };
     try {
       if (editando) {
-        await api.modificarPedido(editando.id, user.id, dados);
+        await api.modificarPedido(editando.id, dados);
       } else {
-        await api.criarPedido({ ...dados, cliente: { id: user.id } });
+        await api.criarPedido(dados);
       }
       limparFormulario();
       carregarPedidos();

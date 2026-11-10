@@ -5,7 +5,7 @@ import Field from "../components/Field";
 import Icon from "../components/Icon";
 import { api } from "../services/api";
 
-export default function Login({ onLogin }: { onLogin: (user: any) => void }) {
+export default function Login({ onLogin, onRegister }: { onLogin: (user: any) => void; onRegister: () => void }) {
   const [visible, setVisible] = useState(false);
   const [username, setUsername] = useState("marina.costa");
   const [password, setPassword] = useState("password123");
@@ -101,6 +101,12 @@ export default function Login({ onLogin }: { onLogin: (user: any) => void }) {
               Entrar com segurança
             </button>
           </form>
+          <p className="mt-6 text-center text-sm text-slate-500">
+            Ainda não tem conta?{" "}
+            <button type="button" onClick={onRegister} className="font-semibold text-blue-600 hover:text-blue-700">
+              Cadastre-se
+            </button>
+          </p>
         </div>
       </section>
     </main>

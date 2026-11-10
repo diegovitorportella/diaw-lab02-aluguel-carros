@@ -1,114 +1,98 @@
 const API_URL = 'http://localhost:8080/api';
 
-// Lança um Error com a mensagem { erro } devolvida pelo back-end (ou uma mensagem padrão).
-const falhar = async (response: Response, padrao: string): Promise<never> => {
-  let mensagem = padrao;
-  try {
-    const corpo = await response.json();
-    if (corpo?.erro) mensagem = corpo.erro;
-  } catch {
-    /* corpo vazio ou não-JSON */
-  }
-  throw new Error(mensagem);
+// Token JWT da sessão atual (somente em memória: recarregar a página encerra a sessão).
+let token: string | null = null;
+let aoExpirarSessao: (() => void) | null = null;
+
+export const setToken = (novo: string | null) => {
+  token = novo;
 };
+
+/** Registra o callback chamado quando a API responde 401 (token inválido ou expirado). */
+export const setOnUnauthorized = (callback: (() => void) | null) => {
+  aoExpirarSessao = callback;
+};
+
+interface Opcoes {
+  method?: string;
+  body?: unknown;
+  publica?: boolean; // rota pública: não exige nem envia token
+}
+
+// Faz a requisição com o header Authorization e converte erros em Error com a mensagem { erro } do back-end.
+async function requisitar(caminho: string, erroPadrao: string, opcoes: Opcoes = {}): Promise<any> {
+  const headers: Record<string, string> = {};
+  if (opcoes.body !== undefined) headers['Content-Type'] = 'application/json';
+  if (token && !opcoes.publica) headers['Authorization'] = `Bearer ${token}`;
+
+  const response = await fetch(`${API_URL}${caminho}`, {
+    method: opcoes.method ?? 'GET',
+    headers,
+    body: opcoes.body !== undefined ? JSON.stringify(opcoes.body) : undefined,
+  });
+
+  if (!response.ok) {
+    if (response.status === 401 && !opcoes.publica) {
+      aoExpirarSessao?.();
+      throw new Error('Sessão expirada. Faça login novamente.');
+    }
+    let mensagem = erroPadrao;
+    try {
+      const corpo = await response.json();
+      if (corpo?.erro) mensagem = corpo.erro;
+    } catch {
+      /* corpo vazio ou não-JSON */
+    }
+    throw new Error(mensagem);
+  }
+
+  return response.status === 204 ? null : response.json();
+}
 
 export const api = {
   // --- AUTENTICAÇÃO ---
-  login: async (credenciais: any) => {
-    const response = await fetch(`${API_URL}/auth/login`, {
+  login: async (credenciais: { login: string; senha: string }) => {
+    const resposta = await requisitar('/auth/login', 'Credenciais inválidas', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(credenciais),
+      body: credenciais,
+      publica: true,
     });
-    if (!response.ok) throw new Error('Credenciais inválidas');
-    return response.json();
+    setToken(resposta.token);
+    return resposta.usuario; // { id, login, tipo, ... }
   },
 
   // --- CLIENTES ---
-  criarCliente: async (cliente: any) => {
-    const response = await fetch(`${API_URL}/clientes`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(cliente),
-    });
-    if (!response.ok) return falhar(response, 'Erro ao criar cliente');
-    return response.json();
-  },
+  criarCliente: (cliente: any) =>
+    requisitar('/clientes', 'Erro ao criar cliente', { method: 'POST', body: cliente, publica: true }),
 
-  listarClientes: async () => {
-    const response = await fetch(`${API_URL}/clientes`);
-    if (!response.ok) throw new Error('Erro ao buscar clientes');
-    return response.json();
-  },
+  listarClientes: () => requisitar('/clientes', 'Erro ao buscar clientes'),
 
-  // --- PEDIDOS DE ALUGUEL ---
-  criarPedido: async (pedido: any) => {
-    const response = await fetch(`${API_URL}/pedidos`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(pedido),
-    });
-    if (!response.ok) return falhar(response, 'Erro ao criar pedido');
-    return response.json();
-  },
+  // --- PEDIDOS DE ALUGUEL (o usuário vem do token; o back-end escopa por perfil) ---
+  criarPedido: (pedido: any) =>
+    requisitar('/pedidos', 'Erro ao criar pedido', { method: 'POST', body: pedido }),
 
-  listarPedidos: async () => {
-    const response = await fetch(`${API_URL}/pedidos`);
-    if (!response.ok) throw new Error('Erro ao buscar pedidos');
-    return response.json();
-  },
+  listarPedidos: (status?: string) =>
+    requisitar(`/pedidos${status ? `?status=${status}` : ''}`, 'Erro ao buscar pedidos'),
 
-  modificarPedido: async (id: number, usuarioId: number, dados: any) => {
-    const response = await fetch(`${API_URL}/pedidos/${id}?usuarioId=${usuarioId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dados),
-    });
-    if (!response.ok) return falhar(response, 'Erro ao modificar pedido');
-    return response.json();
-  },
+  modificarPedido: (id: number, dados: any) =>
+    requisitar(`/pedidos/${id}`, 'Erro ao modificar pedido', { method: 'PUT', body: dados }),
 
-  cancelarPedido: async (id: number, usuarioId: number) => {
-    const response = await fetch(`${API_URL}/pedidos/${id}/cancelar?usuarioId=${usuarioId}`, {
-      method: 'PUT',
-    });
-    if (!response.ok) return falhar(response, 'Erro ao cancelar pedido');
-    return response.json();
-  },
+  cancelarPedido: (id: number) =>
+    requisitar(`/pedidos/${id}/cancelar`, 'Erro ao cancelar pedido', { method: 'PUT' }),
 
-  avaliarPedido: async (id: number, parecer: string, agenteId: number) => {
-    const response = await fetch(`${API_URL}/pedidos/${id}/avaliar?parecer=${parecer}&agenteId=${agenteId}`, {
-      method: 'PUT',
-    });
-    if (!response.ok) return falhar(response, 'Erro ao avaliar pedido');
-    return response.json();
-  },
+  avaliarPedido: (id: number, parecer: string) =>
+    requisitar(`/pedidos/${id}/avaliar?parecer=${parecer}`, 'Erro ao avaliar pedido', { method: 'PUT' }),
 
   // --- CONTRATOS ---
-  gerarContrato: async (pedidoId: number, contratoCredito?: any) => {
-    const response = await fetch(`${API_URL}/contratos/gerar/${pedidoId}`, {
+  gerarContrato: (pedidoId: number, contratoCredito?: any) =>
+    requisitar(`/contratos/gerar/${pedidoId}`, 'Erro ao gerar contrato', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(contratoCredito || {}),
-    });
-    if (!response.ok) return falhar(response, 'Erro ao gerar contrato');
-    return response.json();
-  },
+      body: contratoCredito || {},
+    }),
 
-  // --- AUTOMÓVEIS ---
-  criarAutomovel: async (automovel: any) => {
-    const response = await fetch(`${API_URL}/automoveis`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(automovel),
-    });
-    if (!response.ok) return falhar(response, 'Erro ao criar automóvel');
-    return response.json();
-  },
+  // --- AUTOMÓVEIS (o proprietário é o usuário logado) ---
+  criarAutomovel: (automovel: any) =>
+    requisitar('/automoveis', 'Erro ao criar automóvel', { method: 'POST', body: automovel }),
 
-  listarAutomoveis: async () => {
-    const response = await fetch(`${API_URL}/automoveis`);
-    if (!response.ok) throw new Error('Erro ao buscar automóveis');
-    return response.json();
-  }
+  listarAutomoveis: () => requisitar('/automoveis', 'Erro ao buscar automóveis'),
 };
