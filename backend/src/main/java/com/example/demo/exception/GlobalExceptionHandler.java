@@ -3,6 +3,7 @@ package com.example.demo.exception;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -10,6 +11,11 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(CredenciaisInvalidasException.class)
+    public ResponseEntity<Map<String, String>> naoAutenticado(CredenciaisInvalidasException e) {
+        return resposta(HttpStatus.UNAUTHORIZED, e.getMessage());
+    }
 
     @ExceptionHandler(RecursoNaoEncontradoException.class)
     public ResponseEntity<Map<String, String>> naoEncontrado(RecursoNaoEncontradoException e) {
@@ -19,6 +25,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> requisicaoInvalida(IllegalArgumentException e) {
         return resposta(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, String>> corpoInvalido(HttpMessageNotReadableException e) {
+        return resposta(HttpStatus.BAD_REQUEST, "Corpo da requisição inválido.");
     }
 
     @ExceptionHandler(IllegalStateException.class)

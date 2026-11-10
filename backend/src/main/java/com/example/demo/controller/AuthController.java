@@ -1,34 +1,36 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.LoginDTO;
+import com.example.demo.dto.LoginResponseDTO;
 import com.example.demo.model.Usuario;
-import com.example.demo.repository.UsuarioRepository;
-import org.springframework.http.HttpStatus;
+import com.example.demo.security.JwtService;
+import com.example.demo.service.UsuarioService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
+    private final JwtService jwtService;
 
-    public AuthController(UsuarioRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
+    public AuthController(UsuarioService usuarioService, JwtService jwtService) {
+        this.usuarioService = usuarioService;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByLogin(loginDTO.getLogin());
-        
-        if (usuarioOpt.isPresent()) {
-            Usuario usuario = usuarioOpt.get();
-            if (usuario.getSenha().equals(loginDTO.getSenha())) {
-                return ResponseEntity.ok(usuario);
-            }
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas");
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginDTO loginDTO) {
+        Usuario usuario = usuarioService.autenticar(loginDTO.getLogin(), loginDTO.getSenha());
+        return ResponseEntity.ok(new LoginResponseDTO(jwtService.gerarToken(usuario), usuario));
+    }
+
+    /** Dados do usuário dono do token. */
+    @GetMapping("/me")
+    public ResponseEntity<Usuario> me(@AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(usuarioService.buscar(JwtService.idDo(jwt)));
     }
 }
