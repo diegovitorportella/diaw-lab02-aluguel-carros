@@ -9,9 +9,7 @@ import com.example.demo.model.Cliente;
 import com.example.demo.model.PedidoAluguel;
 import com.example.demo.model.Usuario;
 import com.example.demo.repository.AutomovelRepository;
-import com.example.demo.repository.ClienteRepository;
 import com.example.demo.repository.PedidoAluguelRepository;
-import com.example.demo.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,27 +24,23 @@ public class PedidoAluguelService {
     public static final String CANCELADO = "CANCELADO";
 
     private final PedidoAluguelRepository repository;
-    private final ClienteRepository clienteRepository;
     private final AutomovelRepository automovelRepository;
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
 
     public PedidoAluguelService(PedidoAluguelRepository repository,
-                                ClienteRepository clienteRepository,
                                 AutomovelRepository automovelRepository,
-                                UsuarioRepository usuarioRepository) {
+                                UsuarioService usuarioService) {
         this.repository = repository;
-        this.clienteRepository = clienteRepository;
         this.automovelRepository = automovelRepository;
-        this.usuarioRepository = usuarioRepository;
+        this.usuarioService = usuarioService;
     }
 
+    /** O cliente do pedido é o usuário autenticado (deve ser do tipo Cliente). */
     @Transactional
-    public PedidoAluguel criar(PedidoDTO dto) {
-        if (dto.cliente() == null || dto.cliente().id() == null) {
-            throw new IllegalArgumentException("O cliente do pedido é obrigatório.");
+    public PedidoAluguel criar(Long clienteId, PedidoDTO dto) {
+        if (!(usuarioService.buscar(clienteId) instanceof Cliente cliente)) {
+            throw new AcessoNegadoException("Apenas clientes podem criar pedidos de aluguel.");
         }
-        Cliente cliente = clienteRepository.findById(dto.cliente().id())
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Cliente não encontrado."));
         Automovel automovel = buscarAutomovel(dto);
         if (automovel == null) {
             throw new IllegalArgumentException("O automóvel do pedido é obrigatório.");
@@ -63,8 +57,22 @@ public class PedidoAluguelService {
         return repository.save(pedido);
     }
 
-    public List<PedidoAluguel> listarTodos() {
-        return repository.findAll();
+    /** Cliente vê apenas os próprios pedidos; agentes veem todos. Filtro opcional por status. */
+    public List<PedidoAluguel> listarPara(Long usuarioId, String status) {
+        Usuario usuario = usuarioService.buscar(usuarioId);
+        List<PedidoAluguel> pedidos = usuario instanceof Agente
+                ? repository.findAll()
+                : repository.findByClienteId(usuarioId);
+        if (status == null || status.isBlank()) {
+            return pedidos;
+        }
+        return pedidos.stream().filter(p -> status.equalsIgnoreCase(p.getStatus())).toList();
+    }
+
+    public PedidoAluguel buscar(Long id, Long usuarioId) {
+        PedidoAluguel pedido = buscarPedido(id);
+        validarPermissao(pedido, usuarioService.buscar(usuarioId));
+        return pedido;
     }
 
     /**
@@ -74,8 +82,7 @@ public class PedidoAluguelService {
     @Transactional
     public PedidoAluguel modificar(Long id, Long usuarioId, PedidoDTO dto) {
         PedidoAluguel pedido = buscarPedido(id);
-        Usuario usuario = buscarUsuario(usuarioId);
-        validarPermissao(pedido, usuario);
+        validarPermissao(pedido, usuarioService.buscar(usuarioId));
 
         if (!PENDENTE.equals(pedido.getStatus())) {
             throw new IllegalStateException("Apenas pedidos pendentes (em análise) podem ser modificados.");
@@ -96,7 +103,7 @@ public class PedidoAluguelService {
     @Transactional
     public PedidoAluguel cancelar(Long id, Long usuarioId) {
         PedidoAluguel pedido = buscarPedido(id);
-        Usuario usuario = buscarUsuario(usuarioId);
+        Usuario usuario = usuarioService.buscar(usuarioId);
         if (!(usuario instanceof Cliente) || !pedido.getCliente().getId().equals(usuario.getId())) {
             throw new AcessoNegadoException("Apenas o cliente dono do pedido pode cancelá-lo.");
         }
@@ -114,7 +121,7 @@ public class PedidoAluguelService {
     @Transactional
     public PedidoAluguel avaliarPedido(Long id, String parecer, Long agenteId) {
         PedidoAluguel pedido = buscarPedido(id);
-        if (!(buscarUsuario(agenteId) instanceof Agente agente)) {
+        if (!(usuarioService.buscar(agenteId) instanceof Agente agente)) {
             throw new AcessoNegadoException("Apenas agentes podem avaliar pedidos.");
         }
         if (!PENDENTE.equals(pedido.getStatus())) {
@@ -137,7 +144,7 @@ public class PedidoAluguelService {
         if (usuario instanceof Cliente && pedido.getCliente().getId().equals(usuario.getId())) {
             return;
         }
-        throw new AcessoNegadoException("Você não tem permissão para alterar este pedido.");
+        throw new AcessoNegadoException("Você não tem permissão para acessar este pedido.");
     }
 
     private void validarPeriodo(PedidoDTO dto) {
@@ -157,10 +164,5 @@ public class PedidoAluguelService {
     private PedidoAluguel buscarPedido(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Pedido não encontrado."));
-    }
-
-    private Usuario buscarUsuario(Long id) {
-        return usuarioRepository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado."));
     }
 }

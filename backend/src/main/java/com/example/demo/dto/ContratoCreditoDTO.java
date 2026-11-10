@@ -1,3 +1,4 @@
 package com.example.demo.dto;
 
-public record ContratoCreditoDTO(Double valorFinanciado, Double taxaJuros, Long bancoId) {}
+/** Dados do crédito. O banco concedente é sempre o agente (banco) autenticado. */
+public record ContratoCreditoDTO(Double valorFinanciado, Double taxaJuros) {}

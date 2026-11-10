@@ -1,14 +1,16 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.ContratoCreditoDTO;
+import com.example.demo.exception.AcessoNegadoException;
 import com.example.demo.exception.RecursoNaoEncontradoException;
+import com.example.demo.model.Agente;
 import com.example.demo.model.Banco;
 import com.example.demo.model.Contrato;
 import com.example.demo.model.ContratoCredito;
 import com.example.demo.model.PedidoAluguel;
+import com.example.demo.model.Usuario;
 import com.example.demo.repository.ContratoRepository;
 import com.example.demo.repository.PedidoAluguelRepository;
-import com.example.demo.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,22 +22,25 @@ public class ContratoService {
 
     private final ContratoRepository contratoRepository;
     private final PedidoAluguelRepository pedidoRepository;
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
 
     public ContratoService(ContratoRepository contratoRepository,
                            PedidoAluguelRepository pedidoRepository,
-                           UsuarioRepository usuarioRepository) {
+                           UsuarioService usuarioService) {
         this.contratoRepository = contratoRepository;
         this.pedidoRepository = pedidoRepository;
-        this.usuarioRepository = usuarioRepository;
+        this.usuarioService = usuarioService;
     }
 
     /**
      * Executa o contrato de um pedido aprovado. Se houver dados de crédito (valor financiado),
-     * gera um {@link ContratoCredito} concedido pelo banco informado.
+     * gera um {@link ContratoCredito} concedido pelo banco autenticado.
      */
     @Transactional
-    public Contrato gerarContrato(Long pedidoId, ContratoCreditoDTO credito) {
+    public Contrato gerarContrato(Long pedidoId, Long agenteId, ContratoCreditoDTO credito) {
+        if (!(usuarioService.buscar(agenteId) instanceof Agente agente)) {
+            throw new AcessoNegadoException("Apenas agentes podem executar contratos.");
+        }
         PedidoAluguel pedido = pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Pedido não encontrado."));
 
@@ -48,16 +53,12 @@ public class ContratoService {
 
         Contrato contrato;
         if (credito != null && credito.valorFinanciado() != null) {
+            if (!(agente instanceof Banco banco)) {
+                throw new AcessoNegadoException("Apenas bancos podem conceder crédito.");
+            }
             if (credito.valorFinanciado() <= 0 || credito.taxaJuros() == null || credito.taxaJuros() < 0) {
                 throw new IllegalArgumentException("Valor financiado deve ser positivo e a taxa de juros informada.");
             }
-            if (credito.bancoId() == null) {
-                throw new IllegalArgumentException("O banco concedente do crédito é obrigatório.");
-            }
-            Banco banco = usuarioRepository.findById(credito.bancoId())
-                    .filter(Banco.class::isInstance).map(Banco.class::cast)
-                    .orElseThrow(() -> new IllegalArgumentException("O crédito deve ser concedido por um banco cadastrado."));
-
             ContratoCredito contratoCredito = new ContratoCredito();
             contratoCredito.setValorFinanciado(credito.valorFinanciado());
             contratoCredito.setTaxaJuros(credito.taxaJuros());
@@ -72,7 +73,21 @@ public class ContratoService {
         return contratoRepository.save(contrato);
     }
 
-    public List<Contrato> listarTodos() {
-        return contratoRepository.findAll();
+    /** Cliente vê apenas contratos dos próprios pedidos; agentes veem todos. */
+    public List<Contrato> listarPara(Long usuarioId) {
+        return usuarioService.buscar(usuarioId) instanceof Agente
+                ? contratoRepository.findAll()
+                : contratoRepository.findByPedidoAluguelClienteId(usuarioId);
+    }
+
+    public Contrato buscar(Long id, Long usuarioId) {
+        Contrato contrato = contratoRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Contrato não encontrado."));
+        Usuario usuario = usuarioService.buscar(usuarioId);
+        boolean dono = contrato.getPedidoAluguel().getCliente().getId().equals(usuarioId);
+        if (!(usuario instanceof Agente) && !dono) {
+            throw new AcessoNegadoException("Você não tem permissão para acessar este contrato.");
+        }
+        return contrato;
     }
 }
