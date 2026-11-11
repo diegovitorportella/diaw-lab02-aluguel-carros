@@ -7,20 +7,54 @@ import Requests from "./pages/Requests";
 import FinancialReview from "./pages/FinancialReview";
 import Vehicles from "./pages/Vehicles";
 import Settings from "./pages/Settings";
-import { setOnUnauthorized, setToken } from "./services/api";
+import { salvarUsuario, setOnUnauthorized, setToken, usuarioSalvo } from "./services/api";
+
+const CHAVE_TELA = "driveja.tela";
+const telaInicial = (u: any): Screen => {
+  try {
+    const salva = sessionStorage.getItem(CHAVE_TELA) as Screen | null;
+    if (salva && salva !== "login" && salva !== "register") return salva;
+  } catch {
+    /* ignora */
+  }
+  return u.tipo === "CLIENTE" ? "requests" : "review";
+};
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen>("login");
-  const [user, setUser] = useState<any>(null);
+  // Restaura a sessão guardada (F5 não desloga).
+  const [user, setUser] = useState<any>(() => usuarioSalvo());
+  const [screen, setScreen] = useState<Screen>(() => {
+    const u = usuarioSalvo();
+    return u ? telaInicial(u) : "login";
+  });
+
+  useEffect(() => {
+    try {
+      if (screen !== "login" && screen !== "register") sessionStorage.setItem(CHAVE_TELA, screen);
+    } catch {
+      /* ignora */
+    }
+  }, [screen]);
 
   const handleLogin = (userData: any) => {
+    salvarUsuario(userData);
     setUser(userData);
+    try {
+      sessionStorage.removeItem(CHAVE_TELA);
+    } catch {
+      /* ignora */
+    }
     setScreen(userData.tipo === "CLIENTE" ? "requests" : "review");
   };
 
   const handleLogout = () => {
     setToken(null);
     setUser(null);
+    try {
+      sessionStorage.removeItem(CHAVE_TELA);
+    } catch {
+      /* ignora */
+    }
     setScreen("login");
   };
 

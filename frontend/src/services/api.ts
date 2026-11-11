@@ -1,12 +1,62 @@
 const API_URL = 'http://localhost:8080/api';
 
-// Token JWT da sessão atual (somente em memória: recarregar a página encerra a sessão).
-let token: string | null = null;
+// Sessão: o token JWT e o usuário ficam no sessionStorage, então recarregar (F5) mantém o login;
+// fechar a aba encerra a sessão. Um token expirado ou inválido volta ao login pelo 401.
+const CHAVE_TOKEN = 'driveja.token';
+const CHAVE_USUARIO = 'driveja.usuario';
+
+const lerArmazenado = (chave: string): string | null => {
+  try {
+    return sessionStorage.getItem(chave);
+  } catch {
+    return null;
+  }
+};
+
+let token: string | null = lerArmazenado(CHAVE_TOKEN);
 let aoExpirarSessao: (() => void) | null = null;
 
 export const setToken = (novo: string | null) => {
   token = novo;
+  limparCache();
+  try {
+    if (novo) sessionStorage.setItem(CHAVE_TOKEN, novo);
+    else {
+      sessionStorage.removeItem(CHAVE_TOKEN);
+      sessionStorage.removeItem(CHAVE_USUARIO);
+    }
+  } catch {
+    /* armazenamento indisponível: a sessão vale só até recarregar */
+  }
 };
+
+/** Usuário da sessão restaurada (ou null se não houver sessão válida guardada). */
+export const usuarioSalvo = (): any | null => {
+  const bruto = lerArmazenado(CHAVE_USUARIO);
+  if (!token || !bruto) return null;
+  try {
+    return JSON.parse(bruto);
+  } catch {
+    return null;
+  }
+};
+
+export const salvarUsuario = (usuario: any) => {
+  try {
+    sessionStorage.setItem(CHAVE_USUARIO, JSON.stringify(usuario));
+  } catch {
+    /* ignora */
+  }
+};
+
+// Cache curto das consultas (GET): navegar entre telas não refaz as chamadas ao banco remoto.
+// Qualquer alteração (POST/PUT/DELETE) bem-sucedida invalida tudo.
+const TTL_CACHE_MS = 15_000;
+const cache = new Map<string, { expira: number; promessa: Promise<any> }>();
+
+function limparCache() {
+  cache.clear();
+}
 
 /** Registra o callback chamado quando a API responde 401 (token inválido ou expirado). */
 export const setOnUnauthorized = (callback: (() => void) | null) => {
@@ -31,6 +81,24 @@ interface Opcoes {
 
 // Faz a requisição com o header Authorization e converte erros em Error com a mensagem { erro } do back-end.
 async function requisitar(caminho: string, erroPadrao: string, opcoes: Opcoes = {}): Promise<any> {
+  const metodo = opcoes.method ?? 'GET';
+  if (metodo !== 'GET' || opcoes.publica) {
+    const resultado = await requisitarDireto(caminho, erroPadrao, opcoes);
+    if (metodo !== 'GET') limparCache();
+    return resultado;
+  }
+
+  const agora = Date.now();
+  const existente = cache.get(caminho);
+  if (existente && existente.expira > agora) return structuredClone(await existente.promessa);
+
+  const promessa = requisitarDireto(caminho, erroPadrao, opcoes);
+  cache.set(caminho, { expira: agora + TTL_CACHE_MS, promessa });
+  promessa.catch(() => cache.delete(caminho)); // não guarda falhas
+  return structuredClone(await promessa);
+}
+
+async function requisitarDireto(caminho: string, erroPadrao: string, opcoes: Opcoes): Promise<any> {
   const headers: Record<string, string> = {};
   if (opcoes.body !== undefined) headers['Content-Type'] = 'application/json';
   if (token && !opcoes.publica) headers['Authorization'] = `Bearer ${token}`;
