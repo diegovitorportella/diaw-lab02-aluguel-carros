@@ -95,4 +95,10 @@ export const api = {
     requisitar('/automoveis', 'Erro ao criar automóvel', { method: 'POST', body: automovel }),
 
   listarAutomoveis: () => requisitar('/automoveis', 'Erro ao buscar automóveis'),
+
+  atualizarAutomovel: (id: number, automovel: any) =>
+    requisitar(`/automoveis/${id}`, 'Erro ao atualizar automóvel', { method: 'PUT', body: automovel }),
+
+  excluirAutomovel: (id: number) =>
+    requisitar(`/automoveis/${id}`, 'Erro ao excluir automóvel', { method: 'DELETE' }),
 };
