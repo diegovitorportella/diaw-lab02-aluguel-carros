@@ -8,7 +8,9 @@ import { api, ApiError } from "../services/api";
 import { formatarData, formatarMoeda, formatarPlaca, parseMoeda } from "../utils/formatters";
 
 type Erros = Record<string, string>;
-type Aba = "analise" | "contrato";
+type Aba = "analise" | "contrato" | "historico";
+const STATUS_HISTORICO = ["CONCLUIDO", "REJEITADO", "CANCELADO"];
+const ROTULO_STATUS: Record<string, string> = { CONCLUIDO: "Concluídos", REJEITADO: "Rejeitados", CANCELADO: "Cancelados" };
 
 export default function FinancialReview({ user }: { user?: any }) {
   const [pedidos, setPedidos] = useState<any[]>([]);
@@ -16,6 +18,10 @@ export default function FinancialReview({ user }: { user?: any }) {
   const [selected, setSelected] = useState<any | null>(null);
   const [decision, setDecision] = useState<"approve" | "reject">("approve");
   const [mensagemSucesso, setMensagemSucesso] = useState("");
+
+  // aba "Histórico": análises já encerradas
+  const [filtroStatus, setFiltroStatus] = useState("TODOS");
+  const [somenteMinhas, setSomenteMinhas] = useState(false);
 
   // modificação do pedido (fase de análise)
   const [observacao, setObservacao] = useState("");
@@ -49,7 +55,14 @@ export default function FinancialReview({ user }: { user?: any }) {
 
   const emAnalise = pedidos.filter((p) => p.status === "PENDENTE");
   const aguardandoContrato = pedidos.filter((p) => p.status === "APROVADO");
-  const lista = aba === "analise" ? emAnalise : aguardandoContrato;
+  const encerrados = pedidos
+    .filter((p) => STATUS_HISTORICO.includes(p.status))
+    .filter((p) => filtroStatus === "TODOS" || p.status === filtroStatus)
+    .filter((p) => !somenteMinhas || p.agenteAvaliador?.id === user?.id)
+    .sort((a, b) => b.id - a.id);
+  const totalEncerrados = pedidos.filter((p) => STATUS_HISTORICO.includes(p.status)).length;
+  const lista = aba === "analise" ? emAnalise : aba === "contrato" ? aguardandoContrato : encerrados;
+  const historico = aba === "historico";
 
   const selecionar = (pedido: any | null) => {
     setSelected(pedido);
@@ -184,6 +197,7 @@ export default function FinancialReview({ user }: { user?: any }) {
         {([
           ["analise", `Em análise (${emAnalise.length})`],
           ["contrato", `Aguardando contrato (${aguardandoContrato.length})`],
+          ["historico", `Histórico (${totalEncerrados})`],
         ] as const).map(([id, rotulo]) => (
           <button
             key={id}
@@ -197,6 +211,28 @@ export default function FinancialReview({ user }: { user?: any }) {
         ))}
       </div>
 
+      {historico && (
+        <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
+          <div className="flex gap-1 rounded-xl bg-slate-200/70 p-1">
+            {["TODOS", ...STATUS_HISTORICO].map((s) => (
+              <button
+                key={s}
+                onClick={() => setFiltroStatus(s)}
+                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                  filtroStatus === s ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                {s === "TODOS" ? "Todos" : ROTULO_STATUS[s]}
+              </button>
+            ))}
+          </div>
+          <label className="flex cursor-pointer items-center gap-2 font-medium text-slate-600">
+            <input type="checkbox" checked={somenteMinhas} onChange={(e) => setSomenteMinhas(e.target.checked)} className="h-4 w-4 accent-blue-600" />
+            Somente as minhas análises
+          </label>
+        </div>
+      )}
+
       <section className="card overflow-hidden mt-4">
         <div className="overflow-x-auto">
           <table className="w-full min-w-215 text-left">
@@ -208,14 +244,19 @@ export default function FinancialReview({ user }: { user?: any }) {
                 <th>Valor total</th>
                 <th>Renda do cliente</th>
                 <th>Status</th>
+                {historico && <th>Analisado por</th>}
                 <th />
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {lista.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="p-6 text-center text-slate-500">
-                    {aba === "analise" ? "Nenhum pedido pendente de análise." : "Nenhum pedido aprovado aguardando contrato."}
+                  <td colSpan={historico ? 8 : 7} className="p-6 text-center text-slate-500">
+                    {aba === "analise"
+                      ? "Nenhum pedido pendente de análise."
+                      : aba === "contrato"
+                        ? "Nenhum pedido aprovado aguardando contrato."
+                        : "Nenhuma análise encerrada com esses filtros."}
                   </td>
                 </tr>
               )}
@@ -239,6 +280,11 @@ export default function FinancialReview({ user }: { user?: any }) {
                   <td className="font-semibold text-slate-900">{formatarMoeda(row.valorTotal)}</td>
                   <td className="text-slate-600">{formatarMoeda(rendaTotal(row))}</td>
                   <td><StatusBadge status={row.status} /></td>
+                  {historico && (
+                    <td className="text-slate-600">
+                      {row.agenteAvaliador ? (row.agenteAvaliador.razaoSocial || row.agenteAvaliador.login) : "—"}
+                    </td>
+                  )}
                   <td><Icon name="chevron" className="h-4 w-4 text-slate-400" /></td>
                 </tr>
               ))}
@@ -255,7 +301,11 @@ export default function FinancialReview({ user }: { user?: any }) {
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-blue-600">REQ-{selected.id}</p>
                 <h2 className="mt-1 text-xl font-semibold">
-                  {selected.status === "PENDENTE" ? "Analisar solicitação" : "Executar contrato"}
+                  {selected.status === "PENDENTE"
+                    ? "Analisar solicitação"
+                    : selected.status === "APROVADO"
+                      ? "Executar contrato"
+                      : "Detalhes da análise"}
                 </h2>
               </div>
               <button onClick={() => selecionar(null)} className="header-button"><Icon name="close" /></button>
@@ -288,6 +338,51 @@ export default function FinancialReview({ user }: { user?: any }) {
                   <OrderTimeline status={selected.status} historico={selected.historico} />
                 </div>
               </div>
+
+              {/* ---- Análise encerrada (somente leitura) ---- */}
+              {STATUS_HISTORICO.includes(selected.status) && (
+                <div className="rounded-2xl border border-slate-200 p-5">
+                  <h3 className="panel-title">Resultado</h3>
+                  <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+                    <div>
+                      <dt className="text-xs text-slate-400">Situação</dt>
+                      <dd className="mt-1"><StatusBadge status={selected.status} /></dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-slate-400">Analisado por</dt>
+                      <dd className="font-semibold text-slate-800">
+                        {selected.agenteAvaliador
+                          ? `${selected.agenteAvaliador.razaoSocial || selected.agenteAvaliador.login} (${selected.agenteAvaliador.tipo === "BANCO" ? "Banco" : "Empresa"})`
+                          : "Não chegou a ser analisado"}
+                      </dd>
+                    </div>
+                    {selected.parecerFinanceiro && (
+                      <div>
+                        <dt className="text-xs text-slate-400">Parecer</dt>
+                        <dd className="font-semibold text-slate-800">{selected.parecerFinanceiro}</dd>
+                      </div>
+                    )}
+                    {selected.observacao && (
+                      <div className="col-span-2">
+                        <dt className="text-xs text-slate-400">Observação</dt>
+                        <dd className="font-semibold text-slate-800">{selected.observacao}</dd>
+                      </div>
+                    )}
+                  </dl>
+                  {selected.contrato?.valorFinanciado != null && (
+                    <div className="mt-4 rounded-xl bg-blue-50 p-4 text-sm text-blue-900">
+                      <p className="font-semibold">Financiamento — {selected.contrato.banco?.razaoSocial || "Banco"}</p>
+                      <p className="mt-1">
+                        {formatarMoeda(selected.contrato.valorFinanciado)} em {selected.contrato.numeroParcelas ?? "—"}x de{" "}
+                        <b>{formatarMoeda(selected.contrato.valorParcela)}</b> ({selected.contrato.taxaJuros}% a.a.)
+                      </p>
+                    </div>
+                  )}
+                  {selected.status === "CONCLUIDO" && selected.contrato && selected.contrato.valorFinanciado == null && (
+                    <p className="mt-4 text-sm text-slate-600">Contrato de aluguel executado sem financiamento.</p>
+                  )}
+                </div>
+              )}
 
               {/* ---- Fase de análise (pedido pendente) ---- */}
               {selected.status === "PENDENTE" && (
