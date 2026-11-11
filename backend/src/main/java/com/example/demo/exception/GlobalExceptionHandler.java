@@ -7,6 +7,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestControllerAdvice
@@ -20,6 +21,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RecursoNaoEncontradoException.class)
     public ResponseEntity<Map<String, String>> naoEncontrado(RecursoNaoEncontradoException e) {
         return resposta(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
+    /** Falha de validação: devolve a mensagem geral e a mensagem de cada campo. */
+    @ExceptionHandler(ValidacaoException.class)
+    public ResponseEntity<Map<String, Object>> validacao(ValidacaoException e) {
+        Map<String, Object> corpo = new LinkedHashMap<>();
+        corpo.put("erro", e.getMessage());
+        corpo.put("campos", e.getCampos());
+        return ResponseEntity.badRequest().body(corpo);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

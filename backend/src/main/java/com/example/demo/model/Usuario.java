@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
@@ -29,6 +30,10 @@ public abstract class Usuario {
     /** Papel do usuário no sistema (CLIENTE, BANCO ou EMPRESA); exposto no JSON para o front-end. */
     @JsonProperty(value = "tipo", access = JsonProperty.Access.READ_ONLY)
     public abstract String getTipo();
+
+    /** Nome mostrado em históricos e notificações (não é serializado no JSON). */
+    @JsonIgnore
+    public String getNomeExibicao() { return login; }
 
     public String getSenha() { return senha; }
     public void setSenha(String senha) { this.senha = senha; }

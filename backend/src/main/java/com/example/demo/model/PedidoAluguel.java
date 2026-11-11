@@ -3,6 +3,9 @@ package com.example.demo.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class PedidoAluguel {
@@ -16,6 +19,7 @@ public class PedidoAluguel {
     private LocalDate dataInicio;
     private LocalDate dataFim;
     private String observacao;
+    private Double valorTotal;
 
     @ManyToOne
     @JoinColumn(name = "cliente_id", nullable = false)
@@ -33,7 +37,26 @@ public class PedidoAluguel {
     @JsonIgnoreProperties("pedidoAluguel")
     private Contrato contrato;
 
+    /** Acompanhamento: cada mudança de situação do pedido, com data e responsável. */
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("dataHora ASC, id ASC")
+    private List<PedidoHistorico> historico = new ArrayList<>();
+
     public PedidoAluguel() {}
+
+    /** Registra um evento no histórico do pedido. */
+    public void registrar(String statusAtual, String descricao, Usuario responsavel) {
+        PedidoHistorico evento = new PedidoHistorico();
+        evento.setPedido(this);
+        evento.setStatus(statusAtual);
+        evento.setDescricao(descricao);
+        evento.setDataHora(LocalDateTime.now());
+        if (responsavel != null) {
+            evento.setResponsavelNome(responsavel.getNomeExibicao());
+            evento.setResponsavelTipo(responsavel.getTipo());
+        }
+        historico.add(evento);
+    }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -52,6 +75,11 @@ public class PedidoAluguel {
 
     public String getObservacao() { return observacao; }
     public void setObservacao(String observacao) { this.observacao = observacao; }
+
+    public Double getValorTotal() { return valorTotal; }
+    public void setValorTotal(Double valorTotal) { this.valorTotal = valorTotal; }
+
+    public List<PedidoHistorico> getHistorico() { return historico; }
 
     public Cliente getCliente() { return cliente; }
     public void setCliente(Cliente cliente) { this.cliente = cliente; }

@@ -14,6 +14,7 @@ public class Automovel {
     private String marca;
     private String modelo;
     private String placa;
+    private Double valorDiaria;
 
     @ManyToOne
     @JoinColumn(name = "proprietario_id", nullable = false)
@@ -38,6 +39,9 @@ public class Automovel {
 
     public String getPlaca() { return placa; }
     public void setPlaca(String placa) { this.placa = placa; }
+
+    public Double getValorDiaria() { return valorDiaria; }
+    public void setValorDiaria(Double valorDiaria) { this.valorDiaria = valorDiaria; }
 
     public Usuario getProprietario() { return proprietario; }
     public void setProprietario(Usuario proprietario) { this.proprietario = proprietario; }

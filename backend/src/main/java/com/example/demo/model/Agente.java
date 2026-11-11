@@ -11,6 +11,9 @@ public abstract class Agente extends Usuario {
 
     public Agente() {}
 
+    @Override
+    public String getNomeExibicao() { return razaoSocial != null && !razaoSocial.isBlank() ? razaoSocial : getLogin(); }
+
     public String getCnpj() { return cnpj; }
     public void setCnpj(String cnpj) { this.cnpj = cnpj; }
 
