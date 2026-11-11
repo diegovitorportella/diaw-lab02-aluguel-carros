@@ -4,6 +4,7 @@ import Icon from "../components/Icon";
 import OrderTimeline from "../components/OrderTimeline";
 import StatusBadge, { ROTULOS } from "../components/StatusBadge";
 import TextInput from "../components/TextInput";
+import { useToast } from "../components/Toast";
 import { api, ApiError } from "../services/api";
 import { contarDiarias, formatarData, formatarMoeda, formatarPlaca, hojeISO } from "../utils/formatters";
 
@@ -23,6 +24,8 @@ export default function Requests({ user }: { user?: any }) {
   const [erro, setErro] = useState("");
   const [erros, setErros] = useState<Erros>({});
   const [veiculos, setVeiculos] = useState<any[]>([]);
+  const [enviando, setEnviando] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     carregarPedidos();
@@ -56,9 +59,10 @@ export default function Requests({ user }: { user?: any }) {
     if (!user || !confirm(`Cancelar o pedido REQ-${pedido.id}?`)) return;
     try {
       await api.cancelarPedido(pedido.id);
+      toast.sucesso(`Pedido REQ-${pedido.id} cancelado`, "O cancelamento ficou registrado no histórico do pedido.");
       carregarPedidos();
     } catch (err: any) {
-      alert(err.message);
+      toast.erro("Não foi possível cancelar o pedido", err.message);
     }
   };
 
@@ -82,11 +86,14 @@ export default function Requests({ user }: { user?: any }) {
 
   const salvarPedido = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return alert("Você precisa estar logado como cliente!");
+    if (!user || enviando) return;
     setErro("");
     const encontrados = validar();
     setErros(encontrados);
-    if (Object.keys(encontrados).length > 0) return;
+    if (Object.keys(encontrados).length > 0) {
+      toast.erro("Confira os campos do pedido", "Há campos obrigatórios ou inválidos.");
+      return;
+    }
 
     const dados = {
       automovel: { id: parseInt(carroId) },
@@ -94,17 +101,26 @@ export default function Requests({ user }: { user?: any }) {
       dataFim,
       observacao: observacao || null,
     };
+    setEnviando(true);
     try {
       if (editando) {
-        await api.modificarPedido(editando.id, dados);
+        const atualizado = await api.modificarPedido(editando.id, dados);
+        toast.sucesso(`Pedido REQ-${atualizado?.id ?? editando.id} atualizado`, "As alterações foram salvas.");
       } else {
-        await api.criarPedido(dados);
+        const criado = await api.criarPedido(dados);
+        toast.sucesso(
+          `Pedido ${criado?.id ? `REQ-${criado.id} ` : ""}enviado com sucesso`,
+          "Ele está em análise. Você pode acompanhar o andamento nesta tela.",
+        );
       }
       limparFormulario();
       carregarPedidos();
     } catch (err: any) {
       if (err instanceof ApiError && Object.keys(err.campos).length > 0) setErros(err.campos);
       setErro(err.message);
+      toast.erro("Não foi possível salvar o pedido", err.message);
+    } finally {
+      setEnviando(false);
     }
   };
 
@@ -274,7 +290,9 @@ export default function Requests({ user }: { user?: any }) {
               <TextInput label="Observação" value={observacao} onChange={(e) => setObservacao(e.target.value)} placeholder="Opcional" />
               <div className="mt-6 flex justify-end gap-3">
                 <button type="button" onClick={limparFormulario} className="button-secondary">Cancelar</button>
-                <button type="submit" className="button-primary">{editando ? "Salvar alterações" : "Confirmar Pedido"}</button>
+                <button type="submit" disabled={enviando} className="button-primary disabled:cursor-wait disabled:opacity-60">
+                  {enviando ? "Enviando..." : editando ? "Salvar alterações" : "Confirmar Pedido"}
+                </button>
               </div>
             </form>
           </div>

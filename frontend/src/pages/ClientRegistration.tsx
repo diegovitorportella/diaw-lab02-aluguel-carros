@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import Header from "../components/Header";
 import Icon from "../components/Icon";
 import TextInput from "../components/TextInput";
+import { useToast } from "../components/Toast";
 import { api, ApiError } from "../services/api";
 import { cpfValido, mascaraCpf, parseMoeda } from "../utils/formatters";
 
@@ -13,6 +14,7 @@ const SENHA_MINIMA = 8;
 
 export default function ClientRegistration() {
   const [incomes, setIncomes] = useState([{ employer: "", salary: "" }]);
+  const toast = useToast();
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
   const [erros, setErros] = useState<Erros>({});
@@ -69,6 +71,7 @@ export default function ClientRegistration() {
     setErrosRenda(er);
     if (Object.keys(e).length > 0 || Object.keys(er).length > 0) {
       setError("Corrija os campos destacados.");
+      toast.erro("Confira os campos do cadastro", "Há campos obrigatórios ou inválidos.");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
@@ -81,12 +84,14 @@ export default function ClientRegistration() {
       });
 
       setSaved(true);
+      toast.sucesso("Cadastro realizado com sucesso", "Já é possível entrar com o login e a senha cadastrados.");
       setNome(""); setCpf(""); setRg(""); setEndereco(""); setLogin(""); setSenha(""); setProfissao("");
       setIncomes([{ employer: "", salary: "" }]);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err: any) {
       if (err instanceof ApiError && Object.keys(err.campos).length > 0) setErros(err.campos);
       setError(err.message || "Erro ao salvar perfil.");
+      toast.erro("Não foi possível salvar o cadastro", err.message);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };

@@ -4,6 +4,7 @@ import Icon from "../components/Icon";
 import OrderTimeline from "../components/OrderTimeline";
 import StatusBadge from "../components/StatusBadge";
 import TextInput from "../components/TextInput";
+import { useToast } from "../components/Toast";
 import { api, ApiError } from "../services/api";
 import { formatarData, formatarMoeda, formatarPlaca, parseMoeda } from "../utils/formatters";
 
@@ -17,7 +18,8 @@ export default function FinancialReview({ user }: { user?: any }) {
   const [aba, setAba] = useState<Aba>("analise");
   const [selected, setSelected] = useState<any | null>(null);
   const [decision, setDecision] = useState<"approve" | "reject">("approve");
-  const [mensagemSucesso, setMensagemSucesso] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const toast = useToast();
 
   // aba "Histórico": análises já encerradas
   const [filtroStatus, setFiltroStatus] = useState("TODOS");
@@ -37,7 +39,6 @@ export default function FinancialReview({ user }: { user?: any }) {
 
   const [erro, setErro] = useState("");
   const [erros, setErros] = useState<Erros>({});
-  const [aviso, setAviso] = useState("");
 
   const isBanco = user?.tipo === "BANCO";
 
@@ -71,7 +72,7 @@ export default function FinancialReview({ user }: { user?: any }) {
     setComCredito(false);
     setEntrada(""); setParcelas("12"); setJuros(""); setValorFinanciado("");
     setSimulacao(null); setErroSimulacao("");
-    setErro(""); setErros({}); setAviso(""); setMensagemSucesso("");
+    setErro(""); setErros({});
   };
 
   const rendaTotal = (pedido: any) =>
@@ -114,47 +115,55 @@ export default function FinancialReview({ user }: { user?: any }) {
   const tratarErro = (err: any) => {
     if (err instanceof ApiError && Object.keys(err.campos).length > 0) setErros(err.campos);
     setErro(err.message);
+    toast.erro("A ação não foi concluída", err.message);
   };
 
   const salvarAlteracoes = async () => {
-    if (!selected) return;
-    setErro(""); setErros({}); setAviso("");
+    if (!selected || enviando) return;
+    setErro(""); setErros({});
+    setEnviando(true);
     try {
       const atualizado = await api.modificarPedido(selected.id, {
         observacao: observacao || null,
       });
       setSelected(atualizado);
-      setAviso("Observação atualizada.");
+      toast.sucesso("Observação salva", `A observação do pedido REQ-${selected.id} foi atualizada.`);
       carregarPedidos();
     } catch (err: any) {
       tratarErro(err);
+    } finally {
+      setEnviando(false);
     }
   };
 
-  const concluirAposAcao = (mensagem: string) => {
-    setMensagemSucesso(mensagem);
-    setTimeout(() => {
-      selecionar(null);
-      carregarPedidos();
-    }, 1800);
+  /** Fecha o painel, mostra a confirmação e recarrega a lista. */
+  const concluirAposAcao = (titulo: string, detalhe?: string) => {
+    toast.sucesso(titulo, detalhe);
+    selecionar(null);
+    carregarPedidos();
   };
 
   const enviarParecer = async () => {
-    if (!selected) return;
-    setErro(""); setErros({}); setAviso("");
+    if (!selected || enviando) return;
+    setErro(""); setErros({});
+    setEnviando(true);
     try {
       await api.avaliarPedido(selected.id, decision === "approve" ? "POSITIVO" : "NEGATIVO");
-      concluirAposAcao(decision === "approve"
-        ? "Pedido aprovado. Ele segue para a aba “Aguardando contrato”."
-        : "Pedido rejeitado.");
+      if (decision === "approve") {
+        concluirAposAcao(`Pedido REQ-${selected.id} aprovado`, "Ele segue para a aba “Aguardando contrato”, onde o contrato é executado.");
+      } else {
+        concluirAposAcao(`Pedido REQ-${selected.id} rejeitado`, "O parecer negativo foi registrado no histórico.");
+      }
     } catch (err: any) {
       tratarErro(err);
+    } finally {
+      setEnviando(false);
     }
   };
 
   const executarContrato = async () => {
-    if (!selected) return;
-    setErro(""); setErros({}); setAviso("");
+    if (!selected || enviando) return;
+    setErro(""); setErros({});
 
     let corpo: any = {};
     if (isBanco && comCredito) {
@@ -170,18 +179,25 @@ export default function FinancialReview({ user }: { user?: any }) {
       if (Object.keys(e).length > 0) {
         setErros(e);
         setErro("Corrija os campos destacados.");
+        toast.erro("Confira os dados do contrato", "Há campos obrigatórios ou inválidos.");
         return;
       }
       corpo = { valorEntrada: nEntrada, numeroParcelas: nParcelas, taxaJuros: nJuros, valorFinanciado: nFinanciado };
     }
 
+    setEnviando(true);
     try {
       await api.gerarContrato(selected.id, corpo);
-      concluirAposAcao(isBanco && comCredito
-        ? "Contrato com financiamento executado. O pedido está concluído."
-        : "Contrato executado. O pedido está concluído.");
+      concluirAposAcao(
+        `Contrato do pedido REQ-${selected.id} executado`,
+        isBanco && comCredito
+          ? "Financiamento concedido. O pedido está concluído."
+          : "O pedido está concluído.",
+      );
     } catch (err: any) {
       tratarErro(err);
+    } finally {
+      setEnviando(false);
     }
   };
 
@@ -312,13 +328,7 @@ export default function FinancialReview({ user }: { user?: any }) {
             </div>
 
             <div className="space-y-7 p-6">
-              {mensagemSucesso && (
-                <div className="flex items-center gap-3 rounded-xl bg-emerald-50 p-4 text-sm font-semibold text-emerald-800">
-                  <Icon name="check" className="h-5 w-5" /> {mensagemSucesso}
-                </div>
-              )}
               {erro && <div className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-800">{erro}</div>}
-              {aviso && <div className="rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-800">{aviso}</div>}
 
               {/* Resumo do pedido */}
               <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
@@ -393,7 +403,9 @@ export default function FinancialReview({ user }: { user?: any }) {
                     <div className="mt-4 grid grid-cols-1 gap-4">
                       <TextInput label="Observação" value={observacao} onChange={e => setObservacao(e.target.value)} error={erros.observacao} />
                     </div>
-                    <button onClick={salvarAlteracoes} className="button-secondary mt-4">Salvar observação</button>
+                    <button onClick={salvarAlteracoes} disabled={enviando} className="button-secondary mt-4 disabled:opacity-60">
+                  {enviando ? "Salvando..." : "Salvar observação"}
+                </button>
                   </div>
 
                   <div>
@@ -486,13 +498,13 @@ export default function FinancialReview({ user }: { user?: any }) {
 
             <div className="sticky bottom-0 flex gap-3 border-t border-slate-200 bg-white p-6">
               {selected.status === "PENDENTE" && (
-                <button onClick={enviarParecer} className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white ${decision === "approve" ? "bg-blue-600 hover:bg-blue-700" : "bg-red-600 hover:bg-red-700"}`}>
-                  Enviar parecer <Icon name="chevron" className="h-4 w-4" />
+                <button onClick={enviarParecer} disabled={enviando} className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-60 ${decision === "approve" ? "bg-blue-600 hover:bg-blue-700" : "bg-red-600 hover:bg-red-700"}`}>
+                  {enviando ? "Enviando..." : "Enviar parecer"} <Icon name="chevron" className="h-4 w-4" />
                 </button>
               )}
               {selected.status === "APROVADO" && (
-                <button onClick={executarContrato} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700">
-                  Executar contrato <Icon name="chevron" className="h-4 w-4" />
+                <button onClick={executarContrato} disabled={enviando} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60">
+                  {enviando ? "Executando..." : "Executar contrato"} <Icon name="chevron" className="h-4 w-4" />
                 </button>
               )}
             </div>

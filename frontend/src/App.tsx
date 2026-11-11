@@ -7,6 +7,7 @@ import Requests from "./pages/Requests";
 import FinancialReview from "./pages/FinancialReview";
 import Vehicles from "./pages/Vehicles";
 import Settings from "./pages/Settings";
+import { ToastProvider, useToast } from "./components/Toast";
 import { salvarUsuario, setOnUnauthorized, setToken, usuarioSalvo } from "./services/api";
 
 const CHAVE_TELA = "driveja.tela";
@@ -21,6 +22,15 @@ const telaInicial = (u: any): Screen => {
 };
 
 export default function App() {
+  return (
+    <ToastProvider>
+      <Aplicacao />
+    </ToastProvider>
+  );
+}
+
+function Aplicacao() {
+  const toast = useToast();
   // Restaura a sessão guardada (F5 não desloga).
   const [user, setUser] = useState<any>(() => usuarioSalvo());
   const [screen, setScreen] = useState<Screen>(() => {
@@ -60,7 +70,10 @@ export default function App() {
 
   // Token expirado/inválido: volta para o login
   useEffect(() => {
-    setOnUnauthorized(handleLogout);
+    setOnUnauthorized(() => {
+      handleLogout();
+      toast.info("Sua sessão expirou", "Entre novamente para continuar.");
+    });
     return () => setOnUnauthorized(null);
   }, []);
 
@@ -87,7 +100,7 @@ export default function App() {
       ) : screen === "review" ? (
         <FinancialReview user={user} />
       ) : screen === "settings" ? (
-        <Settings user={user} onLogout={handleLogout} />
+        <Settings user={user} onLogout={() => { handleLogout(); toast.info("Você saiu da conta"); }} />
       ) : screen === "vehicles" ? (
         <Vehicles user={user} />
       ) : (

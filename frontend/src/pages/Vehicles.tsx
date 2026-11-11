@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Icon from "../components/Icon";
 import TextInput from "../components/TextInput";
+import { useToast } from "../components/Toast";
 import { api, ApiError } from "../services/api";
 import { formatarMoeda, formatarPlaca, normalizarPlaca, parseMoeda, placaValida } from "../utils/formatters";
 
@@ -13,6 +14,8 @@ export default function Vehicles({ user }: { user?: any }) {
   const [editando, setEditando] = useState<any | null>(null);
   const [erro, setErro] = useState("");
   const [erros, setErros] = useState<Erros>({});
+  const [enviando, setEnviando] = useState(false);
+  const toast = useToast();
 
   // Estados do formulário
   const [marca, setMarca] = useState("");
@@ -78,25 +81,34 @@ export default function Vehicles({ user }: { user?: any }) {
 
   const salvarVeiculo = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return alert("Você precisa estar logado para cadastrar um veículo.");
+    if (!user || enviando) return;
     setErro("");
     const encontrados = validar();
     setErros(encontrados);
-    if (Object.keys(encontrados).length > 0) return;
+    if (Object.keys(encontrados).length > 0) {
+      toast.erro("Confira os campos do veículo", "Há campos obrigatórios ou inválidos.");
+      return;
+    }
 
     // o proprietário é o usuário logado (definido pelo back-end a partir do token)
     const dados = { marca, modelo, ano: parseInt(ano), placa, matricula, valorDiaria: parseMoeda(valorDiaria) };
+    setEnviando(true);
     try {
       if (editando) {
         await api.atualizarAutomovel(editando.id, dados);
+        toast.sucesso("Veículo atualizado", `${marca} ${modelo} foi salvo com as novas informações.`);
       } else {
         await api.criarAutomovel(dados);
+        toast.sucesso("Veículo cadastrado", `${marca} ${modelo} já está disponível para aluguel.`);
       }
       fecharModal();
       carregarVeiculos();
     } catch (err: any) {
       if (err instanceof ApiError && Object.keys(err.campos).length > 0) setErros(err.campos);
       setErro(err.message);
+      toast.erro("Não foi possível salvar o veículo", err.message);
+    } finally {
+      setEnviando(false);
     }
   };
 
@@ -104,9 +116,10 @@ export default function Vehicles({ user }: { user?: any }) {
     if (!confirm(`Excluir o veículo ${carro.marca} ${carro.modelo} (${formatarPlaca(carro.placa)})?`)) return;
     try {
       await api.excluirAutomovel(carro.id);
+      toast.sucesso("Veículo excluído", `${carro.marca} ${carro.modelo} foi removido.`);
       carregarVeiculos();
     } catch (err: any) {
-      alert(err.message);
+      toast.erro("Não foi possível excluir o veículo", err.message);
     }
   };
 
@@ -197,7 +210,9 @@ export default function Vehicles({ user }: { user?: any }) {
 
               <div className="col-span-full mt-4 flex justify-end gap-3">
                 <button type="button" onClick={fecharModal} className="button-secondary">Cancelar</button>
-                <button type="submit" className="button-primary">{editando ? "Salvar alterações" : "Salvar Veículo"}</button>
+                <button type="submit" disabled={enviando} className="button-primary disabled:cursor-wait disabled:opacity-60">
+                  {enviando ? "Salvando..." : editando ? "Salvar alterações" : "Salvar Veículo"}
+                </button>
               </div>
             </form>
           </div>
