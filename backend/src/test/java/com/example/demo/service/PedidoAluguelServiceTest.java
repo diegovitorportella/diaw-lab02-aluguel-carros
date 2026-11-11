@@ -197,11 +197,12 @@ class PedidoAluguelServiceTest {
 
     @Test
     void modificacaoParcialMantemOsDemaisCampos() {
-        PedidoAluguel alterado = service.modificar(10L, 3L, new PedidoDTO(null, null, null, null));
+        PedidoAluguel alterado = service.modificar(10L, 1L, new PedidoDTO(null, null, null, "novo"));
         assertEquals(hoje.plusDays(1), alterado.getDataInicio());
         assertEquals(hoje.plusDays(5), alterado.getDataFim());
         assertEquals(500.0, alterado.getValorTotal());
         assertSame(carro, alterado.getAutomovel());
+        assertEquals("novo", alterado.getObservacao());
     }
 
     @Test
@@ -218,9 +219,19 @@ class PedidoAluguelServiceTest {
     }
 
     @Test
-    void agenteModificaPedidoPendente() {
-        PedidoAluguel alterado = service.modificar(10L, 3L, dto(null, null, null));
+    void agenteAlteraApenasAObservacaoDoPedidoPendente() {
+        PedidoAluguel alterado = service.modificar(10L, 3L, new PedidoDTO(null, null, null, "parecer"));
+        assertEquals("parecer", alterado.getObservacao());
+        assertEquals(hoje.plusDays(1), alterado.getDataInicio());
         assertEquals("BANCO", ultimoEvento(alterado).getResponsavelTipo());
+    }
+
+    @Test
+    void agenteNaoAlteraDatasNemVeiculo() {
+        assertThrows(AcessoNegadoException.class, () -> service.modificar(10L, 3L, dto(null, hoje.plusDays(2), null)));
+        assertThrows(AcessoNegadoException.class, () -> service.modificar(10L, 3L, dto(null, null, hoje.plusDays(9))));
+        assertThrows(AcessoNegadoException.class, () -> service.modificar(10L, 3L, dto(6L, null, null)));
+        assertEquals(hoje.plusDays(1), pedido.getDataInicio());
     }
 
     @Test
@@ -252,7 +263,7 @@ class PedidoAluguelServiceTest {
         proprio.setId(7L);
         proprio.setProprietario(dono);
         when(automovelRepository.findById(7L)).thenReturn(Optional.of(proprio));
-        assertThrows(ValidacaoException.class, () -> service.modificar(10L, 3L, dto(7L, null, null)));
+        assertThrows(ValidacaoException.class, () -> service.modificar(10L, 1L, dto(7L, null, null)));
     }
 
     // ---------- cancelar ----------

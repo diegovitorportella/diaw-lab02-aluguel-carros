@@ -18,8 +18,6 @@ export default function FinancialReview({ user }: { user?: any }) {
   const [mensagemSucesso, setMensagemSucesso] = useState("");
 
   // modificação do pedido (fase de análise)
-  const [dataInicio, setDataInicio] = useState("");
-  const [dataFim, setDataFim] = useState("");
   const [observacao, setObservacao] = useState("");
 
   // execução do contrato (pedido aprovado)
@@ -56,8 +54,6 @@ export default function FinancialReview({ user }: { user?: any }) {
   const selecionar = (pedido: any | null) => {
     setSelected(pedido);
     setDecision("approve");
-    setDataInicio(pedido?.dataInicio ?? "");
-    setDataFim(pedido?.dataFim ?? "");
     setObservacao(pedido?.observacao ?? "");
     setComCredito(false);
     setEntrada(""); setParcelas("12"); setJuros(""); setValorFinanciado("");
@@ -112,13 +108,10 @@ export default function FinancialReview({ user }: { user?: any }) {
     setErro(""); setErros({}); setAviso("");
     try {
       const atualizado = await api.modificarPedido(selected.id, {
-        automovel: { id: selected.automovel?.id },
-        dataInicio: dataInicio || null,
-        dataFim: dataFim || null,
         observacao: observacao || null,
       });
       setSelected(atualizado);
-      setAviso("Pedido modificado com sucesso.");
+      setAviso("Observação atualizada.");
       carregarPedidos();
     } catch (err: any) {
       tratarErro(err);
@@ -300,13 +293,12 @@ export default function FinancialReview({ user }: { user?: any }) {
               {selected.status === "PENDENTE" && (
                 <>
                   <div>
-                    <h3 className="panel-title">Modificar pedido</h3>
-                    <div className="mt-4 grid grid-cols-2 gap-4">
-                      <TextInput label="Data inicial" type="date" value={dataInicio} onChange={e => setDataInicio(e.target.value)} error={erros.dataInicio} />
-                      <TextInput label="Data final" type="date" value={dataFim} onChange={e => setDataFim(e.target.value)} error={erros.dataFim} />
-                      <TextInput label="Observação" value={observacao} onChange={e => setObservacao(e.target.value)} wide />
+                    <h3 className="panel-title">Observação do pedido</h3>
+                    <p className="mt-1 text-xs text-slate-500">Veículo e período são definidos pelo cliente; o agente só registra observações.</p>
+                    <div className="mt-4 grid grid-cols-1 gap-4">
+                      <TextInput label="Observação" value={observacao} onChange={e => setObservacao(e.target.value)} error={erros.observacao} />
                     </div>
-                    <button onClick={salvarAlteracoes} className="button-secondary mt-4">Salvar alterações</button>
+                    <button onClick={salvarAlteracoes} className="button-secondary mt-4">Salvar observação</button>
                   </div>
 
                   <div>

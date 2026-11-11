@@ -114,7 +114,8 @@ public class PedidoAluguelService {
 
     /**
      * Modifica um pedido (atualização parcial: campos nulos mantêm o valor atual). O cliente só pode
-     * alterar os próprios pedidos; agentes podem alterar qualquer pedido. Apenas enquanto pendente.
+     * alterar os próprios pedidos (veículo, datas, observação); agentes só alteram a observação de
+     * qualquer pedido. Apenas enquanto pendente.
      */
     @Transactional
     public PedidoAluguel modificar(Long id, Long usuarioId, PedidoDTO dto) {
@@ -124,6 +125,20 @@ public class PedidoAluguelService {
 
         if (!PENDENTE.equals(pedido.getStatus())) {
             throw new IllegalStateException("Apenas pedidos pendentes (em análise) podem ser modificados.");
+        }
+
+        if (usuario instanceof Agente) {
+            // O agente só ajusta a observação; veículo e período são definidos pelo cliente.
+            if (dto.automovel() != null || dto.dataInicio() != null || dto.dataFim() != null) {
+                throw new AcessoNegadoException(
+                        "O agente só pode alterar a observação do pedido; veículo e datas são definidos pelo cliente.");
+            }
+            if (dto.observacao() == null) {
+                throw new ValidacaoException(Map.of("observacao", "Informe a observação."));
+            }
+            pedido.setObservacao(dto.observacao());
+            pedido.registrar(PENDENTE, "Observação alterada pelo agente", usuario);
+            return repository.save(pedido);
         }
 
         Automovel novoAutomovel = buscarAutomovel(dto);

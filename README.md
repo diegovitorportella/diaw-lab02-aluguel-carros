@@ -101,7 +101,7 @@
 **Como funciona:**
 - Só usuários **cadastrados e autenticados** utilizam o sistema.
 - **Clientes** introduzem, modificam, consultam e cancelam pedidos de aluguel. Seus dados incluem RG, CPF, nome, endereço, profissão e até **3 entidades empregadoras com os respectivos rendimentos**.
-- **Agentes** (empresas e bancos) avaliam financeiramente os pedidos, podem modificá-los durante a análise e, havendo parecer positivo, executam o contrato.
+- **Agentes** (empresas e bancos) avaliam financeiramente os pedidos, podem registrar observações durante a análise (veículo e datas são do cliente) e, havendo parecer positivo, executam o contrato.
 - O aluguel pode estar associado a um **contrato de crédito**, concedido por um **banco** agente.
 - Os automóveis (matrícula, ano, marca, modelo, placa) pertencem a um proprietário que pode ser um **cliente, uma empresa ou um banco**.
 
@@ -117,7 +117,7 @@
 - 👤 **CRUD de Clientes:** cadastro com RG, CPF, nome, endereço, profissão e de **1 a 3 fontes de renda** (empregador + rendimento mensal), com **CPF validado pelos dígitos verificadores** (máscara no formulário, único no sistema) e login único.
 - 🚘 **CRUD de Automóveis:** matrícula, ano, marca, modelo, **placa** (padrão antigo ou Mercosul, única), **valor da diária** e proprietário (cliente, empresa ou banco). O proprietário edita e exclui os próprios veículos pela tela.
 - 📋 **Gestão de Pedidos (Cliente):** criar, **modificar** e **cancelar** pedidos e acompanhar cada um em uma **linha do tempo** (Solicitado → Aprovado → Concluído) com histórico de quem fez o quê e quando. O cliente não aluga o próprio veículo.
-- 🧾 **Gestão de Pedidos (Agente):** duas abas — **Em análise** (modificar e dar o parecer: positivo → `APROVADO`, negativo → `REJEITADO`) e **Aguardando contrato** (executar o contrato → `CONCLUIDO`).
+- 🧾 **Gestão de Pedidos (Agente):** duas abas — **Em análise** (registrar observação e dar o parecer: positivo → `APROVADO`, negativo → `REJEITADO`) e **Aguardando contrato** (executar o contrato → `CONCLUIDO`).
 - 💰 **Simulação de valor do aluguel:** ao escolher o veículo e o período, a tela mostra ao vivo "N diárias × R$ diária = R$ total"; o back-end recalcula e grava o `valorTotal` (período inclusivo: de 10 a 12 são 3 diárias).
 - 🏦 **Contrato de crédito com simulação:** ao executar o contrato, o banco informa entrada, nº de parcelas e juros (% a.a.) e vê a **parcela pela tabela Price**, o total pago e o **comprometimento da renda** do cliente, com **alerta acima de 30%**. O contrato guarda valor financiado, entrada, parcelas, juros e valor da parcela.
 - ✅ **Validações por campo:** cada campo inválido recebe sua mensagem (no formulário e na API, que devolve `campos`), além das regras de negócio.
@@ -135,7 +135,7 @@ PENDENTE ───────────────▶ APROVADO ────�
    └─(cliente cancela)──▶ CANCELADO ◀─(cliente cancela, enquanto sem contrato)
 ```
 
-- **Modificar:** somente enquanto `PENDENTE` (cliente dono ou qualquer agente); recalcula o valor total.
+- **Modificar:** somente enquanto `PENDENTE`. O cliente dono altera veículo, datas e observação (recalcula o valor total); o agente altera apenas a observação (tentar mudar datas ou veículo retorna `403`).
 - **Cancelar:** somente o cliente dono, se `PENDENTE` ou `APROVADO`.
 - **Avaliar:** somente agentes, somente pedidos `PENDENTE`. **Aprovar não gera contrato.**
 - **Executar contrato:** somente agentes, somente pedidos `APROVADO`; leva o pedido a `CONCLUIDO`. Com financiamento, somente banco.
@@ -288,7 +288,7 @@ Legenda de acesso: 🌐 público · 🔑 qualquer usuário autenticado · 👤 c
 | 👤 | `POST` | `/api/pedidos` | Cria pedido (`PENDENTE`) com período e valor total calculado, para o cliente autenticado. |
 | 🔑 | `GET` | `/api/pedidos?status=` | Cliente: os próprios pedidos. Agente: todos. Filtro opcional por status. |
 | 🔑 | `GET` | `/api/pedidos/{id}` | Busca pedido (dono ou agente). |
-| 🔑 | `PUT` | `/api/pedidos/{id}` | Modifica pedido pendente (cliente dono ou agente). |
+| 🔑 | `PUT` | `/api/pedidos/{id}` | Modifica pedido pendente (cliente: veículo/datas/observação; agente: só observação). |
 | 👤 | `PUT` | `/api/pedidos/{id}/cancelar` | Cancela pedido (cliente dono, se pendente ou aprovado sem contrato). |
 | 🏦 | `PUT` | `/api/pedidos/{id}/avaliar?parecer=` | Avalia pedido pendente (`POSITIVO` → `APROVADO`, `NEGATIVO` → `REJEITADO`). |
 | 🏦 | `GET` | `/api/pedidos/{id}/simulacao?parcelas=&juros=&entrada=&valorFinanciado=` | Simula o financiamento (tabela Price) e o comprometimento da renda do cliente. |
@@ -587,7 +587,7 @@ curl -X POST http://localhost:8080/api/contratos/gerar/1 \
 ## 🧪 Testes
 
 ### Testes Unitários e de Integração
-O back-end possui **130 testes automatizados** que rodam em **H2 em memória** (não usam o Supabase nem exigem configuração):
+O back-end possui **131 testes automatizados** que rodam em **H2 em memória** (não usam o Supabase nem exigem configuração):
 
 | Classe | Tipo | O que cobre |
 | :--- | :--- | :--- |
@@ -620,7 +620,7 @@ Com back-end e front-end em execução, valide o fluxo completo:
 
 1. **Login** com credenciais inválidas (erro) e válidas (cliente cai em *Meus pedidos*; agente cai em *Análise financeira*).
 2. **Cliente:** cadastrar cliente (CPF inválido/duplicado e login duplicado devem falhar; máx. 3 fontes de renda) → outro usuário cadastra um veículo com diária → criar pedido vendo a **simulação do valor** (`PENDENTE`) → **modificar** → criar outro e **cancelar** (`CANCELADO`).
-3. **Banco:** abrir o pedido pendente → modificar → **aprovar** → na aba **Aguardando contrato**, executar o contrato com financiamento (ver a simulação e o alerta de renda) → o pedido vira `CONCLUIDO`.
+3. **Banco:** abrir o pedido pendente → registrar observação → **aprovar** → na aba **Aguardando contrato**, executar o contrato com financiamento (ver a simulação e o alerta de renda) → o pedido vira `CONCLUIDO`.
 4. **Empresa:** aprovar/rejeitar pedido e executar contrato simples (sem opção de crédito, exclusiva de banco).
 5. **Cliente:** acompanhar a **linha do tempo** e o histórico do pedido, ver o financiamento no cartão e as notificações no sino; usar **Configurações → Sair da conta**.
 6. **Permissões (API):** chamada sem token → `401`; agente cancelando pedido de cliente → `403`; cliente listando clientes → `403`; modificar pedido já aprovado → `409`; segundo contrato para o mesmo pedido → `409`.

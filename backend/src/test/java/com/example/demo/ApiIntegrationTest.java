@@ -436,6 +436,9 @@ class ApiIntegrationTest {
         enviar(put("/api/pedidos/" + pedido), tokenDeEmpresa(), "{\"observacao\":\"do agente\"}")
                 .andExpect(status().isOk()).andExpect(jsonPath("$.observacao").value("do agente"))
                 .andExpect(jsonPath("$.historico[2].responsavelTipo").value("EMPRESA"));
+        // agente não altera datas
+        enviar(put("/api/pedidos/" + pedido), tokenDeEmpresa(), "{\"dataInicio\":\"" + dia(3) + "\"}")
+                .andExpect(status().isForbidden());
         enviar(put("/api/pedidos/" + pedido), tokenDeNovoCliente(), "{\"observacao\":\"intruso\"}")
                 .andExpect(status().isForbidden());
         enviar(put("/api/pedidos/" + pedido), dono, "{\"dataInicio\":\"" + dia(10) + "\",\"dataFim\":\"" + dia(1) + "\"}")
