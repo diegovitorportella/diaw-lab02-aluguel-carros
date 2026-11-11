@@ -33,13 +33,24 @@ export default function Shell({
     if (!user) return;
     api.listarPedidos()
       .then((pedidos: any[]) => {
+        const textoCliente: Record<string, string> = {
+          APROVADO: "foi aprovado e aguarda a execução do contrato",
+          CONCLUIDO: "foi concluído: contrato assinado",
+          REJEITADO: "foi rejeitado",
+          CANCELADO: "foi cancelado",
+        };
         const lista = user.tipo === "CLIENTE"
           ? pedidos
-              .filter((p) => p.cliente?.id === user.id && p.status !== "PENDENTE")
-              .map((p) => ({ id: p.id, texto: `Seu pedido REQ-${p.id} está ${p.status}.` }))
+              .filter((p) => p.status !== "PENDENTE")
+              .map((p) => ({ id: p.id, texto: `Seu pedido REQ-${p.id} ${textoCliente[p.status] ?? p.status}.` }))
           : pedidos
-              .filter((p) => p.status === "PENDENTE")
-              .map((p) => ({ id: p.id, texto: `Pedido REQ-${p.id} aguardando análise.` }));
+              .filter((p) => p.status === "PENDENTE" || p.status === "APROVADO")
+              .map((p) => ({
+                id: p.id,
+                texto: p.status === "PENDENTE"
+                  ? `Pedido REQ-${p.id} aguardando análise.`
+                  : `Pedido REQ-${p.id} aprovado: aguardando execução do contrato.`,
+              }));
         setNotificacoes(lista.reverse().slice(0, 8));
       })
       .catch(console.error);

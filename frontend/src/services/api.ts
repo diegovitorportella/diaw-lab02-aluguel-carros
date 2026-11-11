@@ -13,6 +13,16 @@ export const setOnUnauthorized = (callback: (() => void) | null) => {
   aoExpirarSessao = callback;
 };
 
+/** Erro da API: mensagem geral e, em falhas de validação, a mensagem de cada campo. */
+export class ApiError extends Error {
+  campos: Record<string, string>;
+
+  constructor(mensagem: string, campos: Record<string, string> = {}) {
+    super(mensagem);
+    this.campos = campos;
+  }
+}
+
 interface Opcoes {
   method?: string;
   body?: unknown;
@@ -37,13 +47,15 @@ async function requisitar(caminho: string, erroPadrao: string, opcoes: Opcoes = 
       throw new Error('Sessão expirada. Faça login novamente.');
     }
     let mensagem = erroPadrao;
+    let campos: Record<string, string> = {};
     try {
       const corpo = await response.json();
       if (corpo?.erro) mensagem = corpo.erro;
+      if (corpo?.campos) campos = corpo.campos;
     } catch {
       /* corpo vazio ou não-JSON */
     }
-    throw new Error(mensagem);
+    throw new ApiError(mensagem, campos);
   }
 
   return response.status === 204 ? null : response.json();
@@ -79,6 +91,17 @@ export const api = {
 
   cancelarPedido: (id: number) =>
     requisitar(`/pedidos/${id}/cancelar`, 'Erro ao cancelar pedido', { method: 'PUT' }),
+
+  /** Simulação de financiamento do pedido (somente agentes): parcela, total pago e comprometimento da renda. */
+  simularFinanciamento: (
+    pedidoId: number,
+    params: { parcelas: number; juros: number; entrada?: number; valorFinanciado?: number },
+  ) => {
+    const q = new URLSearchParams({ parcelas: String(params.parcelas), juros: String(params.juros) });
+    if (params.entrada !== undefined) q.set('entrada', String(params.entrada));
+    if (params.valorFinanciado !== undefined) q.set('valorFinanciado', String(params.valorFinanciado));
+    return requisitar(`/pedidos/${pedidoId}/simulacao?${q}`, 'Erro ao simular financiamento');
+  },
 
   avaliarPedido: (id: number, parecer: string) =>
     requisitar(`/pedidos/${id}/avaliar?parecer=${parecer}`, 'Erro ao avaliar pedido', { method: 'PUT' }),
