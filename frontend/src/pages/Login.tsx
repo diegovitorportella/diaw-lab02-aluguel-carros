@@ -8,8 +8,8 @@ import { api } from "../services/api";
 
 export default function Login({ onLogin, onRegister }: { onLogin: (user: any) => void; onRegister: () => void }) {
   const [visible, setVisible] = useState(false);
-  const [username, setUsername] = useState("marina.costa");
-  const [password, setPassword] = useState("password123");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const submit = async (event: FormEvent) => {

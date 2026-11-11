@@ -429,25 +429,38 @@ npm run dev
 
 ## 🚀 Deploy
 
-O deploy em produção ainda **não foi configurado**. Os artefatos podem ser gerados assim:
+Arquitetura de publicação: **front-end na Vercel** (site estático), **back-end no Render** (contêiner Docker) e **banco no Supabase** (PostgreSQL).
+
+### 1. Back-end no Render
+
+1. No Render, crie um **Blueprint** a partir do repositório (usa o [`render.yaml`](render.yaml), que aponta para o [`backend/Dockerfile`](backend/Dockerfile)).
+2. Preencha as variáveis de ambiente pedidas:
+
+| Variável | Valor |
+|---|---|
+| `SPRING_DATASOURCE_URL` | URL JDBC do Supabase (pooler), ex.: `jdbc:postgresql://<host>:5432/postgres?sslmode=require` |
+| `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD` | usuário e senha do banco |
+| `SEED_SENHA` | senha dos agentes de demonstração `banco.agente` e `empresa.agente` |
+| `CORS_ORIGINS` | URL do front-end na Vercel (várias separadas por vírgula) |
+| `JWT_SECRET` | gerada automaticamente pelo Render |
+
+O perfil `seed` (definido no blueprint) cria os agentes de demonstração com a senha de `SEED_SENHA`. Sem esse perfil não há como logar como banco ou empresa, pois não existe tela de cadastro de agentes.
+
+### 2. Front-end na Vercel
+
+1. Importe o repositório na Vercel com **Root Directory = `frontend`** (preset Vite).
+2. Em *Settings → Environment Variables*, defina `VITE_API_URL` com a URL do back-end: `https://<servico>.onrender.com/api`.
+3. Depois do deploy, copie a URL da Vercel para `CORS_ORIGINS` no Render.
+
+> O plano gratuito do Render hiberna o serviço após alguns minutos sem uso: a primeira chamada depois disso pode levar cerca de 1 minuto.
+
+### Build manual
 
 ```bash
-# 1. Build do Front-end (React/Vite) - gera a pasta /dist com arquivos estáticos
-cd frontend
-npm run build
-
-# 2. Build do Back-end (Spring Boot/Maven) - gera o .jar executável em /target
-cd ../backend
-./mvnw clean package -DskipTests
+cd frontend && npm run build              # gera /dist
+cd ../backend && ./mvnw clean package     # gera target/demo-0.0.1-SNAPSHOT.jar
+java -jar target/demo-0.0.1-SNAPSHOT.jar  # exige as variáveis do banco e JWT_SECRET
 ```
-
-Execução do artefato do back-end:
-
-```bash
-java -jar backend/target/<nome-do-artefato>.jar
-```
-
-Antes de publicar, ajuste: (1) as credenciais do banco por variáveis de ambiente, (2) a constante `API_URL` do front-end, (3) as origens liberadas em `SecurityConfig` (CORS), (4) a variável `JWT_SECRET` (obrigatória em produção) e (5) a remoção do `DataInitializer`/contas de demonstração.
 
 ---
 

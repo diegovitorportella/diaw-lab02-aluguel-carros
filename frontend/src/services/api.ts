@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:8080/api';
+// Em produção, defina VITE_API_URL (ex.: https://driveja-api.onrender.com/api) no build da Vercel.
+const API_URL: string = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:8080/api';
 
 // Sessão: o token JWT e o usuário ficam no sessionStorage, então recarregar (F5) mantém o login;
 // fechar a aba encerra a sessão. Um token expirado ou inválido volta ao login pelo 401.
