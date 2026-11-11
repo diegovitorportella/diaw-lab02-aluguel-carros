@@ -62,15 +62,13 @@ export default function Shell({
   const tipoConta = isCliente ? "Conta Cliente" : user?.tipo === "BANCO" ? "Conta Banco" : "Conta Empresa";
 
   return (
-    <div className="min-h-screen bg-[#f6f8fb] text-slate-900">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-slate-200 bg-white px-4 py-6 lg:flex">
+    <div className="min-h-screen bg-(--asfalto) text-slate-900">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col bg-slate-950 px-4 py-6 lg:flex">
         <div className="px-3">
-          <Logo />
+          <Logo light />
         </div>
         <nav className="mt-10 space-y-1.5">
-          <p className="px-3 pb-2 text-[11px] font-bold uppercase tracking-[.16em] text-slate-400">
-            Espaço de Trabalho
-          </p>
+          <p className="px-3 pb-2 text-xs font-semibold text-slate-500">Trabalho</p>
           {nav.map(([id, icon, label]) => (
             <button
               key={id}
@@ -81,9 +79,7 @@ export default function Shell({
               {label}
             </button>
           ))}
-          <p className="px-3 pb-2 pt-7 text-[11px] font-bold uppercase tracking-[.16em] text-slate-400">
-            Gerenciar
-          </p>
+          <p className="px-3 pb-2 pt-7 text-xs font-semibold text-slate-500">Cadastros</p>
           <button 
             className={`nav-item ${screen === "vehicles" ? "active" : ""}`} 
             onClick={() => setScreen("vehicles")}
@@ -100,9 +96,9 @@ export default function Shell({
           </button>
         </nav>
         
-        <div className="mt-auto rounded-2xl bg-slate-950 p-4 text-white">
+        <div className="mt-auto rounded-xl border border-white/10 bg-white/5 p-4 text-white">
           <div className="flex items-center gap-3">
-            <span className="avatar bg-blue-500">{iniciais}</span>
+            <span className="avatar bg-amber-500 text-slate-950">{iniciais}</span>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold">{nomeUsuario}</p>
               <p className="text-xs text-slate-400">{tipoConta}</p>
@@ -111,7 +107,7 @@ export default function Shell({
         </div>
       </aside>
 
-      <header className="sticky top-0 z-20 flex h-20 items-center border-b border-slate-200 bg-white/90 px-5 backdrop-blur lg:ml-64 lg:px-8">
+      <header className="sticky top-0 z-20 flex h-16 items-center border-b border-(--linha) bg-white/90 px-5 backdrop-blur lg:ml-64 lg:px-8">
         <div className="lg:hidden">
           <Logo />
         </div>

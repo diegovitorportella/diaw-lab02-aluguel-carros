@@ -99,7 +99,6 @@ export default function ClientRegistration() {
   return (
     <div className="page-wrap">
       <Header
-        eyebrow="Gestão de Clientes"
         title="Cadastrar novo cliente"
         description="Crie um perfil completo para locação e análise de crédito."
       />
@@ -119,9 +118,8 @@ export default function ClientRegistration() {
       <form className="space-y-6" onSubmit={submit} noValidate>
         <section className="card p-6 md:p-8">
           <div className="mb-7 flex items-start gap-4">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-blue-50 text-xs font-bold text-blue-600">01</span>
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">Dados Pessoais e Acesso</h2>
+              <h2 className="text-lg font-semibold text-slate-950">Dados pessoais e acesso</h2>
             </div>
           </div>
           <div className="form-grid">
@@ -138,9 +136,8 @@ export default function ClientRegistration() {
         <section className="card p-6 md:p-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="mb-7 flex items-start gap-4">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-blue-50 text-xs font-bold text-blue-600">02</span>
               <div>
-                <h2 className="text-lg font-semibold text-slate-950">Fontes de Renda</h2>
+                <h2 className="text-lg font-semibold text-slate-950">Fontes de renda</h2>
                 <p className="mt-1 text-sm text-slate-500">Informe de 1 a {MAX_FONTES} empregadores ou fontes de renda, cada um com o rendimento mensal.</p>
               </div>
             </div>

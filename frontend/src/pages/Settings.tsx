@@ -26,7 +26,6 @@ export default function Settings({ user, onLogout }: { user?: any; onLogout: () 
   return (
     <div className="page-wrap">
       <Header
-        eyebrow="Conta"
         title="Configurações"
         description="Consulte os dados da sua conta e gerencie o acesso ao sistema."
       />
@@ -36,7 +35,7 @@ export default function Settings({ user, onLogout }: { user?: any; onLogout: () 
         <dl className="mt-5 grid gap-5 sm:grid-cols-2">
           {dados.map(([rotulo, valor]) => (
             <div key={rotulo}>
-              <dt className="text-xs font-bold uppercase tracking-wider text-slate-400">{rotulo}</dt>
+              <dt className="text-xs font-semibold text-slate-500">{rotulo}</dt>
               <dd className="mt-1 text-sm font-medium text-slate-800">{valor || "—"}</dd>
             </div>
           ))}

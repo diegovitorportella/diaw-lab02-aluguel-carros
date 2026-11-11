@@ -6,7 +6,8 @@ import StatusBadge from "../components/StatusBadge";
 import TextInput from "../components/TextInput";
 import { useToast } from "../components/Toast";
 import { api, ApiError } from "../services/api";
-import { formatarData, formatarMoeda, formatarPlaca, parseMoeda } from "../utils/formatters";
+import Placa from "../components/Placa";
+import { formatarData, formatarMoeda, parseMoeda } from "../utils/formatters";
 
 type Erros = Record<string, string>;
 type Aba = "analise" | "contrato" | "historico";
@@ -204,7 +205,6 @@ export default function FinancialReview({ user }: { user?: any }) {
   return (
     <div className="page-wrap max-w-none">
       <Header
-        eyebrow="Operações de Crédito"
         title="Análise financeira"
         description="Analise as solicitações, emita o parecer e execute o contrato dos pedidos aprovados."
       />
@@ -253,7 +253,7 @@ export default function FinancialReview({ user }: { user?: any }) {
         <div className="overflow-x-auto">
           <table className="w-full min-w-215 text-left">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <tr className="border-b border-slate-200 bg-slate-50 text-xs font-semibold text-slate-500">
                 <th className="px-6 py-4">Pedido / Cliente</th>
                 <th>Veículo</th>
                 <th>Período</th>
@@ -288,9 +288,11 @@ export default function FinancialReview({ user }: { user?: any }) {
                     REQ-{row.id}
                     <span className="block text-xs font-normal text-slate-500">{row.cliente?.nome || row.cliente?.login}</span>
                   </td>
-                  <td className="font-medium text-slate-700">
-                    {row.automovel ? `${row.automovel.marca} ${row.automovel.modelo}` : "N/A"}
-                    <span className="block text-xs font-normal text-slate-400">{formatarPlaca(row.automovel?.placa)}</span>
+                  <td className="py-3 font-medium text-slate-700">
+                    <Placa placa={row.automovel?.placa} tamanho="sm" />
+                    <span className="mt-1 block text-xs font-normal text-slate-500">
+                      {row.automovel ? `${row.automovel.marca} ${row.automovel.modelo}` : "N/A"}
+                    </span>
                   </td>
                   <td className="text-slate-600">{formatarData(row.dataInicio)} a {formatarData(row.dataFim)}</td>
                   <td className="font-semibold text-slate-900">{formatarMoeda(row.valorTotal)}</td>
@@ -315,7 +317,7 @@ export default function FinancialReview({ user }: { user?: any }) {
           <aside className="fixed inset-y-0 right-0 z-50 w-full max-w-127.5 overflow-y-auto bg-white shadow-2xl">
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 px-6 py-5 backdrop-blur">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-blue-600">REQ-{selected.id}</p>
+                <p className="text-sm font-bold text-blue-600">REQ-{selected.id}</p>
                 <h2 className="mt-1 text-xl font-semibold">
                   {selected.status === "PENDENTE"
                     ? "Analisar solicitação"
@@ -466,7 +468,7 @@ export default function FinancialReview({ user }: { user?: any }) {
 
                       {/* Simulação */}
                       <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm">
-                        <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Simulação (tabela Price)</p>
+                        <p className="text-sm font-bold text-blue-700">Simulação (tabela Price)</p>
                         {erroSimulacao && <p className="mt-2 text-xs font-medium text-red-600">{erroSimulacao}</p>}
                         {!simulacao && !erroSimulacao && (
                           <p className="mt-2 text-slate-500">Informe parcelas e juros para simular.</p>

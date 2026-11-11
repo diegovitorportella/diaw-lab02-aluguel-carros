@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Icon from "../components/Icon";
+import Placa from "../components/Placa";
 import TextInput from "../components/TextInput";
 import { useToast } from "../components/Toast";
 import { api, ApiError } from "../services/api";
@@ -129,7 +130,6 @@ export default function Vehicles({ user }: { user?: any }) {
   return (
     <div className="page-wrap">
       <Header
-        eyebrow="Frota"
         title="Gerenciar Veículos"
         description="Visualize e cadastre os automóveis disponíveis no sistema. Você pode editar e excluir os veículos que cadastrou."
         action={
@@ -147,19 +147,18 @@ export default function Vehicles({ user }: { user?: any }) {
           const meu = carro.proprietario?.id === user?.id;
           return (
             <div key={carro.id} className="card p-5">
-              <div className="flex items-center justify-between mb-4">
-                <span className="grid h-12 w-12 place-items-center rounded-xl bg-slate-100 text-slate-500">
-                  <Icon name="car" className="h-6 w-6" />
-                </span>
-                <span className="text-xs font-bold text-slate-400">ID: {carro.id}</span>
-              </div>
-              <h3 className="font-semibold text-lg text-slate-900">{carro.marca} {carro.modelo}</h3>
-              <p className="text-sm text-slate-500 mt-1">Ano: {carro.ano} • Placa: {formatarPlaca(carro.placa)}</p>
-              <p className="mt-2 text-sm font-semibold text-blue-700">
-                {carro.valorDiaria != null ? `${formatarMoeda(carro.valorDiaria)} / dia` : "Diária não informada"}
+              <Placa placa={carro.placa} tamanho="lg" />
+              <h3 className="mt-4 text-lg font-bold tracking-[-.01em] text-slate-950">{carro.marca} {carro.modelo}</h3>
+              <p className="mt-0.5 text-sm text-slate-500">Ano {carro.ano}</p>
+              <p className="mt-3 font-display text-xl font-bold text-slate-950">
+                {carro.valorDiaria != null ? (
+                  <>{formatarMoeda(carro.valorDiaria)} <span className="font-sans text-sm font-medium text-slate-500">por dia</span></>
+                ) : (
+                  <span className="font-sans text-sm font-semibold text-amber-700">Diária não informada</span>
+                )}
               </p>
-              <p className="text-xs text-slate-400 mt-2">
-                Proprietário: {meu ? "Você" : nomeProprietario(carro)}
+              <p className="mt-2 text-xs text-slate-500">
+                Proprietário: {meu ? "você" : nomeProprietario(carro)}
               </p>
               {meu && (
                 <div className="mt-4 flex gap-3">

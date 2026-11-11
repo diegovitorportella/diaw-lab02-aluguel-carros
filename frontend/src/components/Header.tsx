@@ -1,12 +1,10 @@
 import type { ReactNode } from "react";
 
 export default function Header({
-  eyebrow,
   title,
   description,
   action,
 }: {
-  eyebrow: string;
   title: string;
   description: string;
   action?: ReactNode;
@@ -14,13 +12,10 @@ export default function Header({
   return (
     <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[.16em] text-blue-600">
-          {eyebrow}
-        </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-[-.03em] text-slate-950 md:text-4xl">
+        <h1 className="text-3xl font-bold tracking-[-.01em] text-slate-950 md:text-[2.5rem] md:leading-[1.1]">
           {title}
         </h1>
-        <p className="mt-2 text-slate-500">{description}</p>
+        <p className="mt-2 max-w-2xl text-slate-600">{description}</p>
       </div>
       {action}
     </div>

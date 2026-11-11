@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import Logo from "../components/Logo";
 import Field from "../components/Field";
 import Icon from "../components/Icon";
+import Placa from "../components/Placa";
 import { api } from "../services/api";
 
 export default function Login({ onLogin, onRegister }: { onLogin: (user: any) => void; onRegister: () => void }) {
@@ -25,24 +26,28 @@ export default function Login({ onLogin, onRegister }: { onLogin: (user: any) =>
   return (
     <main className="grid min-h-screen bg-white lg:grid-cols-[1.08fr_.92fr]">
       <section className="relative hidden overflow-hidden bg-slate-950 p-12 lg:flex lg:flex-col">
-        <img
-          src="https://images.unsplash.com/photo-1712214910040-1f7f5925b16a?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=85&w=900"
-          alt="Veículo premium vermelho em um showroom escuro"
-          className="absolute inset-0 h-full w-full object-cover opacity-55"
-        />
-        <div className="absolute inset-0 bg-linear-to-br from-slate-950/95 via-blue-950/55 to-slate-950/80" />
-        <div className="relative z-10">
-          <Logo light />
+        <Logo light />
+
+        {/* Assinatura da marca: a placa chegando, com o rastro âmbar da logo */}
+        <div className="my-auto flex items-center py-10" aria-hidden="true">
+          <div className="mr-5 flex flex-col items-end gap-3">
+            {["11rem", "7.5rem", "13.5rem"].map((largura, i) => (
+              <span
+                key={largura}
+                className="pista-trecho block h-[7px] rounded-full bg-amber-500"
+                style={{ width: largura, transformOrigin: "right center", animationDelay: `${i * 90}ms` }}
+              />
+            ))}
+          </div>
+          <Placa placa="DRV1J25" tamanho="xl" />
         </div>
-        <div className="relative z-10 mt-auto max-w-xl pb-10">
-          <span className="mb-6 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[.18em] text-blue-100 backdrop-blur">
-            Aluguel e financiamento, reimaginados
-          </span>
-          <h1 className="text-5xl font-semibold leading-[1.08] tracking-[-.04em] text-white">
-            Avance com total confiança.
+
+        <div className="max-w-xl pb-6">
+          <h1 className="text-5xl font-bold leading-[1.08] tracking-[-.012em] text-white">
+            Do pedido ao contrato, no mesmo lugar.
           </h1>
-          <p className="mt-6 max-w-lg text-lg leading-8 text-slate-300">
-            Uma plataforma segura para gerenciar clientes, pedidos de veículos, análises financeiras e contratos de crédito.
+          <p className="mt-5 max-w-md text-lg leading-8 text-slate-300">
+            O cliente pede o veículo, o banco ou a empresa analisa e assina. Cada etapa fica registrada e visível para quem acompanha.
           </p>
         </div>
       </section>
@@ -51,12 +56,11 @@ export default function Login({ onLogin, onRegister }: { onLogin: (user: any) =>
           <div className="mb-12 lg:hidden">
             <Logo />
           </div>
-          <p className="text-sm font-semibold text-blue-600">BEM-VINDO DE VOLTA</p>
-          <h2 className="mt-3 text-4xl font-semibold tracking-[-.035em] text-slate-950">
-            Acesse sua conta
+          <h2 className="text-4xl font-bold tracking-[-.03em] text-slate-950">
+            Entrar no DriveJá
           </h2>
-          <p className="mt-3 text-base text-slate-500">
-            Insira suas credenciais para acessar a plataforma.
+          <p className="mt-3 text-base text-slate-600">
+            Use o login e a senha da sua conta.
           </p>
           
           {error && (
@@ -97,8 +101,8 @@ export default function Login({ onLogin, onRegister }: { onLogin: (user: any) =>
                 className="w-full bg-transparent outline-none text-slate-900"
               />
             </Field>
-            <button className="mt-2 w-full rounded-xl bg-blue-600 px-5 py-3.5 font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700">
-              Entrar com segurança
+            <button className="mt-2 w-full rounded-lg bg-blue-600 px-5 py-3.5 font-bold text-white transition hover:bg-blue-700">
+              Entrar
             </button>
           </form>
           <p className="mt-6 text-center text-sm text-slate-500">

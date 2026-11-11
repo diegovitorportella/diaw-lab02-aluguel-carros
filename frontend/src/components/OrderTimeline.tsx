@@ -44,51 +44,66 @@ export default function OrderTimeline({
 }) {
   const { etapas, atual, desvio } = etapasDo(status);
   const concluido = status === "CONCLUIDO";
-  const corDesvio = status === "REJEITADO" ? "bg-red-500 border-red-500" : "bg-slate-400 border-slate-400";
+  const n = etapas.length;
+  const corTrecho = desvio ? (status === "REJEITADO" ? "#dc2626" : "#94a3b8") : "#f59a0c";
 
   // Data em que cada etapa foi atingida (primeiro evento daquele status)
   const dataDa = (s: string) => historico.find((e) => e.status === s)?.dataHora;
 
+  // A pista vai do centro da primeira parada ao centro da última.
+  const margem = `${100 / (2 * n)}%`;
+
   return (
     <div>
-      <ol className="flex items-start">
-        {etapas.map((etapa, i) => {
-          const feita = i < atual || (i === atual && (concluido || desvio));
-          const ativa = i === atual && !concluido && !desvio;
-          const ehDesvio = desvio && i === etapas.length - 1;
-          const marcador = ehDesvio
-            ? `${corDesvio} text-white`
-            : feita
-            ? "bg-emerald-500 border-emerald-500 text-white"
-            : ativa
-            ? "bg-white border-blue-600 text-blue-600"
-            : "bg-white border-slate-300 text-slate-300";
-          const data = dataDa(etapa.status);
-
-          return (
-            <li key={etapa.status} className="relative flex flex-1 flex-col items-center text-center">
-              {i > 0 && (
-                <span
-                  className={`absolute right-1/2 top-3.5 -z-0 h-0.5 w-full ${
-                    i <= atual ? (ehDesvio ? (status === "REJEITADO" ? "bg-red-300" : "bg-slate-300") : "bg-emerald-400") : "bg-slate-200"
-                  }`}
-                />
-              )}
-              <span className={`relative z-10 grid h-7 w-7 place-items-center rounded-full border-2 ${marcador}`}>
-                {feita || ehDesvio ? (
-                  <Icon name={ehDesvio ? "close" : "check"} className="h-3.5 w-3.5" />
-                ) : (
-                  <span className={`h-2 w-2 rounded-full ${ativa ? "bg-blue-600" : "bg-slate-300"}`} />
+      <div className="relative">
+        <div className="absolute top-3 h-[3px] rounded-full bg-slate-200" style={{ left: margem, right: margem }} />
+        {atual > 0 && (
+          <div className="absolute top-3" style={{ left: margem, right: margem }}>
+            <div style={{ width: `${(atual / (n - 1)) * 100}%` }}>
+              {/* linhas de velocidade: o trecho percorrido ecoa o traço da logo */}
+              <div className="pista-trecho relative h-[3px] rounded-full" style={{ background: corTrecho }}>
+                {!desvio && (
+                  <>
+                    <span className="absolute -top-[5px] right-3 h-[2px] w-[28%] rounded-full opacity-70" style={{ background: corTrecho }} />
+                    <span className="absolute -bottom-[5px] right-6 h-[2px] w-[18%] rounded-full opacity-50" style={{ background: corTrecho }} />
+                  </>
                 )}
-              </span>
-              <span className={`mt-2 text-xs font-semibold ${ativa ? "text-blue-700" : feita || ehDesvio ? "text-slate-800" : "text-slate-400"}`}>
-                {etapa.rotulo}
-              </span>
-              {data && <span className="text-[10px] text-slate-400">{formatarDataHora(data)}</span>}
-            </li>
-          );
-        })}
-      </ol>
+              </div>
+            </div>
+          </div>
+        )}
+        <ol className="relative flex items-start">
+          {etapas.map((etapa, i) => {
+            const feita = i < atual || (i === atual && (concluido || desvio));
+            const ativa = i === atual && !concluido && !desvio;
+            const ehDesvio = desvio && i === n - 1;
+            const marcador = ehDesvio
+              ? `${status === "REJEITADO" ? "border-red-600 bg-red-600" : "border-slate-500 bg-slate-500"} text-white`
+              : feita
+              ? "border-slate-950 bg-slate-950 text-white"
+              : ativa
+              ? "border-blue-600 bg-white"
+              : "border-slate-300 bg-white";
+            const data = dataDa(etapa.status);
+
+            return (
+              <li key={etapa.status} className="flex flex-1 flex-col items-center text-center">
+                <span className={`grid h-[27px] w-[27px] place-items-center rounded-full border-[3px] ${marcador}`}>
+                  {feita || ehDesvio ? (
+                    <Icon name={ehDesvio ? "close" : "check"} className="h-3 w-3" />
+                  ) : ativa ? (
+                    <span className="h-2 w-2 rounded-full bg-blue-600" />
+                  ) : null}
+                </span>
+                <span className={`mt-2 text-xs font-bold ${ativa ? "text-blue-700" : feita || ehDesvio ? "text-slate-900" : "text-slate-400"}`}>
+                  {etapa.rotulo}
+                </span>
+                {data && <span className="text-[10px] text-slate-500">{formatarDataHora(data)}</span>}
+              </li>
+            );
+          })}
+        </ol>
+      </div>
 
       {mostrarHistorico && historico.length > 0 && (
         <details className="mt-4 text-sm">

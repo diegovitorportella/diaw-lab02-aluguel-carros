@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Icon from "../components/Icon";
 import OrderTimeline from "../components/OrderTimeline";
+import Placa from "../components/Placa";
 import StatusBadge, { ROTULOS } from "../components/StatusBadge";
 import TextInput from "../components/TextInput";
 import { useToast } from "../components/Toast";
@@ -130,7 +131,6 @@ export default function Requests({ user }: { user?: any }) {
   return (
     <div className="page-wrap">
       <Header
-        eyebrow="Portal do Cliente"
         title="Meus pedidos de aluguel"
         description="Acompanhe suas solicitações do pedido até a assinatura do contrato."
         action={
@@ -166,19 +166,13 @@ export default function Requests({ user }: { user?: any }) {
       <section className="grid gap-6 lg:grid-cols-2 2xl:grid-cols-3">
         {filtered.map((pedido) => (
           <article key={pedido.id} className="card overflow-hidden">
-            <div className="flex items-center justify-between bg-slate-900 px-5 py-4">
-              <div className="flex items-center gap-3">
-                <span className="grid h-11 w-11 place-items-center rounded-xl bg-white/10 text-slate-200">
-                  <Icon name="car" className="h-6 w-6" />
-                </span>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-blue-300">
-                    {pedido.automovel?.marca || "Veículo"}
-                  </p>
-                  <h2 className="text-lg font-semibold text-white">
-                    {pedido.automovel?.modelo || "Modelo não especificado"}
-                  </h2>
-                </div>
+            <div className="flex items-start justify-between gap-3 border-b border-slate-200 p-5">
+              <div className="min-w-0">
+                <Placa placa={pedido.automovel?.placa} tamanho="lg" />
+                <h2 className="mt-3 truncate text-xl font-bold tracking-[-.01em] text-slate-950">
+                  {pedido.automovel ? `${pedido.automovel.marca} ${pedido.automovel.modelo}` : "Veículo não especificado"}
+                </h2>
+                <p className="text-sm text-slate-500">Pedido REQ-{pedido.id}</p>
               </div>
               <StatusBadge status={pedido.status} />
             </div>
@@ -186,27 +180,19 @@ export default function Requests({ user }: { user?: any }) {
             <div className="p-5">
               <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
                 <div>
-                  <dt className="text-xs text-slate-400">Pedido</dt>
-                  <dd className="font-semibold text-slate-700">REQ-{pedido.id}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-slate-400">Placa</dt>
-                  <dd className="font-semibold text-slate-700">{formatarPlaca(pedido.automovel?.placa) || "—"}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-slate-400">Período</dt>
-                  <dd className="font-semibold text-slate-700">
+                  <dt className="text-xs text-slate-500">Período</dt>
+                  <dd className="font-semibold text-slate-800">
                     {formatarData(pedido.dataInicio)} a {formatarData(pedido.dataFim)}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-slate-400">Valor total</dt>
-                  <dd className="font-semibold text-slate-900">{formatarMoeda(pedido.valorTotal)}</dd>
+                  <dt className="text-xs text-slate-500">Valor total</dt>
+                  <dd className="font-display text-xl font-bold text-slate-950">{formatarMoeda(pedido.valorTotal)}</dd>
                 </div>
               </dl>
 
               {pedido.contrato?.valorFinanciado != null && (
-                <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/50 p-3 text-xs text-slate-600">
+                <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50/60 p-3 text-xs text-slate-600">
                   <p className="font-semibold text-blue-800">Financiamento — {pedido.contrato.banco?.razaoSocial || "Banco"}</p>
                   <p className="mt-1">
                     {formatarMoeda(pedido.contrato.valorFinanciado)} em {pedido.contrato.numeroParcelas ?? "—"}x de{" "}
@@ -272,7 +258,7 @@ export default function Requests({ user }: { user?: any }) {
 
               {/* Simulação do valor */}
               <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4 text-sm">
-                <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Simulação do valor</p>
+                <p className="text-sm font-bold text-blue-700">Simulação do valor</p>
                 {totalSimulado !== null ? (
                   <p className="mt-2 text-slate-700">
                     {diarias} {diarias === 1 ? "diária" : "diárias"} × {formatarMoeda(veiculoSelecionado.valorDiaria)} ={" "}
