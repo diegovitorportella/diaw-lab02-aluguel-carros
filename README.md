@@ -114,11 +114,13 @@
 
 - 🔐 **Autenticação e autorização:** login com usuário e senha (BCrypt) que devolve um **token JWT**; toda a API (exceto login e autocadastro) exige o token e é restrita por perfil (`CLIENTE`, `BANCO`, `EMPRESA`). A identidade vem do token, nunca de parâmetros da requisição.
 - 📝 **Autocadastro:** a tela de login tem o link *Cadastre-se* para o cliente criar a própria conta.
-- 👤 **CRUD de Clientes:** cadastro com dados de identificação, profissão, empregadores e rendimentos — **máximo de 3 rendimentos**, validado no back-end, e login único.
-- 🚘 **CRUD de Automóveis:** cadastro e listagem de veículos com matrícula, ano, marca, modelo, placa e proprietário (cliente, empresa ou banco).
-- 📋 **Gestão de Pedidos (Cliente):** criar, consultar o status, **modificar** (datas, observação, veículo) e **cancelar** pedidos ativos.
-- 🧾 **Gestão de Pedidos (Agente):** listar pedidos pendentes, **modificar** durante a análise e **avaliar** (parecer positivo → `APROVADO`, negativo → `REJEITADO`).
-- 🏦 **Contrato de Crédito:** o banco que aprova um pedido pode gerar o `ContratoCredito` (valor financiado e taxa de juros) vinculado a ele.
+- 👤 **CRUD de Clientes:** cadastro com RG, CPF, nome, endereço, profissão e de **1 a 3 fontes de renda** (empregador + rendimento mensal), com **CPF validado pelos dígitos verificadores** (máscara no formulário, único no sistema) e login único.
+- 🚘 **CRUD de Automóveis:** matrícula, ano, marca, modelo, **placa** (padrão antigo ou Mercosul, única), **valor da diária** e proprietário (cliente, empresa ou banco). O proprietário edita e exclui os próprios veículos pela tela.
+- 📋 **Gestão de Pedidos (Cliente):** criar, **modificar** e **cancelar** pedidos e acompanhar cada um em uma **linha do tempo** (Solicitado → Aprovado → Concluído) com histórico de quem fez o quê e quando. O cliente não aluga o próprio veículo.
+- 🧾 **Gestão de Pedidos (Agente):** duas abas — **Em análise** (modificar e dar o parecer: positivo → `APROVADO`, negativo → `REJEITADO`) e **Aguardando contrato** (executar o contrato → `CONCLUIDO`).
+- 💰 **Simulação de valor do aluguel:** ao escolher o veículo e o período, a tela mostra ao vivo "N diárias × R$ diária = R$ total"; o back-end recalcula e grava o `valorTotal` (período inclusivo: de 10 a 12 são 3 diárias).
+- 🏦 **Contrato de crédito com simulação:** ao executar o contrato, o banco informa entrada, nº de parcelas e juros (% a.a.) e vê a **parcela pela tabela Price**, o total pago e o **comprometimento da renda** do cliente, com **alerta acima de 30%**. O contrato guarda valor financiado, entrada, parcelas, juros e valor da parcela.
+- ✅ **Validações por campo:** cada campo inválido recebe sua mensagem (no formulário e na API, que devolve `campos`), além das regras de negócio.
 - 🔔 **Notificações internas:** o sino do cabeçalho lista decisões sobre os pedidos do cliente ou pedidos aguardando análise para o agente.
 - ⚙️ **Configurações:** dados da conta e encerramento de sessão.
 - 🛡️ **Regras de negócio e tratamento de erros:** respostas JSON padronizadas (`400`, `403`, `404`, `409`) com a mensagem do erro.
@@ -126,15 +128,33 @@
 ### Ciclo de vida de um pedido
 
 ```
-PENDENTE ──(parecer POSITIVO)──▶ APROVADO ──(banco/empresa executa)──▶ Contrato
-    │                               │
-    ├──(parecer NEGATIVO)──▶ REJEITADO
-    └──(cliente cancela)───▶ CANCELADO  ◀──(cliente cancela, se ainda sem contrato)
+        (parecer positivo)          (agente executa o contrato)
+PENDENTE ───────────────▶ APROVADO ───────────────────────────▶ CONCLUIDO
+   │                         │
+   ├─(parecer negativo)─▶ REJEITADO
+   └─(cliente cancela)──▶ CANCELADO ◀─(cliente cancela, enquanto sem contrato)
 ```
 
-- **Modificar:** somente enquanto `PENDENTE` (cliente dono ou qualquer agente).
-- **Cancelar:** somente o cliente dono, se `PENDENTE` ou `APROVADO` sem contrato.
-- **Avaliar:** somente agentes, somente pedidos `PENDENTE`.
+- **Modificar:** somente enquanto `PENDENTE` (cliente dono ou qualquer agente); recalcula o valor total.
+- **Cancelar:** somente o cliente dono, se `PENDENTE` ou `APROVADO`.
+- **Avaliar:** somente agentes, somente pedidos `PENDENTE`. **Aprovar não gera contrato.**
+- **Executar contrato:** somente agentes, somente pedidos `APROVADO`; leva o pedido a `CONCLUIDO`. Com financiamento, somente banco.
+- Cada mudança fica registrada no **histórico** do pedido (status, descrição, data/hora e responsável).
+
+### Regras de validação
+
+| Campo | Regra |
+|---|---|
+| **CPF** | 11 dígitos com dígitos verificadores corretos; único; gravado só com dígitos |
+| **RG** | Obrigatório, de 5 a 14 caracteres alfanuméricos |
+| **Nome, endereço, profissão** | Obrigatórios (nome com pelo menos 3 caracteres) |
+| **Senha** | Mínimo de 8 caracteres |
+| **Fontes de renda** | De 1 a 3; cada uma com empregador e rendimento **maior que zero**; mesma quantidade de empregadores e rendimentos |
+| **Placa** | `ABC-1234` ou `ABC1D23` (Mercosul); única |
+| **Ano do veículo** | De 1900 até o ano atual + 1 |
+| **Valor da diária** | Maior que zero (até R$ 100.000,00) |
+| **Pedido** | Veículo e datas obrigatórios; data inicial não pode ser anterior a hoje; data final não pode ser anterior à inicial; não se aluga o próprio veículo |
+| **Financiamento** | 1 a 120 parcelas; juros de 0 a 200% a.a.; entrada ≥ 0; valor financiado ≤ valor total do pedido |
 
 ---
 
@@ -181,11 +201,12 @@ O back-end segue a **arquitetura MVC em camadas** do Spring Boot; o front-end Re
 | Pacote | Papel |
 | :--- | :--- |
 | `controller` | Endpoints REST (`/api/auth`, `/api/clientes`, `/api/automoveis`, `/api/pedidos`, `/api/contratos`). |
-| `service` | Regras de negócio (limite de 3 rendimentos, ciclo de vida do pedido, geração de contrato, autenticação). |
+| `service` | Regras de negócio (fontes de renda, ciclo de vida e histórico do pedido, valor total, contrato, simulação Price, autenticação). |
 | `repository` | Acesso a dados com Spring Data JPA. |
 | `model` | Entidades JPA: `Usuario` (abstrata) → `Cliente`, `Agente` (abstrata) → `Banco`, `Empresa`; `Automovel`, `PedidoAluguel`, `Contrato` → `ContratoCredito`. |
-| `dto` | Objetos de transferência (`LoginDTO`, `LoginResponseDTO`, `AutomovelDTO`, `PedidoDTO`, `ContratoCreditoDTO`, `IdRefDTO`). |
-| `exception` | Exceções de negócio e `GlobalExceptionHandler` (respostas JSON de erro). |
+| `dto` | Objetos de transferência (`LoginDTO`, `LoginResponseDTO`, `AutomovelDTO`, `PedidoDTO`, `ContratoCreditoDTO`, `SimulacaoDTO`, `IdRefDTO`). |
+| `exception` | Exceções de negócio, `ValidacaoException` (erros por campo) e `GlobalExceptionHandler` (respostas JSON de erro). |
+| `validation` | `Validadores`: CPF (dígitos verificadores), RG e placa. |
 | `security` | `SecurityConfig` (regras de acesso, CORS, BCrypt, chave JWT) e `JwtService` (emissão do token). |
 | `config` | Carga de agentes de demonstração (`DataInitializer`, somente perfil `dev`). |
 
@@ -200,7 +221,7 @@ O back-end segue a **arquitetura MVC em camadas** do Spring Boot; o front-end Re
 - **Senhas:** armazenadas com **BCrypt**. Contas antigas em texto puro são aceitas uma única vez no login e migradas automaticamente para hash.
 - **Sessão:** JWT assinado (HS256) com expiração de 8 h, enviado no header `Authorization: Bearer <token>`; sem sessão no servidor (stateless).
 - **Autorização por perfil:** `CLIENTE` cria e cancela pedidos e vê apenas os próprios pedidos e contratos; `BANCO` e `EMPRESA` (papel `AGENTE`) listam clientes, avaliam pedidos e executam contratos; somente `BANCO` concede crédito; automóveis só são alterados/excluídos pelo proprietário.
-- **Erros padronizados:** `401` (sem token/credenciais inválidas), `403` (sem permissão), `404`, `400` e `409` (regra de negócio), sempre com `{ "erro": "..." }`.
+- **Erros padronizados:** `401` (sem token/credenciais inválidas), `403` (sem permissão), `404`, `400` e `409` (regra de negócio), sempre com `{ "erro": "..." }`; falhas de validação (`400`) acrescentam `"campos": { "cpf": "CPF inválido." }`.
 
 > [!NOTE]
 > **Limitações (escopo de laboratório):** não há recuperação de senha, bloqueio por tentativas nem *refresh token*, e o front-end guarda o token apenas em memória (recarregar a página encerra a sessão).
@@ -225,10 +246,11 @@ classDiagram
     class Agente { <<abstract>> cnpj; razaoSocial }
     class Banco
     class Empresa
-    class Automovel { matricula; ano; marca; modelo; placa }
-    class PedidoAluguel { status; parecerFinanceiro; dataInicio; dataFim; observacao }
+    class Automovel { matricula; ano; marca; modelo; placa; valorDiaria }
+    class PedidoAluguel { status; parecerFinanceiro; dataInicio; dataFim; observacao; valorTotal }
+    class PedidoHistorico { status; descricao; dataHora; responsavelNome; responsavelTipo }
     class Contrato { dataAssinatura }
-    class ContratoCredito { valorFinanciado; taxaJuros }
+    class ContratoCredito { valorFinanciado; valorEntrada; numeroParcelas; taxaJuros; valorParcela }
 
     Usuario <|-- Cliente
     Usuario <|-- Agente
@@ -236,6 +258,7 @@ classDiagram
     Agente <|-- Empresa
     Contrato <|-- ContratoCredito
     Automovel "*" --> "1" Usuario : proprietario
+    PedidoAluguel "1" --> "*" PedidoHistorico : historico
     PedidoAluguel "*" --> "1" Cliente
     PedidoAluguel "*" --> "1" Automovel
     PedidoAluguel "*" --> "0..1" Agente : avaliador
@@ -251,24 +274,25 @@ Legenda de acesso: 🌐 público · 🔑 qualquer usuário autenticado · 👤 c
 | :---: | :--- | :--- | :--- |
 | 🌐 | `POST` | `/api/auth/login` | Autentica com `{ login, senha }` e devolve `{ token, usuario }`. |
 | 🔑 | `GET` | `/api/auth/me` | Dados do usuário dono do token. |
-| 🌐 | `POST` | `/api/clientes` | Autocadastro de cliente (máx. 3 rendimentos, login único, senha ≥ 6). |
+| 🌐 | `POST` | `/api/clientes` | Autocadastro de cliente (CPF/RG, 1 a 3 fontes de renda, login único, senha ≥ 8). |
 | 🏦 | `GET` | `/api/clientes` | Lista clientes. |
 | 🔑 | `GET` | `/api/clientes/{id}` | Dados de um cliente (o próprio ou, se agente, qualquer um). |
 | 🔑 | `PUT` | `/api/clientes/{id}` | Atualiza cliente (o próprio ou agente); revalida os rendimentos. |
 | 🔑 | `DELETE` | `/api/clientes/{id}` | Exclui cliente sem pedidos nem automóveis. |
-| 🔑 | `POST` | `/api/automoveis` | Cadastra automóvel; o proprietário é o usuário autenticado. |
+| 🔑 | `POST` | `/api/automoveis` | Cadastra automóvel (placa única, valor da diária); o proprietário é o usuário autenticado. |
 | 🔑 | `GET` | `/api/automoveis` | Lista todos os automóveis. |
 | 🔑 | `GET` | `/api/automoveis/meus` | Lista os automóveis do usuário autenticado. |
 | 🔑 | `GET` | `/api/automoveis/{id}` | Busca um automóvel. |
 | 🔑 | `PUT` | `/api/automoveis/{id}` | Atualiza automóvel (somente o proprietário). |
 | 🔑 | `DELETE` | `/api/automoveis/{id}` | Exclui automóvel sem pedidos (somente o proprietário). |
-| 👤 | `POST` | `/api/pedidos` | Cria pedido (`PENDENTE`) para o cliente autenticado. |
+| 👤 | `POST` | `/api/pedidos` | Cria pedido (`PENDENTE`) com período e valor total calculado, para o cliente autenticado. |
 | 🔑 | `GET` | `/api/pedidos?status=` | Cliente: os próprios pedidos. Agente: todos. Filtro opcional por status. |
 | 🔑 | `GET` | `/api/pedidos/{id}` | Busca pedido (dono ou agente). |
 | 🔑 | `PUT` | `/api/pedidos/{id}` | Modifica pedido pendente (cliente dono ou agente). |
 | 👤 | `PUT` | `/api/pedidos/{id}/cancelar` | Cancela pedido (cliente dono, se pendente ou aprovado sem contrato). |
-| 🏦 | `PUT` | `/api/pedidos/{id}/avaliar?parecer=` | Avalia pedido pendente (`POSITIVO`/`NEGATIVO`). |
-| 🏦 | `POST` | `/api/contratos/gerar/{pedidoId}` | Executa contrato de pedido aprovado; com `{ valorFinanciado, taxaJuros }` (somente banco) gera `ContratoCredito`. |
+| 🏦 | `PUT` | `/api/pedidos/{id}/avaliar?parecer=` | Avalia pedido pendente (`POSITIVO` → `APROVADO`, `NEGATIVO` → `REJEITADO`). |
+| 🏦 | `GET` | `/api/pedidos/{id}/simulacao?parcelas=&juros=&entrada=&valorFinanciado=` | Simula o financiamento (tabela Price) e o comprometimento da renda do cliente. |
+| 🏦 | `POST` | `/api/contratos/gerar/{pedidoId}` | Executa o contrato de pedido aprovado e o leva a `CONCLUIDO`. Com `{ valorEntrada, numeroParcelas, taxaJuros, valorFinanciado? }` (somente banco) gera `ContratoCredito`. |
 | 🔑 | `GET` | `/api/contratos` | Cliente: contratos dos próprios pedidos. Agente: todos. |
 | 🔑 | `GET` | `/api/contratos/{id}` | Busca contrato (dono do pedido ou agente). |
 
@@ -539,19 +563,23 @@ HTTP/1.1 400
 {"erro":"O cliente pode ter no máximo 3 rendimentos auferidos."}
 ```
 
-#### 4. Fluxo de contrato de crédito (como banco)
+#### 4. Fluxo do pedido até o contrato de crédito (como banco)
 
 ```bash
 TOKEN=<token-do-banco>
 
-# Avaliar o pedido 1 (o agente avaliador é o dono do token)
+# 1) Avaliar o pedido 1: apenas APROVA (o agente avaliador é o dono do token)
 curl -X PUT 'http://localhost:8080/api/pedidos/1/avaliar?parecer=POSITIVO' \
      -H "Authorization: Bearer $TOKEN"
 
-# Gerar o contrato de crédito (o banco concedente é o dono do token)
+# 2) Simular o financiamento: entrada de R$ 100, 12 parcelas, 12% a.a.
+curl 'http://localhost:8080/api/pedidos/1/simulacao?parcelas=12&juros=12&entrada=100' \
+     -H "Authorization: Bearer $TOKEN"
+
+# 3) Executar o contrato com crédito (o banco é o dono do token) -> pedido CONCLUIDO
 curl -X POST http://localhost:8080/api/contratos/gerar/1 \
      -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
-     -d '{"valorFinanciado":38900,"taxaJuros":8.75}'
+     -d '{"valorEntrada":100,"numeroParcelas":12,"taxaJuros":12}'
 ```
 
 ---
@@ -559,15 +587,18 @@ curl -X POST http://localhost:8080/api/contratos/gerar/1 \
 ## 🧪 Testes
 
 ### Testes Unitários e de Integração
-O back-end possui **67 testes automatizados** que rodam em **H2 em memória** (não usam o Supabase nem exigem configuração):
+O back-end possui **130 testes automatizados** que rodam em **H2 em memória** (não usam o Supabase nem exigem configuração):
 
 | Classe | Tipo | O que cobre |
 | :--- | :--- | :--- |
-| `ClienteServiceTest` | Unitário (Mockito) | Limite de 3 rendimentos/empregadores, login único, senha mínima e hash, permissão e exclusão. |
-| `PedidoAluguelServiceTest` | Unitário (Mockito) | Criação, listagem por perfil, modificar, cancelar e avaliar (permissões e estados). |
-| `ContratoServiceTest` | Unitário (Mockito) | Contrato simples x `ContratoCredito`, só banco concede crédito, contrato duplicado, validações. |
+| `ClienteServiceTest` | Unitário (Mockito) | CPF/RG, 1 a 3 fontes de renda, empregadores × rendimentos, login único, senha mínima e hash, permissões, atualização e exclusão. |
+| `AutomovelServiceTest` | Unitário (Mockito) | Placa (formato, normalização e duplicidade), ano, valor da diária, propriedade e exclusão. |
+| `PedidoAluguelServiceTest` | Unitário (Mockito) | Valor total, datas, veículo próprio, histórico, modificar, cancelar e avaliar (permissões e estados). |
+| `ContratoServiceTest` | Unitário (Mockito) | Contrato simples × `ContratoCredito`, parcela Price, só banco concede crédito, conclusão do pedido, validações. |
+| `SimulacaoServiceTest` | Unitário (Mockito) | Taxa mensal, parcela Price, alerta de 30% da renda e parâmetros. |
 | `UsuarioServiceTest` | Unitário (Mockito) | Autenticação BCrypt, senha errada, migração de senha em texto puro. |
-| `ApiIntegrationTest` | Integração (MockMvc) | API completa com Spring Security + JWT: `401`/`403`/`409`, CRUDs, fluxo pedido → aprovação → contrato de crédito, serialização sem recursão. |
+| `ValidadoresTest` | Unitário | CPF (dígitos verificadores), RG e placa. |
+| `ApiIntegrationTest` | Integração (MockMvc) | API completa com Spring Security + JWT: `401`/`403`/`409`, erros por campo, CRUDs, simulação e fluxo pendente → aprovado → concluído com crédito e histórico. |
 
 ```bash
 cd backend
@@ -588,10 +619,10 @@ npm run build     # build de produção
 Com back-end e front-end em execução, valide o fluxo completo:
 
 1. **Login** com credenciais inválidas (erro) e válidas (cliente cai em *Meus pedidos*; agente cai em *Análise financeira*).
-2. **Cliente:** cadastrar cliente (login duplicado deve falhar; máx. 3 rendimentos) → cadastrar automóvel → criar pedido (`PENDENTE`) → **modificar** → criar outro e **cancelar** (`CANCELADO`).
-3. **Banco:** abrir o pedido pendente → modificar → **aprovar** informando valor financiado e juros → conferir `GET /api/contratos`.
-4. **Empresa:** aprovar/rejeitar pedido (sem opção de crédito, exclusiva de banco).
-5. **Cliente:** conferir status `APROVADO`/`REJEITADO` e notificações no sino; usar **Configurações → Sair da conta**.
+2. **Cliente:** cadastrar cliente (CPF inválido/duplicado e login duplicado devem falhar; máx. 3 fontes de renda) → outro usuário cadastra um veículo com diária → criar pedido vendo a **simulação do valor** (`PENDENTE`) → **modificar** → criar outro e **cancelar** (`CANCELADO`).
+3. **Banco:** abrir o pedido pendente → modificar → **aprovar** → na aba **Aguardando contrato**, executar o contrato com financiamento (ver a simulação e o alerta de renda) → o pedido vira `CONCLUIDO`.
+4. **Empresa:** aprovar/rejeitar pedido e executar contrato simples (sem opção de crédito, exclusiva de banco).
+5. **Cliente:** acompanhar a **linha do tempo** e o histórico do pedido, ver o financiamento no cartão e as notificações no sino; usar **Configurações → Sair da conta**.
 6. **Permissões (API):** chamada sem token → `401`; agente cancelando pedido de cliente → `403`; cliente listando clientes → `403`; modificar pedido já aprovado → `409`; segundo contrato para o mesmo pedido → `409`.
 7. **Autocadastro:** na tela de login, *Cadastre-se* → criar conta → entrar com ela.
 
