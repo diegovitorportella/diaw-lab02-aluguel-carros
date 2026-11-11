@@ -1,37 +1,115 @@
 import { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Icon from "../components/Icon";
+import OrderTimeline from "../components/OrderTimeline";
+import StatusBadge from "../components/StatusBadge";
 import TextInput from "../components/TextInput";
-import { api } from "../services/api";
+import { api, ApiError } from "../services/api";
+import { formatarData, formatarMoeda, formatarPlaca, parseMoeda } from "../utils/formatters";
+
+type Erros = Record<string, string>;
+type Aba = "analise" | "contrato";
 
 export default function FinancialReview({ user }: { user?: any }) {
   const [pedidos, setPedidos] = useState<any[]>([]);
+  const [aba, setAba] = useState<Aba>("analise");
   const [selected, setSelected] = useState<any | null>(null);
   const [decision, setDecision] = useState<"approve" | "reject">("approve");
-  const [submitted, setSubmitted] = useState(false);
+  const [mensagemSucesso, setMensagemSucesso] = useState("");
 
-  const [valorFinanciado, setValorFinanciado] = useState("");
-  const [taxaJuros, setTaxaJuros] = useState("");
-
+  // modificação do pedido (fase de análise)
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
   const [observacao, setObservacao] = useState("");
+
+  // execução do contrato (pedido aprovado)
+  const [comCredito, setComCredito] = useState(false);
+  const [entrada, setEntrada] = useState("");
+  const [parcelas, setParcelas] = useState("12");
+  const [juros, setJuros] = useState("");
+  const [valorFinanciado, setValorFinanciado] = useState("");
+  const [simulacao, setSimulacao] = useState<any | null>(null);
+  const [erroSimulacao, setErroSimulacao] = useState("");
+
   const [erro, setErro] = useState("");
+  const [erros, setErros] = useState<Erros>({});
   const [aviso, setAviso] = useState("");
+
   const isBanco = user?.tipo === "BANCO";
+
+  useEffect(() => {
+    carregarPedidos();
+  }, []);
+
+  const carregarPedidos = async () => {
+    try {
+      setPedidos(await api.listarPedidos());
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const emAnalise = pedidos.filter((p) => p.status === "PENDENTE");
+  const aguardandoContrato = pedidos.filter((p) => p.status === "APROVADO");
+  const lista = aba === "analise" ? emAnalise : aguardandoContrato;
 
   const selecionar = (pedido: any | null) => {
     setSelected(pedido);
+    setDecision("approve");
     setDataInicio(pedido?.dataInicio ?? "");
     setDataFim(pedido?.dataFim ?? "");
     setObservacao(pedido?.observacao ?? "");
-    setErro("");
-    setAviso("");
+    setComCredito(false);
+    setEntrada(""); setParcelas("12"); setJuros(""); setValorFinanciado("");
+    setSimulacao(null); setErroSimulacao("");
+    setErro(""); setErros({}); setAviso(""); setMensagemSucesso("");
+  };
+
+  const rendaTotal = (pedido: any) =>
+    (pedido?.cliente?.rendimentosAuferidos ?? []).reduce((soma: number, v: number) => soma + v, 0);
+
+  // Simulação ao vivo do financiamento (parcela, total pago e comprometimento da renda)
+  useEffect(() => {
+    if (!selected || selected.status !== "APROVADO" || !isBanco || !comCredito) {
+      setSimulacao(null);
+      setErroSimulacao("");
+      return;
+    }
+    const nParcelas = parseInt(parcelas);
+    const nJuros = parseMoeda(juros);
+    const nEntrada = entrada.trim() ? parseMoeda(entrada) : 0;
+    const nFinanciado = valorFinanciado.trim() ? parseMoeda(valorFinanciado) : undefined;
+    if (!nParcelas || Number.isNaN(nJuros) || Number.isNaN(nEntrada) || (nFinanciado !== undefined && Number.isNaN(nFinanciado))) {
+      setSimulacao(null);
+      setErroSimulacao("");
+      return;
+    }
+    const timer = setTimeout(async () => {
+      try {
+        const resultado = await api.simularFinanciamento(selected.id, {
+          parcelas: nParcelas,
+          juros: nJuros,
+          entrada: nEntrada,
+          valorFinanciado: nFinanciado,
+        });
+        setSimulacao(resultado);
+        setErroSimulacao("");
+      } catch (err: any) {
+        setSimulacao(null);
+        setErroSimulacao(err.message);
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [selected, isBanco, comCredito, entrada, parcelas, juros, valorFinanciado]);
+
+  const tratarErro = (err: any) => {
+    if (err instanceof ApiError && Object.keys(err.campos).length > 0) setErros(err.campos);
+    setErro(err.message);
   };
 
   const salvarAlteracoes = async () => {
-    if (!selected || !user) return;
-    setErro(""); setAviso("");
+    if (!selected) return;
+    setErro(""); setErros({}); setAviso("");
     try {
       const atualizado = await api.modificarPedido(selected.id, {
         automovel: { id: selected.automovel?.id },
@@ -43,46 +121,61 @@ export default function FinancialReview({ user }: { user?: any }) {
       setAviso("Pedido modificado com sucesso.");
       carregarPedidos();
     } catch (err: any) {
-      setErro(err.message);
+      tratarErro(err);
     }
   };
 
-  useEffect(() => {
-    carregarPedidos();
-  }, []);
-
-  const carregarPedidos = async () => {
-    try {
-      const dados = await api.listarPedidos();
-      setPedidos(dados.filter((p: any) => p.status === 'PENDENTE'));
-    } catch (err) {
-      console.error(err);
-    }
+  const concluirAposAcao = (mensagem: string) => {
+    setMensagemSucesso(mensagem);
+    setTimeout(() => {
+      selecionar(null);
+      carregarPedidos();
+    }, 1800);
   };
 
-  const submitDecision = async () => {
-    if (!selected || !user) return;
-    setErro(""); setAviso("");
+  const enviarParecer = async () => {
+    if (!selected) return;
+    setErro(""); setErros({}); setAviso("");
     try {
-      const parecer = decision === "approve" ? "POSITIVO" : "NEGATIVO";
-      await api.avaliarPedido(selected.id, parecer);
-
-      if (parecer === "POSITIVO" && valorFinanciado && isBanco) {
-        await api.gerarContrato(selected.id, {
-          valorFinanciado: parseFloat(valorFinanciado),
-          taxaJuros: parseFloat(taxaJuros),
-        });
-      }
-
-      setSubmitted(true);
-      setValorFinanciado(""); setTaxaJuros("");
-      setTimeout(() => {
-        setSubmitted(false);
-        selecionar(null);
-        carregarPedidos();
-      }, 2000);
+      await api.avaliarPedido(selected.id, decision === "approve" ? "POSITIVO" : "NEGATIVO");
+      concluirAposAcao(decision === "approve"
+        ? "Pedido aprovado. Ele segue para a aba “Aguardando contrato”."
+        : "Pedido rejeitado.");
     } catch (err: any) {
-      setErro(err.message);
+      tratarErro(err);
+    }
+  };
+
+  const executarContrato = async () => {
+    if (!selected) return;
+    setErro(""); setErros({}); setAviso("");
+
+    let corpo: any = {};
+    if (isBanco && comCredito) {
+      const nEntrada = entrada.trim() ? parseMoeda(entrada) : 0;
+      const nFinanciado = valorFinanciado.trim() ? parseMoeda(valorFinanciado) : null;
+      const nJuros = parseMoeda(juros);
+      const nParcelas = parseInt(parcelas);
+      const e: Erros = {};
+      if (Number.isNaN(nEntrada) || nEntrada < 0) e.valorEntrada = "Entrada inválida.";
+      if (!nParcelas || nParcelas < 1 || nParcelas > 120) e.numeroParcelas = "Informe de 1 a 120 parcelas.";
+      if (Number.isNaN(nJuros) || nJuros < 0) e.taxaJuros = "Informe a taxa de juros anual.";
+      if (nFinanciado !== null && (Number.isNaN(nFinanciado) || nFinanciado <= 0)) e.valorFinanciado = "Valor inválido.";
+      if (Object.keys(e).length > 0) {
+        setErros(e);
+        setErro("Corrija os campos destacados.");
+        return;
+      }
+      corpo = { valorEntrada: nEntrada, numeroParcelas: nParcelas, taxaJuros: nJuros, valorFinanciado: nFinanciado };
+    }
+
+    try {
+      await api.gerarContrato(selected.id, corpo);
+      concluirAposAcao(isBanco && comCredito
+        ? "Contrato com financiamento executado. O pedido está concluído."
+        : "Contrato executado. O pedido está concluído.");
+    } catch (err: any) {
+      tratarErro(err);
     }
   };
 
@@ -91,26 +184,49 @@ export default function FinancialReview({ user }: { user?: any }) {
       <Header
         eyebrow="Operações de Crédito"
         title="Análise financeira"
-        description="Analise solicitações pendentes e emita decisões de crédito."
+        description="Analise as solicitações, emita o parecer e execute o contrato dos pedidos aprovados."
       />
-      
-      <section className="card overflow-hidden mt-6">
+
+      <div className="mt-6 flex gap-1 rounded-xl bg-slate-200/70 p-1 sm:w-fit">
+        {([
+          ["analise", `Em análise (${emAnalise.length})`],
+          ["contrato", `Aguardando contrato (${aguardandoContrato.length})`],
+        ] as const).map(([id, rotulo]) => (
+          <button
+            key={id}
+            onClick={() => { setAba(id); selecionar(null); }}
+            className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+              aba === id ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            {rotulo}
+          </button>
+        ))}
+      </div>
+
+      <section className="card overflow-hidden mt-4">
         <div className="overflow-x-auto">
           <table className="w-full min-w-215 text-left">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                <th className="px-6 py-4">ID / Nome do Cliente</th>
-                <th>Modelo do Veículo</th>
+                <th className="px-6 py-4">Pedido / Cliente</th>
+                <th>Veículo</th>
+                <th>Período</th>
+                <th>Valor total</th>
+                <th>Renda do cliente</th>
                 <th>Status</th>
-                <th>Parecer</th>
                 <th />
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {pedidos.length === 0 && (
-                <tr><td colSpan={5} className="p-6 text-center text-slate-500">Nenhum pedido pendente de análise.</td></tr>
+              {lista.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="p-6 text-center text-slate-500">
+                    {aba === "analise" ? "Nenhum pedido pendente de análise." : "Nenhum pedido aprovado aguardando contrato."}
+                  </td>
+                </tr>
               )}
-              {pedidos.map((row) => (
+              {lista.map((row) => (
                 <tr
                   key={row.id}
                   onClick={() => selecionar(row)}
@@ -119,11 +235,17 @@ export default function FinancialReview({ user }: { user?: any }) {
                   }`}
                 >
                   <td className="px-6 py-4 font-semibold text-slate-900">
-                    {row.cliente?.nome} (ID: {row.cliente?.id})
+                    REQ-{row.id}
+                    <span className="block text-xs font-normal text-slate-500">{row.cliente?.nome || row.cliente?.login}</span>
                   </td>
-                  <td className="font-medium text-slate-700">{row.automovel?.modelo || "N/A"}</td>
-                  <td className="text-amber-600 font-bold">{row.status}</td>
-                  <td className="text-slate-500">{row.parecerFinanceiro || "Pendente"}</td>
+                  <td className="font-medium text-slate-700">
+                    {row.automovel ? `${row.automovel.marca} ${row.automovel.modelo}` : "N/A"}
+                    <span className="block text-xs font-normal text-slate-400">{formatarPlaca(row.automovel?.placa)}</span>
+                  </td>
+                  <td className="text-slate-600">{formatarData(row.dataInicio)} a {formatarData(row.dataFim)}</td>
+                  <td className="font-semibold text-slate-900">{formatarMoeda(row.valorTotal)}</td>
+                  <td className="text-slate-600">{formatarMoeda(rendaTotal(row))}</td>
+                  <td><StatusBadge status={row.status} /></td>
                   <td><Icon name="chevron" className="h-4 w-4 text-slate-400" /></td>
                 </tr>
               ))}
@@ -139,65 +261,153 @@ export default function FinancialReview({ user }: { user?: any }) {
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 px-6 py-5 backdrop-blur">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-blue-600">REQ-{selected.id}</p>
-                <h2 className="mt-1 text-xl font-semibold">Analisar solicitação</h2>
+                <h2 className="mt-1 text-xl font-semibold">
+                  {selected.status === "PENDENTE" ? "Analisar solicitação" : "Executar contrato"}
+                </h2>
               </div>
               <button onClick={() => selecionar(null)} className="header-button"><Icon name="close" /></button>
             </div>
-            
+
             <div className="space-y-7 p-6">
-              {submitted && (
+              {mensagemSucesso && (
                 <div className="flex items-center gap-3 rounded-xl bg-emerald-50 p-4 text-sm font-semibold text-emerald-800">
-                  <Icon name="check" className="h-5 w-5" /> Decisão enviada com sucesso
+                  <Icon name="check" className="h-5 w-5" /> {mensagemSucesso}
                 </div>
               )}
-              
               {erro && <div className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-800">{erro}</div>}
               {aviso && <div className="rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-800">{aviso}</div>}
 
-              <div>
-                <h3 className="panel-title">Modificar pedido</h3>
-                <div className="mt-4 grid grid-cols-2 gap-4">
-                  <TextInput label="Data inicial" type="date" value={dataInicio} onChange={e => setDataInicio(e.target.value)} />
-                  <TextInput label="Data final" type="date" value={dataFim} onChange={e => setDataFim(e.target.value)} />
-                  <TextInput label="Observação" value={observacao} onChange={e => setObservacao(e.target.value)} wide />
-                </div>
-                <button onClick={salvarAlteracoes} className="button-secondary mt-4">Salvar alterações</button>
+              {/* Resumo do pedido */}
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
+                <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+                  <div><dt className="text-xs text-slate-400">Cliente</dt><dd className="font-semibold text-slate-800">{selected.cliente?.nome || selected.cliente?.login}</dd></div>
+                  <div><dt className="text-xs text-slate-400">Profissão</dt><dd className="font-semibold text-slate-800">{selected.cliente?.profissao || "—"}</dd></div>
+                  <div><dt className="text-xs text-slate-400">Veículo</dt><dd className="font-semibold text-slate-800">{selected.automovel ? `${selected.automovel.marca} ${selected.automovel.modelo}` : "—"}</dd></div>
+                  <div><dt className="text-xs text-slate-400">Período</dt><dd className="font-semibold text-slate-800">{formatarData(selected.dataInicio)} a {formatarData(selected.dataFim)}</dd></div>
+                  <div><dt className="text-xs text-slate-400">Valor total do aluguel</dt><dd className="font-semibold text-slate-950">{formatarMoeda(selected.valorTotal)}</dd></div>
+                  <div><dt className="text-xs text-slate-400">Renda mensal total</dt><dd className="font-semibold text-slate-950">{formatarMoeda(rendaTotal(selected))}</dd></div>
+                </dl>
               </div>
 
               <div>
-                <h3 className="panel-title">Análise financeira</h3>
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <button onClick={() => setDecision("approve")} className={`decision ${decision === "approve" ? "approve" : ""}`}>
-                    <span className="decision-icon"><Icon name="check" /></span>
-                    <span><b>Aprovar</b><small>Elegível para crédito</small></span>
-                  </button>
-                  <button onClick={() => setDecision("reject")} className={`decision ${decision === "reject" ? "reject" : ""}`}>
-                    <span className="decision-icon"><Icon name="close" /></span>
-                    <span><b>Rejeitar</b><small>Recusar pedido</small></span>
-                  </button>
+                <h3 className="panel-title">Acompanhamento</h3>
+                <div className="mt-4">
+                  <OrderTimeline status={selected.status} historico={selected.historico} />
                 </div>
               </div>
 
-              {decision === "approve" && isBanco && (
+              {/* ---- Fase de análise (pedido pendente) ---- */}
+              {selected.status === "PENDENTE" && (
+                <>
+                  <div>
+                    <h3 className="panel-title">Modificar pedido</h3>
+                    <div className="mt-4 grid grid-cols-2 gap-4">
+                      <TextInput label="Data inicial" type="date" value={dataInicio} onChange={e => setDataInicio(e.target.value)} error={erros.dataInicio} />
+                      <TextInput label="Data final" type="date" value={dataFim} onChange={e => setDataFim(e.target.value)} error={erros.dataFim} />
+                      <TextInput label="Observação" value={observacao} onChange={e => setObservacao(e.target.value)} wide />
+                    </div>
+                    <button onClick={salvarAlteracoes} className="button-secondary mt-4">Salvar alterações</button>
+                  </div>
+
+                  <div>
+                    <h3 className="panel-title">Parecer financeiro</h3>
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                      <button onClick={() => setDecision("approve")} className={`decision ${decision === "approve" ? "approve" : ""}`}>
+                        <span className="decision-icon"><Icon name="check" /></span>
+                        <span><b>Aprovar</b><small>Parecer positivo</small></span>
+                      </button>
+                      <button onClick={() => setDecision("reject")} className={`decision ${decision === "reject" ? "reject" : ""}`}>
+                        <span className="decision-icon"><Icon name="close" /></span>
+                        <span><b>Rejeitar</b><small>Parecer negativo</small></span>
+                      </button>
+                    </div>
+                    <p className="mt-3 text-xs text-slate-500">
+                      Aprovar não gera o contrato: o pedido segue para “Aguardando contrato”, onde o contrato é executado.
+                    </p>
+                  </div>
+                </>
+              )}
+
+              {/* ---- Execução do contrato (pedido aprovado) ---- */}
+              {selected.status === "APROVADO" && (
                 <div className="rounded-2xl border border-blue-100 bg-blue-50/40 p-5">
                   <div className="mb-5 flex items-center gap-3">
                     <span className="grid h-9 w-9 place-items-center rounded-lg bg-blue-600 text-white"><Icon name="file" className="h-4 w-4" /></span>
                     <div>
-                      <h3 className="font-semibold text-slate-950">Contrato de crédito</h3>
-                      <p className="text-xs text-slate-500">Configuração do agente bancário</p>
+                      <h3 className="font-semibold text-slate-950">Contrato</h3>
+                      <p className="text-xs text-slate-500">
+                        {isBanco ? "Com ou sem financiamento concedido pelo banco" : "Contrato de aluguel (somente bancos concedem crédito)"}
+                      </p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <TextInput label="Valor financiado" value={valorFinanciado} onChange={e => setValorFinanciado(e.target.value)} placeholder="Ex: 38900.00" />
-                    <TextInput label="Taxa de juros (a.a.)" value={taxaJuros} onChange={e => setTaxaJuros(e.target.value)} placeholder="Ex: 8.75" />
-                  </div>
+
+                  {isBanco && (
+                    <label className="mb-4 flex cursor-pointer items-center gap-3 text-sm font-semibold text-slate-700">
+                      <input type="checkbox" checked={comCredito} onChange={(e) => setComCredito(e.target.checked)} className="h-4 w-4 accent-blue-600" />
+                      Conceder financiamento
+                    </label>
+                  )}
+
+                  {isBanco && comCredito && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <TextInput label="Entrada (R$)" value={entrada} onChange={e => setEntrada(e.target.value)} inputMode="decimal" placeholder="0,00" error={erros.valorEntrada} />
+                        <TextInput label="Nº de parcelas" value={parcelas} onChange={e => setParcelas(e.target.value.replace(/\D/g, ""))} inputMode="numeric" placeholder="12" error={erros.numeroParcelas} />
+                        <TextInput label="Taxa de juros (% a.a.)" value={juros} onChange={e => setJuros(e.target.value)} inputMode="decimal" placeholder="Ex: 8,75" error={erros.taxaJuros} />
+                        <TextInput
+                          label="Valor financiado (R$)"
+                          value={valorFinanciado}
+                          onChange={e => setValorFinanciado(e.target.value)}
+                          inputMode="decimal"
+                          placeholder={selected.valorTotal != null ? "Total − entrada" : "Obrigatório"}
+                          hint={selected.valorTotal != null ? "Em branco = valor total menos a entrada." : "Pedido sem valor total: informe o valor."}
+                          error={erros.valorFinanciado}
+                        />
+                      </div>
+
+                      {/* Simulação */}
+                      <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm">
+                        <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Simulação (tabela Price)</p>
+                        {erroSimulacao && <p className="mt-2 text-xs font-medium text-red-600">{erroSimulacao}</p>}
+                        {!simulacao && !erroSimulacao && (
+                          <p className="mt-2 text-slate-500">Informe parcelas e juros para simular.</p>
+                        )}
+                        {simulacao && (
+                          <>
+                            <p className="mt-2 text-slate-600">
+                              {formatarMoeda(simulacao.valorFinanciado)} em {simulacao.numeroParcelas}x de{" "}
+                              <b className="text-lg text-slate-950">{formatarMoeda(simulacao.valorParcela)}</b>
+                            </p>
+                            <p className="mt-1 text-xs text-slate-500">
+                              Juros de {simulacao.taxaJurosMensal}% ao mês · total pago {formatarMoeda(simulacao.totalPago)}
+                            </p>
+                            <div className={`mt-3 rounded-lg p-3 text-xs font-semibold ${simulacao.acimaDoLimite ? "bg-amber-50 text-amber-800" : "bg-emerald-50 text-emerald-800"}`}>
+                              A parcela compromete {(simulacao.comprometimentoRenda * 100).toFixed(1).replace(".", ",")}% da renda de{" "}
+                              {formatarMoeda(simulacao.rendaTotal)}.{" "}
+                              {simulacao.acimaDoLimite
+                                ? `Atenção: acima do limite de ${Math.round(simulacao.limiteComprometimento * 100)}%.`
+                                : `Dentro do limite de ${Math.round(simulacao.limiteComprometimento * 100)}%.`}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
+
             <div className="sticky bottom-0 flex gap-3 border-t border-slate-200 bg-white p-6">
-              <button onClick={submitDecision} className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white ${decision === "approve" ? "bg-blue-600 hover:bg-blue-700" : "bg-red-600 hover:bg-red-700"}`}>
-                Enviar decisão <Icon name="chevron" className="h-4 w-4" />
-              </button>
+              {selected.status === "PENDENTE" && (
+                <button onClick={enviarParecer} className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white ${decision === "approve" ? "bg-blue-600 hover:bg-blue-700" : "bg-red-600 hover:bg-red-700"}`}>
+                  Enviar parecer <Icon name="chevron" className="h-4 w-4" />
+                </button>
+              )}
+              {selected.status === "APROVADO" && (
+                <button onClick={executarContrato} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700">
+                  Executar contrato <Icon name="chevron" className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </aside>
         </>
