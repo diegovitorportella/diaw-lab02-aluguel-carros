@@ -55,6 +55,7 @@ public class SecurityConfig {
                         // Somente agentes (banco/empresa)
                         .requestMatchers(HttpMethod.GET, "/api/clientes").hasRole("AGENTE")
                         .requestMatchers(HttpMethod.PUT, "/api/pedidos/*/avaliar").hasRole("AGENTE")
+                        .requestMatchers(HttpMethod.GET, "/api/pedidos/*/simulacao").hasRole("AGENTE")
                         .requestMatchers(HttpMethod.POST, "/api/contratos/gerar/*").hasRole("AGENTE")
                         // Somente clientes
                         .requestMatchers(HttpMethod.POST, "/api/pedidos").hasRole("CLIENTE")

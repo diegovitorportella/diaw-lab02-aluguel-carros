@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.PedidoDTO;
 import com.example.demo.exception.AcessoNegadoException;
 import com.example.demo.exception.RecursoNaoEncontradoException;
+import com.example.demo.exception.ValidacaoException;
 import com.example.demo.model.Agente;
 import com.example.demo.model.Automovel;
 import com.example.demo.model.Cliente;
@@ -13,8 +14,16 @@ import com.example.demo.repository.PedidoAluguelRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * Ciclo de vida do pedido: PENDENTE → APROVADO → CONCLUIDO (contrato executado),
+ * com os desvios REJEITADO (parecer negativo) e CANCELADO (cliente desiste).
+ */
 @Service
 public class PedidoAluguelService {
 
@@ -22,6 +31,7 @@ public class PedidoAluguelService {
     public static final String APROVADO = "APROVADO";
     public static final String REJEITADO = "REJEITADO";
     public static final String CANCELADO = "CANCELADO";
+    public static final String CONCLUIDO = "CONCLUIDO";
 
     private final PedidoAluguelRepository repository;
     private final AutomovelRepository automovelRepository;
@@ -35,6 +45,15 @@ public class PedidoAluguelService {
         this.usuarioService = usuarioService;
     }
 
+    /** Valor total do aluguel: diárias (período inclusivo) × valor da diária, ou nulo se não der para calcular. */
+    public static Double calcularTotal(Automovel automovel, LocalDate inicio, LocalDate fim) {
+        if (automovel == null || automovel.getValorDiaria() == null || inicio == null || fim == null) {
+            return null;
+        }
+        long diarias = ChronoUnit.DAYS.between(inicio, fim) + 1;
+        return SimulacaoService.arredondar(diarias * automovel.getValorDiaria());
+    }
+
     /** O cliente do pedido é o usuário autenticado (deve ser do tipo Cliente). */
     @Transactional
     public PedidoAluguel criar(Long clienteId, PedidoDTO dto) {
@@ -42,10 +61,26 @@ public class PedidoAluguelService {
             throw new AcessoNegadoException("Apenas clientes podem criar pedidos de aluguel.");
         }
         Automovel automovel = buscarAutomovel(dto);
+
+        Map<String, String> erros = new LinkedHashMap<>();
         if (automovel == null) {
-            throw new IllegalArgumentException("O automóvel do pedido é obrigatório.");
+            erros.put("automovel", "O automóvel do pedido é obrigatório.");
+        } else {
+            validarProprietario(automovel, cliente, erros);
         }
-        validarPeriodo(dto);
+        if (dto.dataInicio() == null) {
+            erros.put("dataInicio", "Informe a data inicial.");
+        } else if (dto.dataInicio().isBefore(LocalDate.now())) {
+            erros.put("dataInicio", "A data inicial não pode ser anterior a hoje.");
+        }
+        if (dto.dataFim() == null) {
+            erros.put("dataFim", "Informe a data final.");
+        } else if (dto.dataInicio() != null && dto.dataFim().isBefore(dto.dataInicio())) {
+            erros.put("dataFim", "A data final não pode ser anterior à data inicial.");
+        }
+        if (!erros.isEmpty()) {
+            throw new ValidacaoException(erros);
+        }
 
         PedidoAluguel pedido = new PedidoAluguel();
         pedido.setCliente(cliente);
@@ -53,7 +88,9 @@ public class PedidoAluguelService {
         pedido.setDataInicio(dto.dataInicio());
         pedido.setDataFim(dto.dataFim());
         pedido.setObservacao(dto.observacao());
+        pedido.setValorTotal(calcularTotal(automovel, dto.dataInicio(), dto.dataFim()));
         pedido.setStatus(PENDENTE);
+        pedido.registrar(PENDENTE, "Pedido solicitado", cliente);
         return repository.save(pedido);
     }
 
@@ -76,26 +113,47 @@ public class PedidoAluguelService {
     }
 
     /**
-     * Modifica um pedido. O cliente só pode alterar os próprios pedidos; agentes podem alterar
-     * qualquer pedido. Em ambos os casos, apenas enquanto o pedido está pendente (em análise).
+     * Modifica um pedido (atualização parcial: campos nulos mantêm o valor atual). O cliente só pode
+     * alterar os próprios pedidos; agentes podem alterar qualquer pedido. Apenas enquanto pendente.
      */
     @Transactional
     public PedidoAluguel modificar(Long id, Long usuarioId, PedidoDTO dto) {
         PedidoAluguel pedido = buscarPedido(id);
-        validarPermissao(pedido, usuarioService.buscar(usuarioId));
+        Usuario usuario = usuarioService.buscar(usuarioId);
+        validarPermissao(pedido, usuario);
 
         if (!PENDENTE.equals(pedido.getStatus())) {
             throw new IllegalStateException("Apenas pedidos pendentes (em análise) podem ser modificados.");
         }
 
-        Automovel automovel = buscarAutomovel(dto);
-        if (automovel != null) {
-            pedido.setAutomovel(automovel);
+        Automovel novoAutomovel = buscarAutomovel(dto);
+        Automovel automovel = novoAutomovel != null ? novoAutomovel : pedido.getAutomovel();
+        LocalDate inicio = dto.dataInicio() != null ? dto.dataInicio() : pedido.getDataInicio();
+        LocalDate fim = dto.dataFim() != null ? dto.dataFim() : pedido.getDataFim();
+
+        Map<String, String> erros = new LinkedHashMap<>();
+        if (novoAutomovel != null) {
+            validarProprietario(novoAutomovel, pedido.getCliente(), erros);
         }
-        validarPeriodo(dto);
-        pedido.setDataInicio(dto.dataInicio());
-        pedido.setDataFim(dto.dataFim());
-        pedido.setObservacao(dto.observacao());
+        if (dto.dataInicio() != null && !dto.dataInicio().equals(pedido.getDataInicio())
+                && dto.dataInicio().isBefore(LocalDate.now())) {
+            erros.put("dataInicio", "A data inicial não pode ser anterior a hoje.");
+        }
+        if (inicio != null && fim != null && fim.isBefore(inicio)) {
+            erros.put("dataFim", "A data final não pode ser anterior à data inicial.");
+        }
+        if (!erros.isEmpty()) {
+            throw new ValidacaoException(erros);
+        }
+
+        pedido.setAutomovel(automovel);
+        pedido.setDataInicio(inicio);
+        pedido.setDataFim(fim);
+        if (dto.observacao() != null) {
+            pedido.setObservacao(dto.observacao());
+        }
+        pedido.setValorTotal(calcularTotal(automovel, inicio, fim));
+        pedido.registrar(PENDENTE, "Pedido modificado", usuario);
         return repository.save(pedido);
     }
 
@@ -115,6 +173,7 @@ public class PedidoAluguelService {
         }
 
         pedido.setStatus(CANCELADO);
+        pedido.registrar(CANCELADO, "Pedido cancelado pelo cliente", usuario);
         return repository.save(pedido);
     }
 
@@ -131,10 +190,20 @@ public class PedidoAluguelService {
             throw new IllegalArgumentException("Parecer deve ser POSITIVO ou NEGATIVO.");
         }
 
+        boolean positivo = "POSITIVO".equalsIgnoreCase(parecer);
         pedido.setParecerFinanceiro(parecer.toUpperCase());
         pedido.setAgenteAvaliador(agente);
-        pedido.setStatus("POSITIVO".equalsIgnoreCase(parecer) ? APROVADO : REJEITADO);
+        pedido.setStatus(positivo ? APROVADO : REJEITADO);
+        pedido.registrar(pedido.getStatus(),
+                positivo ? "Pedido aprovado na análise financeira" : "Pedido rejeitado na análise financeira", agente);
         return repository.save(pedido);
+    }
+
+    private void validarProprietario(Automovel automovel, Cliente cliente, Map<String, String> erros) {
+        if (automovel.getProprietario() != null && automovel.getProprietario().getId() != null
+                && automovel.getProprietario().getId().equals(cliente.getId())) {
+            erros.put("automovel", "Você não pode alugar o próprio veículo.");
+        }
     }
 
     private void validarPermissao(PedidoAluguel pedido, Usuario usuario) {
@@ -145,12 +214,6 @@ public class PedidoAluguelService {
             return;
         }
         throw new AcessoNegadoException("Você não tem permissão para acessar este pedido.");
-    }
-
-    private void validarPeriodo(PedidoDTO dto) {
-        if (dto.dataInicio() != null && dto.dataFim() != null && dto.dataFim().isBefore(dto.dataInicio())) {
-            throw new IllegalArgumentException("A data final não pode ser anterior à data inicial.");
-        }
     }
 
     private Automovel buscarAutomovel(PedidoDTO dto) {

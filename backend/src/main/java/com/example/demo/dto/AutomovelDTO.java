@@ -6,4 +6,5 @@ public record AutomovelDTO(
         Integer ano,
         String marca,
         String modelo,
-        String placa) {}
+        String placa,
+        Double valorDiaria) {}
