@@ -1,0 +1,25 @@
+# Blueprint do Render para o back-end do DriveJá.
+# As variáveis marcadas com sync: false são informadas no painel do Render (nunca no repositório).
+services:
+  - type: web
+    name: driveja-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    envVars:
+      # "seed" cria os agentes de demonstração (banco.agente e empresa.agente) com a senha SEED_SENHA
+      - key: SPRING_PROFILES_ACTIVE
+        value: seed
+      - key: SPRING_DATASOURCE_URL
+        sync: false # jdbc:postgresql://<host-do-pooler>:5432/postgres?sslmode=require
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true # chave aleatória forte, mantida entre deploys
+      - key: SEED_SENHA
+        sync: false # senha dos agentes de demonstração (use uma senha própria)
+      - key: CORS_ORIGINS
+        sync: false # URL do front-end na Vercel, ex.: https://driveja.vercel.app

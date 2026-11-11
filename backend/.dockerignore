@@ -1,0 +1,7 @@
+target
+HELP.md
+.git
+.idea
+*.iml
+# credenciais locais nunca entram na imagem
+src/main/resources/application-dev.properties

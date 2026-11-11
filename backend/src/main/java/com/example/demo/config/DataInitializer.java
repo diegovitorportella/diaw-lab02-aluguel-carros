@@ -6,6 +6,7 @@ import com.example.demo.model.PedidoAluguel;
 import com.example.demo.repository.PedidoAluguelRepository;
 import com.example.demo.repository.UsuarioRepository;
 import com.example.demo.service.PedidoAluguelService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,16 +20,17 @@ import org.springframework.transaction.support.TransactionTemplate;
  * e a migração de pedidos do fluxo antigo.
  */
 @Configuration
-@Profile("dev")
+@Profile({"dev", "seed"})
 public class DataInitializer {
 
     @Bean
-    CommandLineRunner seedAgentes(UsuarioRepository usuarios, PasswordEncoder encoder) {
+    CommandLineRunner seedAgentes(UsuarioRepository usuarios, PasswordEncoder encoder,
+                                  @Value("${app.seed.senha}") String senhaSeed) {
         return args -> {
             if (usuarios.findByLogin("banco.agente").isEmpty()) {
                 Banco banco = new Banco();
                 banco.setLogin("banco.agente");
-                banco.setSenha(encoder.encode("password123"));
+                banco.setSenha(encoder.encode(senhaSeed));
                 banco.setCnpj("00.000.000/0001-00");
                 banco.setRazaoSocial("Banco Agente S.A.");
                 usuarios.save(banco);
@@ -36,7 +38,7 @@ public class DataInitializer {
             if (usuarios.findByLogin("empresa.agente").isEmpty()) {
                 Empresa empresa = new Empresa();
                 empresa.setLogin("empresa.agente");
-                empresa.setSenha(encoder.encode("password123"));
+                empresa.setSenha(encoder.encode(senhaSeed));
                 empresa.setCnpj("11.111.111/0001-11");
                 empresa.setRazaoSocial("Locadora Agente Ltda.");
                 usuarios.save(empresa);
