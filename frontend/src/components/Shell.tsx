@@ -137,13 +137,9 @@ export default function Shell({
               </>
             )}
           </div>
-          <span className="mx-2 hidden h-8 w-px bg-slate-200 sm:block" />
-
-          <div className="flex items-center gap-3 p-1.5">
-            <span className="avatar bg-blue-100 text-blue-700">{iniciais}</span>
-            <span className="hidden text-left md:block">
-              <span className="block text-sm font-semibold">{nomeUsuario}</span>
-            </span>
+          {/* No desktop o usuário aparece no rodapé do menu lateral; no celular o menu não existe, então fica aqui. */}
+          <div className="flex items-center gap-2 pl-1 lg:hidden">
+            <span className="avatar bg-amber-500 text-slate-950">{iniciais}</span>
           </div>
         </div>
       </header>
