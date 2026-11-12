@@ -86,7 +86,8 @@
 * 📖 **Documentação de modelagem:** pasta [`docs/`](./docs)
   > 📚 **Descrição:** [Diagrama de Casos de Uso](./docs/Diagrama%20de%20Casos%20de%20Uso.pdf), [Diagrama de Classes](./docs/Diagrama%20de%20Classes.pdf), [Diagrama de Pacotes](./docs/Diagrama%20de%20Pacotes%20UML.pdf) e [Histórias de Usuário](./docs/historias_de_usuario.md).
 
-> A aplicação ainda não está publicada em ambiente de produção; ela é executada localmente (veja [Instalação e Execução](#-instalação-e-execução)).
+* 🚀 **Aplicação publicada:** [driveja-zeta.vercel.app](https://driveja-zeta.vercel.app)
+  > 🧪 **Descrição:** Front-end na Vercel, back-end no Render e banco no Supabase. A tela de login tem botões de acesso às contas de demonstração (cliente, banco e empresa). Detalhes em [Deploy](#-deploy).
 
 ---
 
@@ -521,7 +522,20 @@ java -jar target/demo-0.0.1-SNAPSHOT.jar  # exige as variáveis do banco e JWT_S
 
 ## 🎥 Demonstração
 
-### 🌐 Aplicação Web
+### 🌐 Aplicação em funcionamento
+
+Capturas da versão publicada, com dados de demonstração (link em [Links Úteis](#-links-úteis)).
+
+| | |
+| :---: | :---: |
+| **Login com acesso de demonstração** | **Meus pedidos (cliente): pista do pedido e status** |
+| <img src="./docs/images/telas/login.png" alt="Login com contas de demonstração" width="420px"> | <img src="./docs/images/telas/cliente-pedidos.png" alt="Pedidos do cliente com a pista de acompanhamento" width="420px"> |
+| **Veículos com placa Mercosul** | **Análise financeira: pedidos pendentes** |
+| <img src="./docs/images/telas/veiculos.png" alt="Lista de veículos" width="420px"> | <img src="./docs/images/telas/analise-pendentes.png" alt="Pedidos pendentes de análise" width="420px"> |
+| **Execução do contrato com simulação (Price) e alerta de renda** | **Histórico de análises encerradas** |
+| <img src="./docs/images/telas/analise-contrato-simulacao.png" alt="Contrato com simulação de financiamento" width="420px"> | <img src="./docs/images/telas/analise-historico.png" alt="Histórico de análises" width="420px"> |
+
+### 🎨 Protótipo inicial
 
 Telas do protótipo que guiou a implementação (detalhes em [`docs/prototipo.md`](./docs/prototipo.md)):
 
