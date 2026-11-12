@@ -12,7 +12,7 @@
 > Plataforma web para **gestão de aluguéis de automóveis**: clientes criam, modificam, consultam e cancelam pedidos; agentes (bancos e empresas) analisam financeiramente os pedidos e, no caso dos bancos, concedem o contrato de crédito.
 
 > [!TIP]
-> **🚀 Experimente agora: [driveja-zeta.vercel.app](https://driveja-zeta.vercel.app)**
+> **🚀 Experimente agora: [driveja-zeta.vercel.app](https://driveja-zeta.vercel.app/)**
 > Na tela de login, use os botões **Cliente**, **Banco** ou **Empresa** para entrar sem cadastro. O servidor gratuito pode levar até 1 minuto para responder no primeiro acesso.
 
 <table>
@@ -106,7 +106,7 @@ Capturas da versão publicada, com dados de demonstração.
 * 📖 **Documentação de modelagem:** pasta [`docs/`](./docs)
   > 📚 **Descrição:** [Diagrama de Casos de Uso](./docs/Diagrama%20de%20Casos%20de%20Uso.pdf), [Diagrama de Classes](./docs/Diagrama%20de%20Classes.pdf), [Diagrama de Pacotes](./docs/Diagrama%20de%20Pacotes%20UML.pdf) e [Histórias de Usuário](./docs/historias_de_usuario.md).
 
-* 🚀 **Aplicação publicada:** [driveja-zeta.vercel.app](https://driveja-zeta.vercel.app)
+* 🚀 **Aplicação publicada:** [driveja-zeta.vercel.app](https://driveja-zeta.vercel.app/)
   > 🧪 **Descrição:** Front-end na Vercel, back-end no Render e banco no Supabase. A tela de login tem botões de acesso às contas de demonstração (cliente, banco e empresa). Detalhes em [Deploy](#-deploy).
 
 ---
@@ -450,7 +450,7 @@ npm run dev
 
 ## 🚀 Deploy
 
-Versão publicada: **https://driveja-zeta.vercel.app** (use os botões de demonstração na tela de login).
+Versão publicada: **https://driveja-zeta.vercel.app/** (use os botões de demonstração na tela de login).
 
 Arquitetura de publicação: **front-end na Vercel** (site estático), **back-end no Render** (contêiner Docker) e **banco no Supabase** (PostgreSQL).
 
