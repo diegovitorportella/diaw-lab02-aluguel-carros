@@ -11,6 +11,10 @@
 > [!NOTE]
 > Plataforma web para **gestão de aluguéis de automóveis**: clientes criam, modificam, consultam e cancelam pedidos; agentes (bancos e empresas) analisam financeiramente os pedidos e, no caso dos bancos, concedem o contrato de crédito.
 
+> [!TIP]
+> **🚀 Experimente agora: [driveja-zeta.vercel.app](https://driveja-zeta.vercel.app)**
+> Na tela de login, use os botões **Cliente**, **Banco** ou **Empresa** para entrar sem cadastro. O servidor gratuito pode levar até 1 minuto para responder no primeiro acesso.
+
 <table>
   <tr>
     <td width="800px">
@@ -25,6 +29,21 @@
     </td>
   </tr> 
 </table>
+
+---
+
+## 📸 Aplicação em funcionamento
+
+Capturas da versão publicada, com dados de demonstração.
+
+| | |
+| :---: | :---: |
+| **Login com acesso de demonstração** | **Meus pedidos (cliente): pista do pedido e status** |
+| <img src="./docs/images/telas/login.png" alt="Login com contas de demonstração" width="420px"> | <img src="./docs/images/telas/cliente-pedidos.png" alt="Pedidos do cliente com a pista de acompanhamento" width="420px"> |
+| **Veículos com placa Mercosul** | **Análise financeira: pedidos pendentes** |
+| <img src="./docs/images/telas/veiculos.png" alt="Lista de veículos" width="420px"> | <img src="./docs/images/telas/analise-pendentes.png" alt="Pedidos pendentes de análise" width="420px"> |
+| **Execução do contrato com financiamento (simulação pela tabela Price)** | **Histórico de análises encerradas** |
+| <img src="./docs/images/telas/analise-contrato-simulacao.png" alt="Contrato com simulação de financiamento" width="420px"> | <img src="./docs/images/telas/analise-historico.png" alt="Histórico de análises" width="420px"> |
 
 ---
 
@@ -45,6 +64,7 @@
 ---
 
 ## 📚 Índice
+- [Aplicação em funcionamento](#-aplicação-em-funcionamento)
 - [Links Úteis](#-links-úteis)
 - [Sobre o Projeto](#-sobre-o-projeto)
 - [Funcionalidades Principais](#-funcionalidades-principais)
@@ -67,7 +87,7 @@
 - [Deploy](#-deploy)
 - [Estrutura de Pastas](#-estrutura-de-pastas)
 - [Demonstração](#-demonstração)
-  - [Aplicação Web](#-aplicação-web)
+  - [Protótipo inicial](#-protótipo-inicial)
   - [Exemplo de saída no Terminal (API)](#-exemplo-de-saída-no-terminal-api)
 - [Testes](#-testes)
 - [Documentações utilizadas](#-documentações-utilizadas)
@@ -521,19 +541,6 @@ java -jar target/demo-0.0.1-SNAPSHOT.jar  # exige as variáveis do banco e JWT_S
 ---
 
 ## 🎥 Demonstração
-
-### 🌐 Aplicação em funcionamento
-
-Capturas da versão publicada, com dados de demonstração (link em [Links Úteis](#-links-úteis)).
-
-| | |
-| :---: | :---: |
-| **Login com acesso de demonstração** | **Meus pedidos (cliente): pista do pedido e status** |
-| <img src="./docs/images/telas/login.png" alt="Login com contas de demonstração" width="420px"> | <img src="./docs/images/telas/cliente-pedidos.png" alt="Pedidos do cliente com a pista de acompanhamento" width="420px"> |
-| **Veículos com placa Mercosul** | **Análise financeira: pedidos pendentes** |
-| <img src="./docs/images/telas/veiculos.png" alt="Lista de veículos" width="420px"> | <img src="./docs/images/telas/analise-pendentes.png" alt="Pedidos pendentes de análise" width="420px"> |
-| **Execução do contrato com simulação (Price) e alerta de renda** | **Histórico de análises encerradas** |
-| <img src="./docs/images/telas/analise-contrato-simulacao.png" alt="Contrato com simulação de financiamento" width="420px"> | <img src="./docs/images/telas/analise-historico.png" alt="Histórico de análises" width="420px"> |
 
 ### 🎨 Protótipo inicial
 
