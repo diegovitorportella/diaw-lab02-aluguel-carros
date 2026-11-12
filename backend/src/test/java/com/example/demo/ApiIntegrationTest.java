@@ -244,6 +244,13 @@ class ApiIntegrationTest {
     }
 
     @Test
+    void healthEhPublicoEConsultaOBanco() throws Exception {
+        enviar(get("/api/health"), null, null)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("ok"));
+    }
+
+    @Test
     void somenteAgenteListaClientes() throws Exception {
         String cliente = tokenDeNovoCliente();
         enviar(get("/api/clientes"), cliente, null).andExpect(status().isForbidden());

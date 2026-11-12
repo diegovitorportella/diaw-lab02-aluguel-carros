@@ -52,6 +52,7 @@ public class SecurityConfig {
                         // Rotas públicas: login e autocadastro de cliente
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/clientes").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/health").permitAll() // monitoramento
                         // Somente agentes (banco/empresa)
                         .requestMatchers(HttpMethod.GET, "/api/clientes").hasRole("AGENTE")
                         .requestMatchers(HttpMethod.PUT, "/api/pedidos/*/avaliar").hasRole("AGENTE")
