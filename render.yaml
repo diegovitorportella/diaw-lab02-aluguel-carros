@@ -17,6 +17,9 @@ services:
         sync: false
       - key: SPRING_DATASOURCE_PASSWORD
         sync: false
+      # contas públicas demo.cliente / demo.banco / demo.empresa (senha demo12345) para visitantes explorarem
+      - key: DEMO_ENABLED
+        value: "true"
       - key: JWT_SECRET
         generateValue: true # chave aleatória forte, mantida entre deploys
       - key: SEED_SENHA
