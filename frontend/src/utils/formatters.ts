@@ -76,3 +76,18 @@ export function contarDiarias(inicio: string, fim: string): number {
   if (Number.isNaN(ms) || ms < 0) return 0;
   return Math.round(ms / 86_400_000) + 1;
 }
+
+/** Gera um CPF fictício com dígitos verificadores válidos (apenas para testes e demonstração). */
+export function gerarCpfDeTeste(): string {
+  const base = Array.from({ length: 9 }, () => Math.floor(Math.random() * 10));
+  // evita sequências repetidas (ex.: 111.111.111-11), que não são aceitas
+  if (base.every((d) => d === base[0])) base[8] = (base[0] + 1) % 10;
+  const digito = (digitos: number[]) => {
+    const soma = digitos.reduce((acc, d, i) => acc + d * (digitos.length + 1 - i), 0);
+    const resto = (soma * 10) % 11;
+    return resto === 10 ? 0 : resto;
+  };
+  const d1 = digito(base);
+  const d2 = digito([...base, d1]);
+  return [...base, d1, d2].join("");
+}

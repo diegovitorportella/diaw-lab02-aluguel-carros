@@ -6,21 +6,44 @@ import Icon from "../components/Icon";
 import Placa from "../components/Placa";
 import { api } from "../services/api";
 
+// Acesso rápido da versão publicada (VITE_MODO_DEMO=true). As contas e a senha pública são criadas
+// no back-end quando DEMO_ENABLED=true.
+const MODO_DEMO = import.meta.env.VITE_MODO_DEMO === "true";
+const SENHA_DEMO = "demo12345";
+const CONTAS_DEMO = [
+  { login: "demo.cliente", titulo: "Cliente", descricao: "Pede, modifica e cancela aluguéis" },
+  { login: "demo.banco", titulo: "Banco", descricao: "Analisa e concede financiamento" },
+  { login: "demo.empresa", titulo: "Empresa", descricao: "Analisa e executa contratos" },
+];
+
 export default function Login({ onLogin, onRegister }: { onLogin: (user: any) => void; onRegister: () => void }) {
   const [visible, setVisible] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [carregando, setCarregando] = useState(false);
 
-  const submit = async (event: FormEvent) => {
-    event.preventDefault();
+  const entrar = async (login: string, senha: string) => {
+    if (carregando) return;
     setError("");
+    setCarregando(true);
     try {
-      const userData = await api.login({ login: username, senha: password });
+      const userData = await api.login({ login, senha });
       onLogin(userData); // Passa os dados reais para o App
     } catch (err) {
-      setError("Credenciais inválidas. Verifique e tente novamente.");
+      setError(
+        err instanceof TypeError
+          ? "Não foi possível conectar ao servidor. Aguarde alguns segundos e tente de novo."
+          : "Credenciais inválidas. Verifique e tente novamente.",
+      );
+    } finally {
+      setCarregando(false);
     }
+  };
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    entrar(username, password);
   };
 
   return (
@@ -101,9 +124,17 @@ export default function Login({ onLogin, onRegister }: { onLogin: (user: any) =>
                 className="w-full bg-transparent outline-none text-slate-900"
               />
             </Field>
-            <button className="mt-2 w-full rounded-lg bg-blue-600 px-5 py-3.5 font-bold text-white transition hover:bg-blue-700">
-              Entrar
+            <button
+              disabled={carregando}
+              className="mt-2 w-full rounded-lg bg-blue-600 px-5 py-3.5 font-bold text-white transition hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60"
+            >
+              {carregando ? "Conectando..." : "Entrar"}
             </button>
+            {carregando && (
+              <p className="text-center text-xs text-slate-500">
+                O servidor de demonstração pode levar até 1 minuto para acordar na primeira vez.
+              </p>
+            )}
           </form>
           <p className="mt-6 text-center text-sm text-slate-500">
             Ainda não tem conta?{" "}
@@ -111,6 +142,27 @@ export default function Login({ onLogin, onRegister }: { onLogin: (user: any) =>
               Cadastre-se
             </button>
           </p>
+
+          {MODO_DEMO && (
+            <div className="mt-8 rounded-lg border border-slate-200 bg-slate-50 p-5">
+              <h3 className="text-base font-bold text-slate-950">Conhecer o sistema sem cadastro</h3>
+              <p className="mt-1 text-sm text-slate-600">Entre com uma conta de demonstração e explore à vontade.</p>
+              <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                {CONTAS_DEMO.map((conta) => (
+                  <button
+                    key={conta.login}
+                    type="button"
+                    disabled={carregando}
+                    onClick={() => entrar(conta.login, SENHA_DEMO)}
+                    className="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-left transition hover:border-blue-600 disabled:cursor-wait disabled:opacity-60"
+                  >
+                    <span className="block text-sm font-bold text-slate-900">{conta.titulo}</span>
+                    <span className="block text-xs text-slate-500">{conta.descricao}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
     </main>

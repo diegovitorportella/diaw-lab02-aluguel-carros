@@ -5,7 +5,7 @@ import Icon from "../components/Icon";
 import TextInput from "../components/TextInput";
 import { useToast } from "../components/Toast";
 import { api, ApiError } from "../services/api";
-import { cpfValido, mascaraCpf, parseMoeda } from "../utils/formatters";
+import { cpfValido, gerarCpfDeTeste, mascaraCpf, parseMoeda } from "../utils/formatters";
 
 type Erros = Record<string, string>;
 
@@ -124,7 +124,12 @@ export default function ClientRegistration() {
           </div>
           <div className="form-grid">
             <TextInput label="Nome completo" value={nome} onChange={e => setNome(e.target.value)} wide error={erros.nome} />
-            <TextInput label="CPF" value={cpf} onChange={e => setCpf(mascaraCpf(e.target.value))} inputMode="numeric" placeholder="000.000.000-00" maxLength={14} error={erros.cpf} />
+            <div>
+              <TextInput label="CPF" value={cpf} onChange={e => setCpf(mascaraCpf(e.target.value))} inputMode="numeric" placeholder="000.000.000-00" maxLength={14} error={erros.cpf} hint="Os dígitos verificadores são conferidos, então o CPF precisa ser válido." />
+              <button type="button" onClick={() => setCpf(mascaraCpf(gerarCpfDeTeste()))} className="mt-1 text-xs font-semibold text-blue-600 hover:text-blue-700">
+                Gerar CPF de teste
+              </button>
+            </div>
             <TextInput label="RG" value={rg} onChange={e => setRg(e.target.value)} placeholder="Ex: MG-12.345.678" maxLength={20} error={erros.rg} />
             <TextInput label="Endereço" value={endereco} onChange={e => setEndereco(e.target.value)} placeholder="Rua, número, bairro, cidade" wide error={erros.endereco} />
             <TextInput label="Profissão" value={profissao} onChange={e => setProfissao(e.target.value)} error={erros.profissao} />

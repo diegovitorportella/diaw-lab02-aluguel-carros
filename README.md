@@ -429,6 +429,8 @@ npm run dev
 
 ## 🚀 Deploy
 
+Versão publicada: **https://driveja-zeta.vercel.app** (use os botões de demonstração na tela de login).
+
 Arquitetura de publicação: **front-end na Vercel** (site estático), **back-end no Render** (contêiner Docker) e **banco no Supabase** (PostgreSQL).
 
 ### 1. Back-end no Render
@@ -442,6 +444,7 @@ Arquitetura de publicação: **front-end na Vercel** (site estático), **back-en
 | `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD` | usuário e senha do banco |
 | `SEED_SENHA` | senha dos agentes de demonstração `banco.agente` e `empresa.agente` |
 | `CORS_ORIGINS` | URL do front-end na Vercel (várias separadas por vírgula) |
+| `DEMO_ENABLED` | `true` cria as contas públicas `demo.cliente`, `demo.banco` e `demo.empresa` (senha `demo12345`) e um veículo de exemplo; use só na versão de exibição |
 | `JWT_SECRET` | gerada automaticamente pelo Render |
 
 O perfil `seed` (definido no blueprint) cria os agentes de demonstração com a senha de `SEED_SENHA`. Sem esse perfil não há como logar como banco ou empresa, pois não existe tela de cadastro de agentes.
@@ -450,7 +453,8 @@ O perfil `seed` (definido no blueprint) cria os agentes de demonstração com a 
 
 1. Importe o repositório na Vercel com **Root Directory = `frontend`** (preset Vite).
 2. Em *Settings → Environment Variables*, defina `VITE_API_URL` com a URL do back-end: `https://<servico>.onrender.com/api`.
-3. Depois do deploy, copie a URL da Vercel para `CORS_ORIGINS` no Render.
+3. Para mostrar os botões de acesso rápido às contas de demonstração na tela de login, defina também `VITE_MODO_DEMO=true`.
+4. Depois do deploy, copie a URL da Vercel para `CORS_ORIGINS` no Render.
 
 > O plano gratuito do Render hiberna o serviço após alguns minutos sem uso: a primeira chamada depois disso pode levar cerca de 1 minuto.
 
