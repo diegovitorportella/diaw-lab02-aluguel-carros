@@ -251,6 +251,11 @@ class ApiIntegrationTest {
     }
 
     @Test
+    void healthAceitaHeadParaOsMonitoresDeDisponibilidade() throws Exception {
+        enviar(head("/api/health"), null, null).andExpect(status().isOk());
+    }
+
+    @Test
     void somenteAgenteListaClientes() throws Exception {
         String cliente = tokenDeNovoCliente();
         enviar(get("/api/clientes"), cliente, null).andExpect(status().isForbidden());
