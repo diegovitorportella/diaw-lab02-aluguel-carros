@@ -668,6 +668,7 @@ Com back-end e front-end em execução, valide o fluxo completo:
 
 ## 🔗 Documentações utilizadas
 
+* 🖼️ **Fotos dos veículos:** [Wikimedia Commons](https://commons.wikimedia.org/) (licenças Creative Commons). Autores e licenças em [`docs/CREDITOS_FOTOS.md`](./docs/CREDITOS_FOTOS.md).
 * 📖 **Framework/Biblioteca (Front-end):** [Documentação Oficial do **React**](https://react.dev/reference/react)
 * 📖 **Build Tool (Front-end):** [Guia de Configuração do **Vite**](https://vitejs.dev/config/)
 * 📖 **Estilização:** [Documentação do **Tailwind CSS**](https://tailwindcss.com/docs)
