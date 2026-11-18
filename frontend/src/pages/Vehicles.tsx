@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Icon from "../components/Icon";
+import FotoVeiculo from "../components/FotoVeiculo";
 import Placa from "../components/Placa";
 import TextInput from "../components/TextInput";
 import { useToast } from "../components/Toast";
@@ -146,26 +147,30 @@ export default function Vehicles({ user }: { user?: any }) {
         {veiculos.map((carro) => {
           const meu = carro.proprietario?.id === user?.id;
           return (
-            <div key={carro.id} className="card p-5">
-              <Placa placa={carro.placa} tamanho="lg" />
-              <h3 className="mt-4 text-lg font-bold tracking-[-.01em] text-slate-950">{carro.marca} {carro.modelo}</h3>
-              <p className="mt-0.5 text-sm text-slate-500">Ano {carro.ano}</p>
-              <p className="mt-3 font-display text-xl font-bold text-slate-950">
-                {carro.valorDiaria != null ? (
-                  <>{formatarMoeda(carro.valorDiaria)} <span className="font-sans text-sm font-medium text-slate-500">por dia</span></>
-                ) : (
-                  <span className="font-sans text-sm font-semibold text-amber-700">Diária não informada</span>
+            <div key={carro.id} className="card flex flex-col overflow-hidden">
+              <FotoVeiculo carro={carro}>
+                <Placa placa={carro.placa} tamanho="md" />
+              </FotoVeiculo>
+              <div className="flex flex-1 flex-col p-5 pt-8">
+                <h3 className="text-lg font-bold tracking-[-.01em] text-slate-950">{carro.marca} {carro.modelo}</h3>
+                <p className="mt-0.5 text-sm text-slate-500">Ano {carro.ano}</p>
+                <p className="mt-3 font-display text-xl font-bold text-slate-950">
+                  {carro.valorDiaria != null ? (
+                    <>{formatarMoeda(carro.valorDiaria)} <span className="font-sans text-sm font-medium text-slate-500">por dia</span></>
+                  ) : (
+                    <span className="font-sans text-sm font-semibold text-amber-700">Diária não informada</span>
+                  )}
+                </p>
+                <p className="mt-2 text-xs text-slate-500">
+                  Proprietário: {meu ? "você" : nomeProprietario(carro)}
+                </p>
+                {meu && (
+                  <div className="mt-auto flex gap-3 pt-4">
+                    <button onClick={() => abrirEdicao(carro)} className="button-secondary flex-1">Editar</button>
+                    <button onClick={() => excluirVeiculo(carro)} className="button-secondary flex-1 text-red-600">Excluir</button>
+                  </div>
                 )}
-              </p>
-              <p className="mt-2 text-xs text-slate-500">
-                Proprietário: {meu ? "você" : nomeProprietario(carro)}
-              </p>
-              {meu && (
-                <div className="mt-4 flex gap-3">
-                  <button onClick={() => abrirEdicao(carro)} className="button-secondary flex-1">Editar</button>
-                  <button onClick={() => excluirVeiculo(carro)} className="button-secondary flex-1 text-red-600">Excluir</button>
-                </div>
-              )}
+              </div>
             </div>
           );
         })}
