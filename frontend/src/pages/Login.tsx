@@ -4,6 +4,7 @@ import Logo from "../components/Logo";
 import Field from "../components/Field";
 import Icon from "../components/Icon";
 import Placa from "../components/Placa";
+import fotoLogin from "../assets/carros/login.webp";
 import { api } from "../services/api";
 
 // Acesso rápido da versão publicada (VITE_MODO_DEMO=true). As contas e a senha pública são criadas
@@ -48,24 +49,47 @@ export default function Login({ onLogin, onRegister }: { onLogin: (user: any) =>
 
   return (
     <main className="grid min-h-screen bg-white lg:grid-cols-[1.08fr_.92fr]">
-      <section className="relative hidden overflow-hidden bg-slate-950 p-12 lg:flex lg:flex-col">
-        <Logo light />
+      <section className="relative isolate hidden overflow-hidden bg-slate-950 py-12 lg:flex lg:flex-col">
+        {/* Fundo: a foto atrás de uma camada de cobalto translúcida, que se dissolve na tinta onde fica o texto */}
+        <div
+          className="absolute inset-x-0 top-0 -z-10 h-[74%]"
+          aria-hidden="true"
+          style={{
+            maskImage: "linear-gradient(to bottom, #000 0, #000 52%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, #000 0, #000 52%, transparent 100%)",
+          }}
+        >
+          <img src={fotoLogin} alt="" className="h-full w-full object-cover" style={{ objectPosition: "78% 50%" }} />
+          {/* O topo é quase tinta sólida: a logo (com o "D" azul) fica sobre o fundo escuro em que aparece bem.
+              Abaixo dele, o cobalto translúcido deixa o carro aparecer. */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(180deg, rgb(15 27 42 / .97) 0%, rgb(15 27 42 / .94) 11%, rgb(11 75 224 / .62) 30%, rgb(11 75 224 / .36) 55%, rgb(10 29 82 / .6) 100%)",
+            }}
+          />
+        </div>
 
-        {/* Assinatura da marca: a placa chegando, com o rastro âmbar da logo */}
-        <div className="my-auto flex items-center py-10" aria-hidden="true">
-          <div className="mr-5 flex flex-col items-end gap-3">
-            {["11rem", "7.5rem", "13.5rem"].map((largura, i) => (
+        <div className="px-12">
+          <Logo light />
+        </div>
+
+        {/* Assinatura: o rastro âmbar nasce na borda do painel e a placa chega ao final dele */}
+        <div className="mt-auto flex items-center pb-8" aria-hidden="true">
+          <div className="mr-4 flex w-40 flex-col items-end gap-2">
+            {["100%", "58%", "82%"].map((largura, i) => (
               <span
                 key={largura}
-                className="pista-trecho block h-[7px] rounded-full bg-amber-500"
+                className="pista-trecho block h-1 rounded-r-full bg-amber-500"
                 style={{ width: largura, transformOrigin: "right center", animationDelay: `${i * 90}ms` }}
               />
             ))}
           </div>
-          <Placa placa="DRV1J25" tamanho="xl" />
+          <Placa placa="DRV1J25" tamanho="lg" />
         </div>
 
-        <div className="max-w-xl pb-6">
+        <div className="max-w-2xl px-12 pb-6">
           <h1 className="text-5xl font-bold leading-[1.08] tracking-[-.012em] text-white">
             Do pedido ao contrato, no mesmo lugar.
           </h1>
